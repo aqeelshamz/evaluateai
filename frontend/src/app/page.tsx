@@ -1,7 +1,184 @@
+"use client";
+import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiCopy, FiMoon, FiType, FiFileText, FiEdit, FiTrash, FiMenu, FiArrowRight, FiShoppingCart, FiShoppingBag } from "react-icons/fi";
+import Link from "next/link";
+import { appName } from "@/utils/utils";
+
 export default function Home() {
+  const [theme, setTheme] = useState<null | any | string>(
+    "light"
+  );
+
+  const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
+  const [showMenu, setShowMenu] = useState<boolean>(false);
+  const [user, setUser] = useState<any>({});
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [evaluators, setEvaluators] = useState<any[]>([]);
+  const [selectedEvaluator, setSelectedEvaluator] = useState<number>(-1);
+  const [newEvaluatorTitle, setNewEvaluatorTitle] = useState<string>("");
+  const [loadingEvaluator, setLoadingEvaluator] = useState<boolean>(false);
+  const [creatingEvaluator, setCreatingEvaluator] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setTheme(localStorage.getItem("theme") ? localStorage.getItem("theme") : "light");
+      if (!localStorage.getItem("token")) {
+        window.location.href = "/login";
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+    const localTheme: string = localStorage.getItem("theme")!.toString();
+    document.querySelector("html")!.setAttribute("data-theme", localTheme);
+  }, [theme]);
+
   return (
-    <main>
-      <p>Hello World</p>
-    </main>
+    <main className="flex bg-base-100 h-screen w-screen p-2 max-sm:p-0" onClick={() => {
+      if (moreMenuOpen) setMoreMenuOpen(false);
+    }}>
+      {/* Sidebar */}
+      <div className={'flex flex-col p-5 min-w-[275px] max-w-[15vw] h-full rounded-md ' + (!showMenu ? "max-sm:hidden " : "max-sm:fixed max-sm:w-full max-sm:h-full max-sm:max-w-none bg-base-100 max-sm:z-50 ")}>
+        <div className="flex justify-between items-center max-sm:mb-4">
+          <p className="mb-5 font-semibold max-sm:mb-3">🤖 {appName} 📝<Link href="/shop"></Link></p>
+          <div className="hidden max-sm:flex justify-end mb-3">
+            <button className="btn btn-square btn-sm" onClick={() => setShowMenu(false)}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </div>
+        <label className='btn btn-primary' htmlFor='newevaluator_modal' onClick={() => { }}><FiPlus /> NEW EVALUATOR</label>
+        <div className='p-0 my-2 h-full w-full overflow-hidden hover:overflow-y-auto'>
+          {
+            evaluators.map((evaluator: any, i: number) => {
+              return <div key={i} className={(selectedEvaluator === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => { setSelectedEvaluator(i); setShowMenu(false) }}>
+                <div className='flex justify-start items-center'>
+                  <div className='w-fit mr-2'>
+                    <FiFileText />
+                  </div>
+                  <div className='flex flex-col items-start'>
+                    <p className='text-sm text-ellipsis line-clamp-1 font-semibold'>{evaluator.title}</p>
+                  </div>
+                </div>
+                {selectedEvaluator === i ?
+                  <div className='flex mt-2'>
+                    <label htmlFor='editevaluator_modal' className='cursor-pointer flex justify-center items-center w-full p-2 bg-base-300 rounded-md mr-1 hover:bg-gray-500 hover:text-white' onClick={() => setNewEvaluatorTitle(evaluators[i].title)}>
+                      <FiEdit /><p className='ml-2 text-xs'>Edit</p>
+                    </label>
+                    <label htmlFor='deleteevaluator_modal' className='cursor-pointer flex justify-center items-center w-full p-2 bg-base-300 rounded-md hover:bg-red-500 hover:text-white'>
+                      <FiTrash /><p className='ml-2 text-xs'>Delete</p>
+                    </label>
+                  </div> : ""}
+              </div>
+            })
+          }
+        </div>
+        <hr />
+        <div className="flex items-center justify-between my-4">
+          <p>0 rewrites left</p>
+          <Link href="/shop"><button className="btn btn-sm"><FiShoppingCart /> SHOP</button></Link>
+        </div>
+        {user?.type === "admin" ? <Link href="/admin/dashboard"><label className='btn mb-2 w-full'><FiUser /> ADMIN PANEL <FiArrowRight /></label></Link> : ""}
+        <div tabIndex={0} className='cursor-pointer dropdown dropdown-top flex items-center hover:bg-base-200 p-2 rounded-lg'>
+          <div className='flex items-center justify-between w-full'>
+            <div className='flex items-center'>
+              <div className="avatar placeholder mr-2">
+                <div className="bg-blue-700 text-white mask mask-squircle w-10">
+                  <span><FiUser /></span>
+                </div>
+              </div>
+              <p className='font-semibold'>{user?.name}</p>
+            </div>
+            <FiMoreHorizontal />
+          </div>
+          <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mb-2">
+            <label htmlFor='settings_modal'><li className='flex'><p><FiSettings />Settings</p></li></label>
+            <Link href="/shop"><label><li className='flex'><p><FiShoppingCart />Shop</p></li></label></Link>
+            <Link href="/purchases"><label><li className='flex'><p><FiShoppingBag />My Purchases</p></li></label></Link>
+            <hr className='my-2' />
+            <li className='flex' onClick={() => {
+              localStorage.clear()
+              window.location.href = "/login";
+            }}><p><FiLogOut className="text-red-600" />Logout</p></li>
+          </ul>
+        </div>
+      </div>
+      {/* Main */}
+      <div className='flex flex-col items-center justify-center ml-2 p-5 border-base-300 border-[1px] w-full h-full rounded-lg 2xl:items-center max-sm:ml-0 max-sm:border-none max-sm:p-2 max-sm:items-start max-sm:justify-start'>
+        {(loadingEvaluator || creatingEvaluator) ? <div className="flex items-center"><span className="loading loading-spinner mr-4"></span><p>{loadingEvaluator ? "Loading" : "Creating"} Evaluator...</p></div> : selectedEvaluator === -1 ? <div className='select-none flex flex-col justify-center items-center w-full h-full'>
+          <p className='text-5xl font-semibold mb-2'>🤖 {appName} 📝</p>
+          <p className='text-center'>Create a new evaluator or select an existing evaluator to get started.</p>
+          <div className='flex flex-wrap justify-center mt-7'>
+            <div className='bg-base-300 rounded-lg p-4 hover:bg-base-200 max-w-xs m-2'>
+              <p className='font-semibold text-md mb-2'>✨ AI Rewriting & Grammar Check</p>
+              <p className='text-sm opacity-70'>Effortlessly enhance your writing with AI-powered rewriting and precise grammar checking.</p>
+            </div>
+            <div className='bg-base-300 rounded-lg p-4 hover:bg-base-200 max-w-xs m-2'>
+              <p className='font-semibold text-md mb-2'>🎭 Rewrites in Custom Tones & Length</p>
+              <p className='text-sm opacity-70'>Personalize your text with customizable rewrites in various tones and lengths.</p>
+            </div>
+            <div className='bg-base-300 rounded-lg p-4 hover:bg-base-200 max-w-xs m-2'>
+              <p className='font-semibold text-md mb-2'>📝 Multiple Evaluator Creation</p>
+              <p className='text-sm opacity-70'>Seamlessly create and manage multiple evaluators for all your writing needs.</p>
+            </div>
+          </div>
+          <div className='flex mt-5'>
+            Press <kbd className="kbd kbd-sm mx-2">Alt</kbd> + <kbd className="kbd kbd-sm mx-2">N</kbd> to create a new evaluator.
+          </div>
+        </div> : <div className="animate-fade-in-bottom flex flex-col w-full max-w-[50vw] max-sm:max-w-none">
+          <div className="hidden max-sm:flex justify-end mb-3">
+            <button className="btn btn-square" onClick={() => setSelectedEvaluator(-1)}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div className="flex mb-4 items-center max-sm:flex-wrap">
+            <p className="mr-2 font-semibold">Tone: </p>
+            {
+              ["✨ Normal", "👟 Casual", "💼 Formal", "📝 Academic", "📖 Creative"].map((e, i: number) => {
+                return <button className={'btn btn-sm mr-2 max-sm:mb-2 ' + (0 == i ? 'btn-primary' : '')} onClick={() => {}}>{e}</button>
+              })
+            }
+          </div>
+          <div className="flex mb-4 items-center max-sm:flex-wrap">
+            <p className="mr-2 font-semibold">Length: </p>
+            {
+              ["📝 Short", "📄 Medium", "📚 Long"].map((e, i: number) => {
+                return <button className={'btn btn-sm mr-2 max-sm:mb-2 ' + (0 == i ? 'btn-primary' : '')} onClick={() => {}}>{e}</button>
+              })
+            }
+          </div>
+          <div className="flex mb-3 items-center">
+            <p className="mr-2 font-semibold">Rewrites: </p>
+            <input type="number" className="input input-bordered w-20" onChange={(x) => {}} value={1} min={1} max={10} placeholder="1" />
+          </div>
+          <p className="flex items-center font-semibold text-xl mb-1 mt-4"><FiFileText className="mr-2" /> {evaluators[selectedEvaluator]?.title}</p>
+          <textarea className='bg-base-100 mt-5 text-md min-h-[25vh] p-2 rounded-md outline-none border-2 border-base-300' onChange={(x) => {}} placeholder='Write or paste your text here...' autoFocus></textarea>
+          <div className="flex mt-2"><label htmlFor="generatetext_modal" className="btn btn-xs max-sm:btn-sm">Generate text with AI</label></div>
+          <div className="mt-7 flex items-center max-sm:flex-col">
+            <button className={'btn btn-primary max-sm:w-full max-sm:mb-3 ' + (loading ? "opacity-50" : "")} onClick={() => {}}>{loading ? <span className="loading loading-spinner"></span> : "📝 "}Rewrite</button>
+            <details className="dropdown dropdown-top max-sm:w-full" onToggle={(x) => setMoreMenuOpen(x.currentTarget.open)} open={moreMenuOpen}>
+              <summary tabIndex={0} className='btn ml-2 max-sm:w-full max-sm:ml-0'>✨ More</summary>
+              <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li onClick={() => { setMoreMenuOpen(false) }}><a>➡️ Continue Writing</a></li>
+                <li onClick={() => { setMoreMenuOpen(false) }}><a>📝 Summarise</a></li>
+                <li onClick={() => { setMoreMenuOpen(false) }}><a>🧠 Explain</a></li>
+                <li onClick={() => { setMoreMenuOpen(false) }}><a>☝️ Give an example</a></li>
+                <li onClick={() => { setMoreMenuOpen(false) }}><a>🎯 Counterargument</a></li>
+                <li onClick={() => { setMoreMenuOpen(false) }}><a>📖 Define</a></li>
+                <li onClick={() => { setMoreMenuOpen(false) }}><a>✏️ Shorten</a></li>
+                <li onClick={() => { setMoreMenuOpen(false) }}><a>📚 Expand</a></li>
+              </ul>
+            </details>
+          </div>
+          <p className="mt-3 text-sm text-gray-500">1 rewrites left</p>
+        </div>}
+        <label htmlFor='newevaluator_modal' className='sm:hidden absolute right-5 bottom-5 btn btn-primary btn-square'><FiPlus /></label>
+        {selectedEvaluator === -1 ? <button className='sm:hidden absolute left-5 top-5 btn btn-square' onClick={() => setShowMenu(!showMenu)}><FiMenu /></button> : ""}
+      </div>
+      <ToastContainer />
+    </main >
   );
 }
