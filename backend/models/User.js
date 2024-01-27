@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema(
             minlength: 6
         },
         type: {
-            type: String,
+            type: Number,
             enum: [0, 1], // 0: admin, 1: user
             default: 1,
         },

@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
 import userRouter from "./routes/users.js";
+import evaluateRouter from "./routes/evaluate.js";
+import shopRouter from "./routes/shop.js";
 
 dotenv.config();
 
@@ -12,6 +14,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/users", userRouter);
+app.use("/evaluate", evaluateRouter);
+app.use("/shop", shopRouter);
 
 app.get("/", (req, res) => {
     res.send("EvaluateAI API");

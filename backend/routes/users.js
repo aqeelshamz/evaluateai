@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import EmailVerification from "../models/EmailVerification.js";
 import nodemailer from "nodemailer";
 import smtpTransport from "nodemailer-smtp-transport";
+import Limits from "../models/Limits.js";
 
 dotenv.config();
 
@@ -39,15 +40,22 @@ router.post("/signup", async (req, res) => {
             name: data.name,
             email: data.email,
             password: hashedPassword,
-            type: users.length == 0 ? "admin" : "user",
+            type: users.length == 0 ? 0 : 1,
         });
 
         const savedUser = await newUser.save();
 
-        await rewrites.save();
+        const newLimits = new Limits({
+            userId: savedUser._id,
+            evaluatorLimit: 2,
+            evaluationLimit: 5,
+        });
+
+        await newLimits.save();
 
         return res.send(savedUser);
     } catch (err) {
+        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -185,6 +193,7 @@ router.post("/verify-email", async (req, res) => {
             return res.status(400).send("Invalid code");
         }
     } catch (err) {
+        console.log(err)
         return res.status(500).send(err);
     }
 });
