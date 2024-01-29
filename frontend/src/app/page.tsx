@@ -1,9 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ToastContainer } from "react-toastify";
-import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiCopy, FiMoon, FiType, FiFileText, FiEdit, FiTrash, FiMenu, FiArrowRight, FiShoppingCart, FiShoppingBag } from "react-icons/fi";
+import { ToastContainer, toast } from "react-toastify";
+import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiMenu, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey } from "react-icons/fi";
 import Link from "next/link";
-import { appName } from "@/utils/utils";
+import { appName, serverURL } from "@/utils/utils";
+import { UploadDropzone } from "@/utils/uploadthing";
+import axios from "axios";
 
 export default function Home() {
   const [theme, setTheme] = useState<null | any | string>(
@@ -21,7 +23,11 @@ export default function Home() {
   const [loadingEvaluator, setLoadingEvaluator] = useState<boolean>(false);
   const [creatingEvaluator, setCreatingEvaluator] = useState<boolean>(false);
 
+  const [newEvaluatorQuestionPapers, setNewEvaluatorQuestionPapers] = useState<string[]>([]);
+  const [newEvaluatorAnswerKeys, setNewEvaluatorAnswerKeys] = useState<string[]>([]);
+
   useEffect(() => {
+    getEvaluators();
     if (typeof window !== 'undefined') {
       setTheme(localStorage.getItem("theme") ? localStorage.getItem("theme") : "light");
       if (!localStorage.getItem("token")) {
@@ -35,6 +41,80 @@ export default function Home() {
     const localTheme: string = localStorage.getItem("theme")!.toString();
     document.querySelector("html")!.setAttribute("data-theme", localTheme);
   }, [theme]);
+
+  const getEvaluators = () => {
+    const config = {
+      method: "GET",
+      url: `${serverURL}/evaluate/evaluators`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+      },
+    };
+
+    axios(config).then((response) => {
+      setEvaluators(response.data.evaluators);
+      setUser(response.data.user);
+    });
+  }
+
+  const createEvaluator = () => {
+    if (newEvaluatorTitle === '' || newEvaluatorQuestionPapers.length === 0 || newEvaluatorAnswerKeys.length === 0) {
+      return toast.error("Please fill all the fields!");
+    }
+
+    setCreatingEvaluator(true);
+
+    const config = {
+      method: "POST",
+      url: `${serverURL}/evaluate/evaluators/create`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": `application/json`,
+      },
+      data: {
+        "title": newEvaluatorTitle,
+        "questionPapers": newEvaluatorQuestionPapers,
+        "answerKeys": newEvaluatorAnswerKeys,
+      }
+    };
+
+    axios(config).then((response) => {
+      toast.success("Evaluator Created!");
+      setNewEvaluatorTitle("");
+      setNewEvaluatorQuestionPapers([]);
+      setNewEvaluatorAnswerKeys([]);
+      setSelectedEvaluator(0);
+      getEvaluators();
+      setCreatingEvaluator(false);
+    }).catch((error) => {
+      toast.error("Something went wrong!");
+      setCreatingEvaluator(false);
+    });
+  }
+
+  const deleteEvaluator = async () => {
+    const config = {
+      method: "POST",
+      url: `${serverURL}/evaluate/evaluators/delete`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": `application/json`,
+      },
+      data: {
+        evaluatorId: evaluators[selectedEvaluator]?._id
+      }
+    };
+
+    axios(config)
+      .then((response) => {
+        getEvaluators();
+        setSelectedEvaluator(-1);
+        toast.success("Evaluator deleted!");
+      })
+      .catch((error) => {
+        toast.error("Failed to delete document");
+      });
+  }
 
   return (
     <main className="flex bg-base-100 h-screen w-screen p-2 max-sm:p-0" onClick={() => {
@@ -53,7 +133,7 @@ export default function Home() {
         <label className='btn btn-primary' htmlFor='newevaluator_modal' onClick={() => { }}><FiPlus /> NEW EVALUATOR</label>
         <div className='p-0 my-2 h-full w-full overflow-hidden hover:overflow-y-auto'>
           {
-            evaluators.map((evaluator: any, i: number) => {
+            evaluators?.map((evaluator: any, i: number) => {
               return <div key={i} className={(selectedEvaluator === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => { setSelectedEvaluator(i); setShowMenu(false) }}>
                 <div className='flex justify-start items-center'>
                   <div className='w-fit mr-2'>
@@ -138,7 +218,7 @@ export default function Home() {
             <p className="mr-2 font-semibold">Tone: </p>
             {
               ["✨ Normal", "👟 Casual", "💼 Formal", "📝 Academic", "📖 Creative"].map((e, i: number) => {
-                return <button className={'btn btn-sm mr-2 max-sm:mb-2 ' + (0 == i ? 'btn-primary' : '')} onClick={() => {}}>{e}</button>
+                return <button className={'btn btn-sm mr-2 max-sm:mb-2 ' + (0 == i ? 'btn-primary' : '')} onClick={() => { }}>{e}</button>
               })
             }
           </div>
@@ -146,19 +226,19 @@ export default function Home() {
             <p className="mr-2 font-semibold">Length: </p>
             {
               ["📝 Short", "📄 Medium", "📚 Long"].map((e, i: number) => {
-                return <button className={'btn btn-sm mr-2 max-sm:mb-2 ' + (0 == i ? 'btn-primary' : '')} onClick={() => {}}>{e}</button>
+                return <button className={'btn btn-sm mr-2 max-sm:mb-2 ' + (0 == i ? 'btn-primary' : '')} onClick={() => { }}>{e}</button>
               })
             }
           </div>
           <div className="flex mb-3 items-center">
             <p className="mr-2 font-semibold">Rewrites: </p>
-            <input type="number" className="input input-bordered w-20" onChange={(x) => {}} value={1} min={1} max={10} placeholder="1" />
+            <input type="number" className="input input-bordered w-20" onChange={(x) => { }} value={1} min={1} max={10} placeholder="1" />
           </div>
           <p className="flex items-center font-semibold text-xl mb-1 mt-4"><FiFileText className="mr-2" /> {evaluators[selectedEvaluator]?.title}</p>
-          <textarea className='bg-base-100 mt-5 text-md min-h-[25vh] p-2 rounded-md outline-none border-2 border-base-300' onChange={(x) => {}} placeholder='Write or paste your text here...' autoFocus></textarea>
+          <textarea className='bg-base-100 mt-5 text-md min-h-[25vh] p-2 rounded-md outline-none border-2 border-base-300' onChange={(x) => { }} placeholder='Write or paste your text here...' autoFocus></textarea>
           <div className="flex mt-2"><label htmlFor="generatetext_modal" className="btn btn-xs max-sm:btn-sm">Generate text with AI</label></div>
           <div className="mt-7 flex items-center max-sm:flex-col">
-            <button className={'btn btn-primary max-sm:w-full max-sm:mb-3 ' + (loading ? "opacity-50" : "")} onClick={() => {}}>{loading ? <span className="loading loading-spinner"></span> : "📝 "}Rewrite</button>
+            <button className={'btn btn-primary max-sm:w-full max-sm:mb-3 ' + (loading ? "opacity-50" : "")} onClick={() => { }}>{loading ? <span className="loading loading-spinner"></span> : "📝 "}Rewrite</button>
             <details className="dropdown dropdown-top max-sm:w-full" onToggle={(x) => setMoreMenuOpen(x.currentTarget.open)} open={moreMenuOpen}>
               <summary tabIndex={0} className='btn ml-2 max-sm:w-full max-sm:ml-0'>✨ More</summary>
               <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
@@ -177,6 +257,75 @@ export default function Home() {
         </div>}
         <label htmlFor='newevaluator_modal' className='sm:hidden absolute right-5 bottom-5 btn btn-primary btn-square'><FiPlus /></label>
         {selectedEvaluator === -1 ? <button className='sm:hidden absolute left-5 top-5 btn btn-square' onClick={() => setShowMenu(!showMenu)}><FiMenu /></button> : ""}
+      </div>
+      {/* New Evaluator Modal */}
+      <input type="checkbox" id="newevaluator_modal" className="modal-toggle" />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiPlusCircle className="mr-1" /> New Evaluator</h3>
+          <p className="flex items-center py-4"><FiType className='mr-2' />Title</p>
+          <input className="input input-bordered w-full" placeholder="What's the name of the exam / evaluator?" type="text" onChange={(x) => setNewEvaluatorTitle(x.target.value)} value={newEvaluatorTitle} />
+          <p className="flex items-center py-4"><FiFileText className='mr-2' />Upload question paper(s)</p>
+          {newEvaluatorQuestionPapers.length > 0 ?
+            <div className="flex flex-wrap">{
+              newEvaluatorQuestionPapers.map((file: string, i: number) => {
+                return <img key={i} src={file} className="cursor-pointer w-20 h-20 object-cover rounded-md mr-2 mb-2" onClick={() => window.open(file)} />
+              })
+            }</div>
+            : <UploadDropzone
+              endpoint="media"
+              onClientUploadComplete={(res) => {
+                var files = [];
+                for (const file of res) {
+                  files.push(file.url);
+                }
+                setNewEvaluatorQuestionPapers(files);
+              }}
+              onUploadError={(error: Error) => {
+                alert(`ERROR! ${error.message}`);
+              }}
+            />}
+          <p className="flex items-center py-4"><FiKey className='mr-2' />Upload answer key / criteria</p>
+          {newEvaluatorAnswerKeys.length > 0 ?
+            <div className="flex flex-wrap">{
+              newEvaluatorAnswerKeys.map((file: string, i: number) => {
+                return <img key={i} src={file} className="cursor-pointer w-20 h-20 object-cover rounded-md mr-2 mb-2" onClick={() => window.open(file)} />
+              })
+            }</div>
+            : <UploadDropzone
+              endpoint="media"
+              onClientUploadComplete={(res) => {
+                var files = [];
+                for (const file of res) {
+                  files.push(file.url);
+                }
+                setNewEvaluatorAnswerKeys(files);
+              }}
+              onUploadError={(error: Error) => {
+                alert(`ERROR! ${error.message}`);
+              }}
+            />}
+          <div className="modal-action">
+            <label htmlFor="newevaluator_modal" className="btn">Cancel</label>
+            <label htmlFor="newevaluator_modal" className="btn btn-primary" onClick={() => createEvaluator()}>Create Evaluator</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="newevaluator_modal">Cancel</label>
+        {/* <label ref={newDocumentModalRef} htmlFor="newevaluator_modal" hidden></label> */}
+      </div>
+      {/* Delete Evaluator Modal */}
+      {/* Delete Document Modal */}
+      <input type="checkbox" id="deleteevaluator_modal" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiTrash className="mr-1" /> Delete Document</h3>
+          <p className="py-4">Are you sure want to delete this document?</p>
+          <div className="modal-action">
+            <label htmlFor="deleteevaluator_modal" className="btn">Cancel</label>
+            <label htmlFor="deleteevaluator_modal" className="btn btn-error" onClick={() => deleteEvaluator()}>Delete</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="deleteevaluator_modal">Cancel</label>
       </div>
       <ToastContainer />
     </main >

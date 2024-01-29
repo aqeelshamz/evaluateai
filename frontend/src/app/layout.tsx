@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { appName } from "@/utils/utils";
 import { Golos_Text } from 'next/font/google'
+import "react-toastify/dist/ReactToastify.css";
 
 const golos = Golos_Text({
   weight: '400',
