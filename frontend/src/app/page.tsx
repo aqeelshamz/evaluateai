@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiMenu, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey } from "react-icons/fi";
+import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiMenu, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey, FiUsers, FiBook, FiBookOpen } from "react-icons/fi";
 import Link from "next/link";
 import { appName, serverURL } from "@/utils/utils";
 import { UploadDropzone } from "@/utils/uploadthing";
@@ -16,6 +16,7 @@ export default function Home() {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [user, setUser] = useState<any>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const [selectedTab, setSelectedTab] = useState<number>(0);
 
   const [evaluators, setEvaluators] = useState<any[]>([]);
   const [selectedEvaluator, setSelectedEvaluator] = useState<number>(-1);
@@ -23,11 +24,20 @@ export default function Home() {
   const [loadingEvaluator, setLoadingEvaluator] = useState<boolean>(false);
   const [creatingEvaluator, setCreatingEvaluator] = useState<boolean>(false);
 
+  const [classes, setClasses] = useState<any[]>([]);
+  const [selectedClass, setSelectedClass] = useState<number>(-1);
+  const [newClassName, setNewClassName] = useState<string>("");
+  const [newClassSection, setNewClassSection] = useState<string>("");
+  const [newClassSubject, setNewClassSubject] = useState<string>("");
+  const [loadingClass, setLoadingClass] = useState<boolean>(false);
+  const [creatingClass, setCreatingClass] = useState<boolean>(false);
+
   const [newEvaluatorQuestionPapers, setNewEvaluatorQuestionPapers] = useState<string[]>([]);
   const [newEvaluatorAnswerKeys, setNewEvaluatorAnswerKeys] = useState<string[]>([]);
 
   useEffect(() => {
     getEvaluators();
+    getClasses();
     if (typeof window !== 'undefined') {
       setTheme(localStorage.getItem("theme") ? localStorage.getItem("theme") : "light");
       if (!localStorage.getItem("token")) {
@@ -54,6 +64,20 @@ export default function Home() {
     axios(config).then((response) => {
       setEvaluators(response.data.evaluators);
       setUser(response.data.user);
+    });
+  }
+
+  const getClasses = () => {
+    const config = {
+      method: "GET",
+      url: `${serverURL}/class`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+      },
+    };
+
+    axios(config).then((response) => {
+      setClasses(response.data);
     });
   }
 
@@ -112,7 +136,66 @@ export default function Home() {
         toast.success("Evaluator deleted!");
       })
       .catch((error) => {
-        toast.error("Failed to delete document");
+        toast.error("Failed to delete evaluator");
+      });
+  }
+
+  const createClass = () => {
+    if (newClassName === '' || newClassSection === '' || newClassSubject === '') {
+      return toast.error("Please fill all the fields!");
+    }
+
+    setCreatingClass(true);
+
+    const config = {
+      method: "POST",
+      url: `${serverURL}/class/create`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": `application/json`,
+      },
+      data: {
+        "name": newClassName,
+        "section": newClassSection,
+        "subject": newClassSubject,
+      }
+    };
+
+    axios(config).then((response) => {
+      toast.success("Class Created!");
+      setNewClassName("");
+      setNewClassSection("");
+      setNewClassSubject("");
+      setSelectedClass(0);
+      getClasses();
+      setCreatingClass(false);
+    }).catch((error) => {
+      toast.error("Something went wrong!");
+      setCreatingClass(false);
+    });
+  }
+
+  const deleteClass = async () => {
+    const config = {
+      method: "POST",
+      url: `${serverURL}/class/delete`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": `application/json`,
+      },
+      data: {
+        classId: classes[selectedClass]?._id
+      }
+    };
+
+    axios(config)
+      .then((response) => {
+        getClasses();
+        setSelectedClass(-1);
+        toast.success("Class deleted!");
+      })
+      .catch((error) => {
+        toast.error("Failed to delete class");
       });
   }
 
@@ -130,9 +213,13 @@ export default function Home() {
             </button>
           </div>
         </div>
-        <label className='btn btn-primary' htmlFor='newevaluator_modal' onClick={() => { }}><FiPlus /> NEW EVALUATOR</label>
+        <div role="tablist" className="tabs tabs-boxed mb-2">
+          <a role="tab" className={"tab " + (selectedTab === 0 ? "tab-active" : "")} onClick={() => setSelectedTab(0)}>Evaluators</a>
+          <a role="tab" className={"tab " + (selectedTab === 1 ? "tab-active" : "")} onClick={() => setSelectedTab(1)}>Classes</a>
+        </div>
+        <label className='btn btn-primary' htmlFor={["newevaluator_modal", "newclass_modal"][selectedTab]} onClick={() => { }}><FiPlus /> NEW {["EVALUATOR", "CLASS"][selectedTab]}</label>
         <div className='p-0 my-2 h-full w-full overflow-hidden hover:overflow-y-auto'>
-          {
+          {selectedTab === 0 ?
             evaluators?.map((evaluator: any, i: number) => {
               return <div key={i} className={(selectedEvaluator === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => { setSelectedEvaluator(i); setShowMenu(false) }}>
                 <div className='flex justify-start items-center'>
@@ -153,7 +240,30 @@ export default function Home() {
                     </label>
                   </div> : ""}
               </div>
+            }) :
+            classes?.map((_class: any, i: number) => {
+              return <div key={i} className={(selectedClass === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => { setSelectedClass(i); setShowMenu(false) }}>
+                <div className='flex justify-start items-center'>
+                  <div className='w-fit mr-2'>
+                    <FiUsers />
+                  </div>
+                  <div className='flex flex-col items-start'>
+                    <p className='text-sm text-ellipsis line-clamp-1 font-semibold'>{_class.subject}</p>
+                    <p className='text-xs text-ellipsis line-clamp-1'>{_class.name} {_class.section}</p>
+                  </div>
+                </div>
+                {selectedClass === i ?
+                  <div className='flex mt-2'>
+                    <label htmlFor='editclass_modal' className='cursor-pointer flex justify-center items-center w-full p-2 bg-base-300 rounded-md mr-1 hover:bg-gray-500 hover:text-white' onClick={() => setNewClassName(classes[i].title)}>
+                      <FiEdit /><p className='ml-2 text-xs'>Edit</p>
+                    </label>
+                    <label htmlFor='deleteclass_modal' className='cursor-pointer flex justify-center items-center w-full p-2 bg-base-300 rounded-md hover:bg-red-500 hover:text-white'>
+                      <FiTrash /><p className='ml-2 text-xs'>Delete</p>
+                    </label>
+                  </div> : ""}
+              </div>
             })
+
           }
         </div>
         <hr />
@@ -314,18 +424,48 @@ export default function Home() {
         {/* <label ref={newDocumentModalRef} htmlFor="newevaluator_modal" hidden></label> */}
       </div>
       {/* Delete Evaluator Modal */}
-      {/* Delete Document Modal */}
       <input type="checkbox" id="deleteevaluator_modal" className="modal-toggle" />
       <div className="modal">
         <div className="modal-box">
-          <h3 className="flex items-center font-bold text-lg"><FiTrash className="mr-1" /> Delete Document</h3>
-          <p className="py-4">Are you sure want to delete this document?</p>
+          <h3 className="flex items-center font-bold text-lg"><FiTrash className="mr-1" /> Delete Evaluator</h3>
+          <p className="py-4">Are you sure want to delete this evaluator?</p>
           <div className="modal-action">
             <label htmlFor="deleteevaluator_modal" className="btn">Cancel</label>
             <label htmlFor="deleteevaluator_modal" className="btn btn-error" onClick={() => deleteEvaluator()}>Delete</label>
           </div>
         </div>
         <label className="modal-backdrop" htmlFor="deleteevaluator_modal">Cancel</label>
+      </div>
+      {/* New Class Modal */}
+      <input type="checkbox" id="newclass_modal" className="modal-toggle" />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiPlusCircle className="mr-1" /> New Class</h3>
+          <p className="flex items-center py-4"><FiType className='mr-2' />Class Name</p>
+          <input className="input input-bordered w-full" placeholder="Class Name" type="text" onChange={(x) => setNewClassName(x.target.value)} value={newClassName} />
+          <p className="flex items-center py-4"><FiUsers className='mr-2' />Section</p>
+          <input className="input input-bordered w-full" placeholder="Section" type="text" onChange={(x) => setNewClassSection(x.target.value)} value={newClassSection} />
+          <p className="flex items-center py-4"><FiBook className='mr-2' />Subject</p>
+          <input className="input input-bordered w-full" placeholder="Subject" type="text" onChange={(x) => setNewClassSubject(x.target.value)} value={newClassSubject} />
+          <div className="modal-action">
+            <label htmlFor="newclass_modal" className="btn">Cancel</label>
+            <label htmlFor="newclass_modal" className="btn btn-primary" onClick={() => createClass()}>Create Class</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="newclass_modal">Cancel</label>
+      </div>
+      {/* Delete Class Modal */}
+      <input type="checkbox" id="deleteclass_modal" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiTrash className="mr-1" /> Delete Class</h3>
+          <p className="py-4">Are you sure want to delete this class?</p>
+          <div className="modal-action">
+            <label htmlFor="deleteclass_modal" className="btn">Cancel</label>
+            <label htmlFor="deleteclass_modal" className="btn btn-error" onClick={() => deleteClass()}>Delete</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="deleteclass_modal">Cancel</label>
       </div>
       <ToastContainer />
     </main >
