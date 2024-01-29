@@ -15,8 +15,8 @@ router.get("/evaluators", validate, async (req, res) => {
 router.post("/evaluators/create", validate, async (req, res) => {
     const schema = joi.object({
         title: joi.string().required(),
-        questionPaper: joi.array().required(),
-        answerKey: joi.array().required(),
+        questionPapers: joi.array().required(),
+        answerKeys: joi.array().required(),
     });
 
     try {
@@ -35,8 +35,8 @@ router.post("/evaluators/create", validate, async (req, res) => {
         const evaluator = new Evaluator({
             userId: req.user._id,
             title: data.title,
-            questionPaper: data.questionPaper,
-            answerKey: data.answerKey,
+            questionPapers: data.questionPaper,
+            answerKeys: data.answerKey,
         });
 
         await evaluator.save();
@@ -44,6 +44,7 @@ router.post("/evaluators/create", validate, async (req, res) => {
         return res.send(evaluator);
     }
     catch (err) {
+        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -72,7 +73,7 @@ router.post("/evaluators/delete", validate, async (req, res) => {
 
         await limits.save();
 
-        await evaluator.delete();
+        await Evaluator.findByIdAndDelete(data.evaluatorId);
 
         return res.send("Evaluator deleted");
     }
@@ -85,8 +86,8 @@ router.post("/evaluators/update", validate, async (req, res) => {
     const schema = joi.object({
         evaluatorId: joi.string().required(),
         title: joi.string().required(),
-        questionPaper: joi.array().required(),
-        answerKey: joi.array().required(),
+        questionPapers: joi.array().required(),
+        answerKeys: joi.array().required(),
     });
 
     try {
@@ -103,8 +104,8 @@ router.post("/evaluators/update", validate, async (req, res) => {
         }
 
         evaluator.title = data.title;
-        evaluator.questionPaper = data.questionPaper;
-        evaluator.answerKey = data.answerKey;
+        evaluator.questionPapers = data.questionPaper;
+        evaluator.answerKeys = data.answerKey;
 
         await evaluator.save();
 

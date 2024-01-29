@@ -10,11 +10,11 @@ const EvaluatorSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        questionPaper: {
+        questionPapers: {
             type: Array,
             required: true,
         },
-        answerKey: {
+        answerKeys: {
             type: Array,
             required: true,
         },
