@@ -1,6 +1,7 @@
+import joi from "joi";
 import express from "express";
-import Class from "../models/Class";
-import { validate } from "../middlewares/validate";
+import Class from "../models/Class.js";
+import { validate } from "../middlewares/validate.js";
 
 const router = express.Router();
 
@@ -13,7 +14,6 @@ router.post("/create", validate, async (req, res) => {
         name: joi.string().required(),
         section: joi.string().required(),
         subject: joi.string().required(),
-        students: joi.array().required(),
     });
 
     try {
@@ -23,7 +23,7 @@ router.post("/create", validate, async (req, res) => {
             name: data.name,
             section: data.section,
             subject: data.subject,
-            students: data.students,
+            students: [],
             createdBy: req.user._id,
         });
 
@@ -47,11 +47,11 @@ router.post("/delete", validate, async (req, res) => {
 
         const _class = await Class.findById(data.classId);
 
-        if (_class.createdBy != req.user._id) {
+        if (_class.createdBy.toString() != req.user._id.toString()) {
             return res.status(400).send("You are not authorized to delete this class");
         }
 
-        await _class.delete();
+        await Class.findByIdAndDelete(data.classId);
 
         return res.send("Class deleted successfully");
     }
@@ -75,7 +75,7 @@ router.post("/update", validate, async (req, res) => {
 
         const _class = await Class.findById(data.classId);
 
-        if (_class.createdBy != req.user._id) {
+        if (_class.createdB.toString() != req.user._id.toString()) {
             return res.status(400).send("You are not authorized to update this class");
         }
 

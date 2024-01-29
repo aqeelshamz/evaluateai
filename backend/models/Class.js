@@ -17,12 +17,10 @@ const ClassSchema = new mongoose.Schema(
         students: [
             {
                 rollNo: {
-                    type: Number,
-                    required: true
+                    type: Number
                 },
                 name: {
-                    type: String,
-                    required: true
+                    type: String
                 },
             }
         ],
