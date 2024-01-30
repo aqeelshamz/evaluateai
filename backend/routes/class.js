@@ -94,4 +94,32 @@ router.post("/update", validate, async (req, res) => {
     }
 });
 
+router.post("/add-student", validate, async (req, res) => {
+    const schema = joi.object({
+        classId: joi.string().required(),
+        name: joi.string().required(),
+        rollNo: joi.number().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+
+        const _class = await Class.findById(data.classId);
+
+        if (_class.createdBy.toString() != req.user._id.toString()) {
+            return res.status(400).send("You are not authorized to update this class");
+        }
+
+        _class.students.push({ name: data.name, rollNo: data.rollNo });
+
+        await _class.save();
+
+        return res.send(_class);
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).send(err);
+    }
+});
+
 export default router;
