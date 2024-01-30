@@ -1,0 +1,335 @@
+import { serverURL } from "@/utils/utils";
+import axios from "axios";
+import { createContext, useState } from "react";
+import { toast } from "react-toastify";
+
+const MainContext = createContext<any>(null);
+
+function Context({ children }: { children: React.ReactNode }) {
+
+    const [theme, setTheme] = useState<null | any | string>(
+        "light"
+    );
+
+    const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
+    const [showMenu, setShowMenu] = useState<boolean>(false);
+    const [user, setUser] = useState<any>({});
+    const [loading, setLoading] = useState<boolean>(false);
+    const [selectedTab, setSelectedTab] = useState<number>(0);
+
+    const [evaluators, setEvaluators] = useState<any[]>([]);
+    const [selectedEvaluator, setSelectedEvaluator] = useState<number>(-1);
+    const [newEvaluatorTitle, setNewEvaluatorTitle] = useState<string>("");
+    const [loadingEvaluator, setLoadingEvaluator] = useState<boolean>(false);
+    const [creatingEvaluator, setCreatingEvaluator] = useState<boolean>(false);
+    const [newEvaluatorQuestionPapers, setNewEvaluatorQuestionPapers] = useState<string[]>([]);
+    const [newEvaluatorAnswerKeys, setNewEvaluatorAnswerKeys] = useState<string[]>([]);
+
+    const [classes, setClasses] = useState<any[]>([]);
+    const [selectedClass, setSelectedClass] = useState<number>(-1);
+    const [newClassName, setNewClassName] = useState<string>("");
+    const [newClassSection, setNewClassSection] = useState<string>("");
+    const [newClassSubject, setNewClassSubject] = useState<string>("");
+    const [loadingClass, setLoadingClass] = useState<boolean>(false);
+    const [creatingClass, setCreatingClass] = useState<boolean>(false);
+
+    const [students, setStudents] = useState<any[]>([]);
+    const [newStudentName, setNewStudentName] = useState<string>("");
+    const [newStudentRollNo, setNewStudentRollNo] = useState<number>(0);
+    const [addingStudent, setAddingStudent] = useState<boolean>(false);
+    const [deleteStudentRollNo, setDeleteStudentRollNo] = useState<number>(-1);
+
+    const getEvaluators = () => {
+        const config = {
+            method: "GET",
+            url: `${serverURL}/evaluate/evaluators`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+        };
+
+        axios(config).then((response) => {
+            setEvaluators(response.data.evaluators);
+            setUser(response.data.user);
+        });
+    }
+
+    const getClasses = () => {
+        const config = {
+            method: "GET",
+            url: `${serverURL}/class`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+        };
+
+        axios(config).then((response) => {
+            setClasses(response.data);
+        });
+    }
+
+    const createEvaluator = () => {
+        if (newEvaluatorTitle === '' || newEvaluatorQuestionPapers.length === 0 || newEvaluatorAnswerKeys.length === 0) {
+            return toast.error("Please fill all the fields!");
+        }
+
+        setCreatingEvaluator(true);
+
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluators/create`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": `application/json`,
+            },
+            data: {
+                "title": newEvaluatorTitle,
+                "questionPapers": newEvaluatorQuestionPapers,
+                "answerKeys": newEvaluatorAnswerKeys,
+            }
+        };
+
+        axios(config).then((response) => {
+            toast.success("Evaluator Created!");
+            setNewEvaluatorTitle("");
+            setNewEvaluatorQuestionPapers([]);
+            setNewEvaluatorAnswerKeys([]);
+            setSelectedEvaluator(0);
+            getEvaluators();
+            setCreatingEvaluator(false);
+        }).catch((error) => {
+            toast.error("Something went wrong!");
+            setCreatingEvaluator(false);
+        });
+    }
+
+    const deleteEvaluator = async () => {
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluators/delete`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": `application/json`,
+            },
+            data: {
+                evaluatorId: evaluators[selectedEvaluator]?._id
+            }
+        };
+
+        axios(config)
+            .then((response) => {
+                getEvaluators();
+                setSelectedEvaluator(-1);
+                toast.success("Evaluator deleted!");
+            })
+            .catch((error) => {
+                toast.error("Failed to delete evaluator");
+            });
+    }
+
+    const createClass = () => {
+        if (newClassName === '' || newClassSection === '' || newClassSubject === '') {
+            return toast.error("Please fill all the fields!");
+        }
+
+        setCreatingClass(true);
+
+        const config = {
+            method: "POST",
+            url: `${serverURL}/class/create`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": `application/json`,
+            },
+            data: {
+                "name": newClassName,
+                "section": newClassSection,
+                "subject": newClassSubject,
+            }
+        };
+
+        axios(config).then((response) => {
+            toast.success("Class Created!");
+            setNewClassName("");
+            setNewClassSection("");
+            setNewClassSubject("");
+            setSelectedClass(0);
+            getClasses();
+            setCreatingClass(false);
+        }).catch((error) => {
+            toast.error("Something went wrong!");
+            setCreatingClass(false);
+        });
+    }
+
+    const deleteClass = async () => {
+        const config = {
+            method: "POST",
+            url: `${serverURL}/class/delete`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": `application/json`,
+            },
+            data: {
+                classId: classes[selectedClass]?._id
+            }
+        };
+
+        axios(config)
+            .then((response) => {
+                getClasses();
+                setSelectedClass(-1);
+                toast.success("Class deleted!");
+            })
+            .catch((error) => {
+                toast.error("Failed to delete class");
+            });
+    }
+
+    const getStudents = () => {
+        const config = {
+            method: "POST",
+            url: `${serverURL}/class/students`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            data: {
+                classId: classes[selectedClass]?._id
+            }
+        };
+
+        axios(config).then((response) => {
+            setStudents(response.data);
+        });
+    }
+
+    const addStudent = () => {
+        if (newStudentName === '') {
+            return toast.error("Please fill all the fields!");
+        }
+
+        setAddingStudent(true);
+
+        const config = {
+            method: "POST",
+            url: `${serverURL}/class/add-student`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": `application/json`,
+            },
+            data: {
+                "classId": classes[selectedClass]._id,
+                "name": newStudentName,
+                "rollNo": newStudentRollNo,
+            }
+        };
+
+        axios(config).then((response) => {
+            toast.success("Student added!");
+            setNewStudentName("");
+            setNewStudentRollNo(0);
+            getStudents();
+            setAddingStudent(false);
+        }).catch((error) => {
+            toast.error(error.response.data);
+            setAddingStudent(false);
+        });
+    }
+
+    const deleteStudent = () => {
+        setAddingStudent(true);
+
+        const config = {
+            method: "POST",
+            url: `${serverURL}/class/students/delete`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": `application/json`,
+            },
+            data: {
+                "classId": classes[selectedClass]._id,
+                "rollNo": deleteStudentRollNo,
+            }
+        };
+
+        axios(config).then((response) => {
+            toast.success("Student deleted!");
+            setNewStudentName("");
+            setNewStudentRollNo(0);
+            setDeleteStudentRollNo(-1);
+            getStudents();
+            setAddingStudent(false);
+        }).catch((error) => {
+            toast.error(error.response.data);
+            setAddingStudent(false);
+        });
+    }
+
+    return (
+        <MainContext.Provider value={{
+            theme,
+            setTheme,
+            moreMenuOpen,
+            setMoreMenuOpen,
+            showMenu,
+            setShowMenu,
+            user,
+            setUser,
+            loading,
+            setLoading,
+            selectedTab,
+            setSelectedTab,
+            evaluators,
+            setEvaluators,
+            selectedEvaluator,
+            setSelectedEvaluator,
+            newEvaluatorTitle,
+            setNewEvaluatorTitle,
+            loadingEvaluator,
+            setLoadingEvaluator,
+            creatingEvaluator,
+            setCreatingEvaluator,
+            newEvaluatorQuestionPapers,
+            setNewEvaluatorQuestionPapers,
+            newEvaluatorAnswerKeys,
+            setNewEvaluatorAnswerKeys,
+            classes,
+            setClasses,
+            selectedClass,
+            setSelectedClass,
+            newClassName,
+            setNewClassName,
+            newClassSection,
+            setNewClassSection,
+            newClassSubject,
+            setNewClassSubject,
+            loadingClass,
+            setLoadingClass,
+            creatingClass,
+            setCreatingClass,
+            students,
+            setStudents,
+            newStudentName,
+            setNewStudentName,
+            newStudentRollNo,
+            setNewStudentRollNo,
+            addingStudent,
+            setAddingStudent,
+            deleteStudentRollNo,
+            setDeleteStudentRollNo,
+            getEvaluators,
+            getClasses,
+            createEvaluator,
+            deleteEvaluator,
+            createClass,
+            deleteClass,
+            getStudents,
+            addStudent,
+            deleteStudent,
+        }}>
+            {children}
+        </MainContext.Provider>
+    );
+}
+
+export { MainContext, Context };
