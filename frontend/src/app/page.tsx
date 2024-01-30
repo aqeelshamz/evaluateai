@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiMenu, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey, FiUsers, FiBook, FiBookOpen } from "react-icons/fi";
+import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiMenu, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey, FiUsers, FiBook, FiBookOpen, FiHash } from "react-icons/fi";
 import Link from "next/link";
 import { appName, serverURL } from "@/utils/utils";
 import { UploadDropzone } from "@/utils/uploadthing";
@@ -23,6 +23,8 @@ export default function Home() {
   const [newEvaluatorTitle, setNewEvaluatorTitle] = useState<string>("");
   const [loadingEvaluator, setLoadingEvaluator] = useState<boolean>(false);
   const [creatingEvaluator, setCreatingEvaluator] = useState<boolean>(false);
+  const [newEvaluatorQuestionPapers, setNewEvaluatorQuestionPapers] = useState<string[]>([]);
+  const [newEvaluatorAnswerKeys, setNewEvaluatorAnswerKeys] = useState<string[]>([]);
 
   const [classes, setClasses] = useState<any[]>([]);
   const [selectedClass, setSelectedClass] = useState<number>(-1);
@@ -32,8 +34,8 @@ export default function Home() {
   const [loadingClass, setLoadingClass] = useState<boolean>(false);
   const [creatingClass, setCreatingClass] = useState<boolean>(false);
 
-  const [newEvaluatorQuestionPapers, setNewEvaluatorQuestionPapers] = useState<string[]>([]);
-  const [newEvaluatorAnswerKeys, setNewEvaluatorAnswerKeys] = useState<string[]>([]);
+  const [newStudentName, setNewStudentName] = useState<string>("");
+  const [newStudentRollNo, setNewStudentRollNo] = useState<number>(0);
 
   useEffect(() => {
     getEvaluators();
@@ -199,6 +201,41 @@ export default function Home() {
       });
   }
 
+  const addStudent = () => {
+    if (newStudentName === '') {
+      return toast.error("Please fill all the fields!");
+    }
+
+    setCreatingClass(true);
+
+    const config = {
+      method: "POST",
+      url: `${serverURL}/class/create`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": `application/json`,
+      },
+      data: {
+        "name": newClassName,
+        "section": newClassSection,
+        "subject": newClassSubject,
+      }
+    };
+
+    axios(config).then((response) => {
+      toast.success("Class Created!");
+      setNewClassName("");
+      setNewClassSection("");
+      setNewClassSubject("");
+      setSelectedClass(0);
+      getClasses();
+      setCreatingClass(false);
+    }).catch((error) => {
+      toast.error("Something went wrong!");
+      setCreatingClass(false);
+    });
+  }
+
   return (
     <main className="flex bg-base-100 h-screen w-screen p-2 max-sm:p-0" onClick={() => {
       if (moreMenuOpen) setMoreMenuOpen(false);
@@ -214,8 +251,8 @@ export default function Home() {
           </div>
         </div>
         <div role="tablist" className="tabs tabs-boxed mb-2">
-          <a role="tab" className={"tab " + (selectedTab === 0 ? "tab-active" : "")} onClick={() => setSelectedTab(0)}>Evaluators</a>
-          <a role="tab" className={"tab " + (selectedTab === 1 ? "tab-active" : "")} onClick={() => setSelectedTab(1)}>Classes</a>
+          <a role="tab" className={"tab " + (selectedTab === 0 ? "tab-active" : "")} onClick={() => { setSelectedTab(0); setSelectedClass(-1); setSelectedEvaluator(0) }}>Evaluators</a>
+          <a role="tab" className={"tab " + (selectedTab === 1 ? "tab-active" : "")} onClick={() => { setSelectedTab(1); setSelectedEvaluator(-1); setSelectedClass(0) }}>Classes</a>
         </div>
         <label className='btn btn-primary' htmlFor={["newevaluator_modal", "newclass_modal"][selectedTab]} onClick={() => { }}><FiPlus /> NEW {["EVALUATOR", "CLASS"][selectedTab]}</label>
         <div className='p-0 my-2 h-full w-full overflow-hidden hover:overflow-y-auto'>
@@ -298,7 +335,7 @@ export default function Home() {
       </div>
       {/* Main */}
       <div className='flex flex-col items-center justify-center ml-2 p-5 border-base-300 border-[1px] w-full h-full rounded-lg 2xl:items-center max-sm:ml-0 max-sm:border-none max-sm:p-2 max-sm:items-start max-sm:justify-start'>
-        {(loadingEvaluator || creatingEvaluator) ? <div className="flex items-center"><span className="loading loading-spinner mr-4"></span><p>{loadingEvaluator ? "Loading" : "Creating"} Evaluator...</p></div> : selectedEvaluator === -1 ? <div className='select-none flex flex-col justify-center items-center w-full h-full'>
+        {(loadingEvaluator || creatingEvaluator) ? <div className="flex items-center"><span className="loading loading-spinner mr-4"></span><p>{loadingEvaluator ? "Loading" : "Creating"} Evaluator...</p></div> : selectedEvaluator === -1 && selectedClass === -1 ? <div className='select-none flex flex-col justify-center items-center w-full h-full'>
           <p className='text-5xl font-semibold mb-2'>🤖 {appName} 📝</p>
           <p className='text-center'>Create a new evaluator or select an existing evaluator to get started.</p>
           <div className='flex flex-wrap justify-center mt-7'>
@@ -318,52 +355,25 @@ export default function Home() {
           <div className='flex mt-5'>
             Press <kbd className="kbd kbd-sm mx-2">Alt</kbd> + <kbd className="kbd kbd-sm mx-2">N</kbd> to create a new evaluator.
           </div>
+        </div> : selectedEvaluator !== -1 ? <div className="animate-fade-in-bottom flex flex-col w-full max-w-[50vw] max-sm:max-w-none">
+          <div className="hidden max-sm:flex justify-end mb-3">
+            <button className="btn btn-square" onClick={() => setSelectedEvaluator(-1)}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <p className="flex items-center font-semibold text-xl mb-1 mt-4"><FiFileText className="mr-2" /> {evaluators[selectedEvaluator]?.title}</p>
         </div> : <div className="animate-fade-in-bottom flex flex-col w-full max-w-[50vw] max-sm:max-w-none">
           <div className="hidden max-sm:flex justify-end mb-3">
             <button className="btn btn-square" onClick={() => setSelectedEvaluator(-1)}>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
-          <div className="flex mb-4 items-center max-sm:flex-wrap">
-            <p className="mr-2 font-semibold">Tone: </p>
-            {
-              ["✨ Normal", "👟 Casual", "💼 Formal", "📝 Academic", "📖 Creative"].map((e, i: number) => {
-                return <button className={'btn btn-sm mr-2 max-sm:mb-2 ' + (0 == i ? 'btn-primary' : '')} onClick={() => { }}>{e}</button>
-              })
-            }
+          <p className="flex items-center font-semibold text-xl mb-1 mt-4"><FiUsers className="mr-2" />
+            <p className='text-xl text-ellipsis line-clamp-1 font-semibold'>{classes[selectedClass]?.subject} | {classes[selectedClass]?.name} {classes[selectedClass]?.section}</p>
+          </p>
+          <div className="flex mt-5">
+            <label htmlFor="newstudent_modal" className="btn btn-primary">+ New Student</label>
           </div>
-          <div className="flex mb-4 items-center max-sm:flex-wrap">
-            <p className="mr-2 font-semibold">Length: </p>
-            {
-              ["📝 Short", "📄 Medium", "📚 Long"].map((e, i: number) => {
-                return <button className={'btn btn-sm mr-2 max-sm:mb-2 ' + (0 == i ? 'btn-primary' : '')} onClick={() => { }}>{e}</button>
-              })
-            }
-          </div>
-          <div className="flex mb-3 items-center">
-            <p className="mr-2 font-semibold">Rewrites: </p>
-            <input type="number" className="input input-bordered w-20" onChange={(x) => { }} value={1} min={1} max={10} placeholder="1" />
-          </div>
-          <p className="flex items-center font-semibold text-xl mb-1 mt-4"><FiFileText className="mr-2" /> {evaluators[selectedEvaluator]?.title}</p>
-          <textarea className='bg-base-100 mt-5 text-md min-h-[25vh] p-2 rounded-md outline-none border-2 border-base-300' onChange={(x) => { }} placeholder='Write or paste your text here...' autoFocus></textarea>
-          <div className="flex mt-2"><label htmlFor="generatetext_modal" className="btn btn-xs max-sm:btn-sm">Generate text with AI</label></div>
-          <div className="mt-7 flex items-center max-sm:flex-col">
-            <button className={'btn btn-primary max-sm:w-full max-sm:mb-3 ' + (loading ? "opacity-50" : "")} onClick={() => { }}>{loading ? <span className="loading loading-spinner"></span> : "📝 "}Rewrite</button>
-            <details className="dropdown dropdown-top max-sm:w-full" onToggle={(x) => setMoreMenuOpen(x.currentTarget.open)} open={moreMenuOpen}>
-              <summary tabIndex={0} className='btn ml-2 max-sm:w-full max-sm:ml-0'>✨ More</summary>
-              <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                <li onClick={() => { setMoreMenuOpen(false) }}><a>➡️ Continue Writing</a></li>
-                <li onClick={() => { setMoreMenuOpen(false) }}><a>📝 Summarise</a></li>
-                <li onClick={() => { setMoreMenuOpen(false) }}><a>🧠 Explain</a></li>
-                <li onClick={() => { setMoreMenuOpen(false) }}><a>☝️ Give an example</a></li>
-                <li onClick={() => { setMoreMenuOpen(false) }}><a>🎯 Counterargument</a></li>
-                <li onClick={() => { setMoreMenuOpen(false) }}><a>📖 Define</a></li>
-                <li onClick={() => { setMoreMenuOpen(false) }}><a>✏️ Shorten</a></li>
-                <li onClick={() => { setMoreMenuOpen(false) }}><a>📚 Expand</a></li>
-              </ul>
-            </details>
-          </div>
-          <p className="mt-3 text-sm text-gray-500">1 rewrites left</p>
         </div>}
         <label htmlFor='newevaluator_modal' className='sm:hidden absolute right-5 bottom-5 btn btn-primary btn-square'><FiPlus /></label>
         {selectedEvaluator === -1 ? <button className='sm:hidden absolute left-5 top-5 btn btn-square' onClick={() => setShowMenu(!showMenu)}><FiMenu /></button> : ""}
@@ -466,6 +476,22 @@ export default function Home() {
           </div>
         </div>
         <label className="modal-backdrop" htmlFor="deleteclass_modal">Cancel</label>
+      </div>
+      {/* New Student Modal */}
+      <input type="checkbox" id="newstudent_modal" className="modal-toggle" />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiPlusCircle className="mr-1" /> New Student</h3>
+          <p className="flex items-center py-4"><FiHash className='mr-2' />Roll No</p>
+          <input className="input input-bordered w-full" placeholder="Roll No" type="number" onChange={(x) => setNewStudentRollNo(parseInt(x.target.value))} value={newStudentRollNo} />
+          <p className="flex items-center py-4"><FiUser className='mr-2' />Student Name</p>
+          <input className="input input-bordered w-full" placeholder="Student Name" type="text" onChange={(x) => setNewStudentName(x.target.value)} value={newStudentName} />
+          <div className="modal-action">
+            <label htmlFor="newstudent_modal" className="btn">Cancel</label>
+            <label htmlFor="newstudent_modal" className="btn btn-primary" onClick={() => addStudent()}>Add Student</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="newstudent_modal">Cancel</label>
       </div>
       <ToastContainer />
     </main >
