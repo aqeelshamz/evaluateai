@@ -32,9 +32,9 @@ export default function Classes() {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </div>
-      <p className="flex items-center font-semibold text-xl mb-1 mt-4"><FiUsers className="mr-2" />
+      <div className="flex items-center font-semibold text-xl mb-1 mt-4"><FiUsers className="mr-2" />
         <p className='text-xl text-ellipsis line-clamp-1 font-semibold'>{classes[selectedClass]?.subject} | {classes[selectedClass]?.name} {classes[selectedClass]?.section}</p>
-      </p>
+      </div>
       <div className="flex mt-5">
         <label htmlFor="newstudent_modal" className="btn btn-primary" onClick={() => setNewStudentRollNo(students.length + 1)}>+ New Student</label>
       </div>

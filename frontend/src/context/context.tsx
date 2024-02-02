@@ -1,12 +1,13 @@
 import { serverURL } from "@/utils/utils";
 import axios from "axios";
+import { usePathname } from "next/navigation";
 import { createContext, useState } from "react";
 import { toast } from "react-toastify";
 
 const MainContext = createContext<any>(null);
 
 function Context({ children }: { children: React.ReactNode }) {
-
+    const pathname = usePathname();
     const [theme, setTheme] = useState<null | any | string>(
         "light"
     );
@@ -51,6 +52,9 @@ function Context({ children }: { children: React.ReactNode }) {
         axios(config).then((response) => {
             setEvaluators(response.data.evaluators);
             setUser(response.data.user);
+            if (response.data.evaluators.length > 0 && pathname.includes("evaluators")) {
+                setSelectedEvaluator(0);
+            }
         });
     }
 
@@ -65,6 +69,9 @@ function Context({ children }: { children: React.ReactNode }) {
 
         axios(config).then((response) => {
             setClasses(response.data);
+            if (response.data.length > 0 && pathname.includes("classes")) {
+                setSelectedClass(0);
+            }
         });
     }
 
@@ -186,7 +193,7 @@ function Context({ children }: { children: React.ReactNode }) {
             });
     }
 
-    const getStudents = () => {
+    const getStudents = (classId?: string) => {
         const config = {
             method: "POST",
             url: `${serverURL}/class/students`,
@@ -194,7 +201,7 @@ function Context({ children }: { children: React.ReactNode }) {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
             },
             data: {
-                classId: classes[selectedClass]?._id
+                classId: classId ?? classes[selectedClass]?._id
             }
         };
 
@@ -265,6 +272,24 @@ function Context({ children }: { children: React.ReactNode }) {
         });
     }
 
+    const updateEvaluation = (classId: string, evaluatorId: string, answerSheets: any) => {
+        if (!evaluatorId || !classId) return;
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluations/update`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            data: {
+                classId: classId,
+                evaluatorId: evaluatorId,
+                answerSheets: answerSheets,
+            }
+        };
+
+        axios(config);
+    }
+
     return (
         <MainContext.Provider value={{
             theme,
@@ -326,6 +351,7 @@ function Context({ children }: { children: React.ReactNode }) {
             getStudents,
             addStudent,
             deleteStudent,
+            updateEvaluation
         }}>
             {children}
         </MainContext.Provider>

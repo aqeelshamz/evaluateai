@@ -5,6 +5,7 @@ import Link from "next/link";
 import { appName } from "@/utils/utils";
 import { UploadDropzone } from "@/utils/uploadthing";
 import { MainContext } from "@/context/context";
+import { usePathname } from "next/navigation";
 
 export default function Home({
   children,
@@ -39,9 +40,15 @@ export default function Home({
     deleteEvaluator,
     getStudents, } = useContext(MainContext);
 
+  const pathname = usePathname();
+
   useEffect(() => {
     getEvaluators();
     getClasses();
+
+    pathname === "/home/classes" ? setSelectedTab(1) : setSelectedTab(0);
+    setSelectedEvaluator(-1);
+
     if (typeof window !== 'undefined') {
       setTheme(localStorage.getItem("theme") ? localStorage.getItem("theme") : "light");
       if (!localStorage.getItem("token")) {
@@ -84,7 +91,12 @@ export default function Home({
         <div className='p-0 my-2 h-full w-full overflow-hidden hover:overflow-y-auto'>
           {selectedTab === 0 ?
             evaluators?.map((evaluator: any, i: number) => {
-              return <div key={i} className={(selectedEvaluator === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => { setSelectedEvaluator(i); setShowMenu(false) }}>
+              return <div key={i} className={(selectedEvaluator === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => {
+                setSelectedEvaluator(i); setShowMenu(false);
+                if (!pathname.includes("evaluators")) {
+                  window.location.href = "/home/evaluators";
+                }
+              }}>
                 <div className='flex justify-start items-center'>
                   <div className='w-fit mr-2'>
                     <FiFileText />
