@@ -94,6 +94,58 @@ router.post("/update", validate, async (req, res) => {
     }
 });
 
+router.post("/students", validate, async (req, res) => {
+    const schema = joi.object({
+        classId: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+
+        const _class = await Class.findById(data.classId);
+
+        if (_class.createdBy.toString() != req.user._id.toString()) {
+            return res.status(400).send("You are not authorized to update this class");
+        }
+
+        var students = _class.students;
+        //sort students by roll no
+        students.sort((a, b) => a.rollNo - b.rollNo);
+
+        return res.send(students);
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).send(err);
+    }
+})
+
+router.post("/students/delete", validate, async (req, res) => {
+    const schema = joi.object({
+        classId: joi.string().required(),
+        rollNo: joi.number().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+
+        const _class = await Class.findById(data.classId);
+
+        if (_class.createdBy.toString() != req.user._id.toString()) {
+            return res.status(400).send("You are not authorized to update this class");
+        }
+
+        _class.students = _class.students.filter(student => student.rollNo != data.rollNo);
+
+        await _class.save();
+
+        return res.send(_class);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
 router.post("/add-student", validate, async (req, res) => {
     const schema = joi.object({
         classId: joi.string().required(),
@@ -103,6 +155,12 @@ router.post("/add-student", validate, async (req, res) => {
 
     try {
         const data = await schema.validateAsync(req.body);
+
+        const studentExists = await Class.findOne({ _id: data.classId, "students.rollNo": data.rollNo });
+
+        if (studentExists) {
+            return res.status(400).send("Student with this roll no already exists");
+        }
 
         const _class = await Class.findById(data.classId);
 

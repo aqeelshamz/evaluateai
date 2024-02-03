@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const EvaluatorSchema = new mongoose.Schema(
+const EvaluationSchema = new mongoose.Schema(
     {
         evaluatorId: {
             type: mongoose.Schema.ObjectId,
@@ -8,11 +8,13 @@ const EvaluatorSchema = new mongoose.Schema(
         },
         data: {
             type: Object,
-            required: true
+            required: true,
+            default: {}
         },
         answerSheets: {
             type: Array,
             required: true,
+            default: []
         },
     },
     {
@@ -20,6 +22,6 @@ const EvaluatorSchema = new mongoose.Schema(
     }
 );
 
-const Evaluator = mongoose.model("Evaluator", EvaluatorSchema);
+const Evaluation = mongoose.model("Evaluation", EvaluationSchema);
 
-export default Evaluator;
+export default Evaluation;
