@@ -288,7 +288,8 @@ function Context({ children }: { children: React.ReactNode }) {
         };
 
         axios(config).then((response) => {
-            setAnswerSheets([...response.data.answerSheets]);
+            const data = response.data.answerSheets ?? [];
+            setAnswerSheets([...data]);
         });
     }
 
