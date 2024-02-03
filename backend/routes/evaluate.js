@@ -4,6 +4,7 @@ import { validate } from "../middlewares/validate.js";
 import Evaluator from "../models/Evaluator.js";
 import Limits from "../models/Limits.js";
 import Evaluation from "../models/Evaluation.js";
+import Class from "../models/Class.js";
 
 const router = express.Router();
 
