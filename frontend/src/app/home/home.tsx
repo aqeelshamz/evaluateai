@@ -194,7 +194,7 @@ export default function Home({
                 for (const file of res) {
                   files.push(file.url);
                 }
-                setNewEvaluatorQuestionPapers(files);
+                setNewEvaluatorQuestionPapers([...files]);
               }}
               onUploadError={(error: Error) => {
                 alert(`ERROR! ${error.message}`);
@@ -214,7 +214,7 @@ export default function Home({
                 for (const file of res) {
                   files.push(file.url);
                 }
-                setNewEvaluatorAnswerKeys(files);
+                setNewEvaluatorAnswerKeys([...files]);
               }}
               onUploadError={(error: Error) => {
                 alert(`ERROR! ${error.message}`);

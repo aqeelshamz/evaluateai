@@ -40,6 +40,8 @@ function Context({ children }: { children: React.ReactNode }) {
     const [addingStudent, setAddingStudent] = useState<boolean>(false);
     const [deleteStudentRollNo, setDeleteStudentRollNo] = useState<number>(-1);
 
+    const [answerSheets, setAnswerSheets] = useState<any>([]);
+
     const getEvaluators = () => {
         const config = {
             method: "GET",
@@ -272,6 +274,24 @@ function Context({ children }: { children: React.ReactNode }) {
         });
     }
 
+    const getEvaluation = (classId: any) => {
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluations/get`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            data: {
+                classId: classId,
+                evaluatorId: evaluators[selectedEvaluator]?._id
+            }
+        };
+
+        axios(config).then((response) => {
+            setAnswerSheets([...response.data.answerSheets]);
+        });
+    }
+
     const updateEvaluation = (classId: string, evaluatorId: string, answerSheets: any) => {
         if (!evaluatorId || !classId) return;
         const config = {
@@ -351,7 +371,10 @@ function Context({ children }: { children: React.ReactNode }) {
             getStudents,
             addStudent,
             deleteStudent,
-            updateEvaluation
+            getEvaluation,
+            updateEvaluation,
+            answerSheets,
+            setAnswerSheets
         }}>
             {children}
         </MainContext.Provider>
