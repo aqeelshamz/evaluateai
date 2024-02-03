@@ -20,9 +20,10 @@ function Context({ children }: { children: React.ReactNode }) {
 
     const [evaluators, setEvaluators] = useState<any[]>([]);
     const [selectedEvaluator, setSelectedEvaluator] = useState<number>(-1);
-    const [newEvaluatorTitle, setNewEvaluatorTitle] = useState<string>("");
     const [loadingEvaluator, setLoadingEvaluator] = useState<boolean>(false);
     const [creatingEvaluator, setCreatingEvaluator] = useState<boolean>(false);
+    const [newEvaluatorTitle, setNewEvaluatorTitle] = useState<string>("");
+    const [newEvaluatorClassId, setNewEvaluatorClassId] = useState<string>("-1");
     const [newEvaluatorQuestionPapers, setNewEvaluatorQuestionPapers] = useState<string[]>([]);
     const [newEvaluatorAnswerKeys, setNewEvaluatorAnswerKeys] = useState<string[]>([]);
 
@@ -78,7 +79,7 @@ function Context({ children }: { children: React.ReactNode }) {
     }
 
     const createEvaluator = () => {
-        if (newEvaluatorTitle === '' || newEvaluatorQuestionPapers.length === 0 || newEvaluatorAnswerKeys.length === 0) {
+        if (newEvaluatorClassId === "-1" || newEvaluatorTitle === '' || newEvaluatorQuestionPapers.length === 0 || newEvaluatorAnswerKeys.length === 0) {
             return toast.error("Please fill all the fields!");
         }
 
@@ -93,6 +94,7 @@ function Context({ children }: { children: React.ReactNode }) {
             },
             data: {
                 "title": newEvaluatorTitle,
+                "classId": newEvaluatorClassId,
                 "questionPapers": newEvaluatorQuestionPapers,
                 "answerKeys": newEvaluatorAnswerKeys,
             }
@@ -196,6 +198,7 @@ function Context({ children }: { children: React.ReactNode }) {
     }
 
     const getStudents = (classId?: string) => {
+        if (!classId) return;
         const config = {
             method: "POST",
             url: `${serverURL}/class/students`,
@@ -274,7 +277,8 @@ function Context({ children }: { children: React.ReactNode }) {
         });
     }
 
-    const getEvaluation = (classId: any) => {
+    const getEvaluation = () => {
+        if (!evaluators[selectedEvaluator]?._id) return;
         const config = {
             method: "POST",
             url: `${serverURL}/evaluate/evaluations/get`,
@@ -282,7 +286,6 @@ function Context({ children }: { children: React.ReactNode }) {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
             },
             data: {
-                classId: classId,
                 evaluatorId: evaluators[selectedEvaluator]?._id
             }
         };
@@ -293,8 +296,8 @@ function Context({ children }: { children: React.ReactNode }) {
         });
     }
 
-    const updateEvaluation = (classId: string, evaluatorId: string, answerSheets: any) => {
-        if (!evaluatorId || !classId) return;
+    const updateEvaluation = (evaluatorId: string, answerSheets: any) => {
+        if (!evaluatorId) return;
         const config = {
             method: "POST",
             url: `${serverURL}/evaluate/evaluations/update`,
@@ -302,7 +305,6 @@ function Context({ children }: { children: React.ReactNode }) {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
             },
             data: {
-                classId: classId,
                 evaluatorId: evaluatorId,
                 answerSheets: answerSheets,
             }
@@ -375,7 +377,9 @@ function Context({ children }: { children: React.ReactNode }) {
             getEvaluation,
             updateEvaluation,
             answerSheets,
-            setAnswerSheets
+            setAnswerSheets,
+            newEvaluatorClassId,
+            setNewEvaluatorClassId,
         }}>
             {children}
         </MainContext.Provider>

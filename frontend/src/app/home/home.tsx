@@ -3,7 +3,7 @@ import { useContext, useEffect } from "react";
 import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey, FiUsers } from "react-icons/fi";
 import Link from "next/link";
 import { appName } from "@/utils/utils";
-import { UploadDropzone } from "@/utils/uploadthing";
+import { UploadButton, UploadDropzone } from "@/utils/uploadthing";
 import { MainContext } from "@/context/context";
 import { usePathname } from "next/navigation";
 
@@ -38,7 +38,9 @@ export default function Home({
     getClasses,
     createEvaluator,
     deleteEvaluator,
-    getStudents, } = useContext(MainContext);
+    getStudents,
+    newEvaluatorClassId,
+    setNewEvaluatorClassId } = useContext(MainContext);
 
   const pathname = usePathname();
 
@@ -180,46 +182,58 @@ export default function Home({
           <h3 className="flex items-center font-bold text-lg"><FiPlusCircle className="mr-1" /> New Evaluator</h3>
           <p className="flex items-center py-4"><FiType className='mr-2' />Title</p>
           <input className="input input-bordered w-full" placeholder="What's the name of the exam / evaluator?" type="text" onChange={(x) => setNewEvaluatorTitle(x.target.value)} value={newEvaluatorTitle} />
-          <p className="flex items-center py-4"><FiFileText className='mr-2' />Upload question paper(s)</p>
+          <p className="flex items-center py-4"><FiUsers className='mr-2' />Class</p>
+          <select className="select select-bordered w-full" value={newEvaluatorClassId} onChange={(x) => setNewEvaluatorClassId(x.target.value)}>
+            <option disabled selected value={"-1"}>Select class</option>
+            {
+              classes?.map((class_: any, i: any) => (
+                <option key={i} value={class_._id}>{class_?.subject} | {class_?.name} {class_?.section}</option>
+              ))
+            }
+          </select><p className="flex items-center py-4"><FiFileText className='mr-2' />Upload question paper(s)</p>
           {newEvaluatorQuestionPapers.length > 0 ?
             <div className="flex flex-wrap">{
               newEvaluatorQuestionPapers.map((file: string, i: number) => {
-                return <img key={i} src={file} className="cursor-pointer w-20 h-20 object-cover rounded-md mr-2 mb-2" onClick={() => window.open(file)} />
+                return <img key={i} src={file} className="border cursor-pointer w-20 h-20 object-cover rounded-md mr-2 mb-2" onClick={() => window.open(file)} />
               })
             }</div>
-            : <UploadDropzone
-              endpoint="media"
-              onClientUploadComplete={(res) => {
-                var files = [];
-                for (const file of res) {
-                  files.push(file.url);
-                }
-                setNewEvaluatorQuestionPapers([...files]);
-              }}
-              onUploadError={(error: Error) => {
-                alert(`ERROR! ${error.message}`);
-              }}
-            />}
+            : <div className="flex">
+              <UploadButton
+                endpoint="media"
+                onClientUploadComplete={(res) => {
+                  var files = [];
+                  for (const file of res) {
+                    files.push(file.url);
+                  }
+                  setNewEvaluatorQuestionPapers([...files]);
+                }}
+                onUploadError={(error: Error) => {
+                  alert(`ERROR! ${error.message}`);
+                }}
+              />
+            </div>}
           <p className="flex items-center py-4"><FiKey className='mr-2' />Upload answer key / criteria</p>
           {newEvaluatorAnswerKeys.length > 0 ?
             <div className="flex flex-wrap">{
               newEvaluatorAnswerKeys.map((file: string, i: number) => {
-                return <img key={i} src={file} className="cursor-pointer w-20 h-20 object-cover rounded-md mr-2 mb-2" onClick={() => window.open(file)} />
+                return <img key={i} src={file} className="border cursor-pointer w-20 h-20 object-cover rounded-md mr-2 mb-2" onClick={() => window.open(file)} />
               })
             }</div>
-            : <UploadDropzone
-              endpoint="media"
-              onClientUploadComplete={(res) => {
-                var files = [];
-                for (const file of res) {
-                  files.push(file.url);
-                }
-                setNewEvaluatorAnswerKeys([...files]);
-              }}
-              onUploadError={(error: Error) => {
-                alert(`ERROR! ${error.message}`);
-              }}
-            />}
+            : <div className="flex">
+              <UploadButton
+                endpoint="media"
+                onClientUploadComplete={(res) => {
+                  var files = [];
+                  for (const file of res) {
+                    files.push(file.url);
+                  }
+                  setNewEvaluatorAnswerKeys([...files]);
+                }}
+                onUploadError={(error: Error) => {
+                  alert(`ERROR! ${error.message}`);
+                }}
+              />
+            </div>}
           <div className="modal-action">
             <label htmlFor="newevaluator_modal" className="btn">Cancel</label>
             <label htmlFor="newevaluator_modal" className="btn btn-primary" onClick={() => createEvaluator()}>Create Evaluator</label>
