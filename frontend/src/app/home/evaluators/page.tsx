@@ -1,8 +1,9 @@
 "use client";
-import { use, useContext, useEffect, useState } from "react";
-import { FiFileText, FiKey, FiUsers } from "react-icons/fi";
+import { useContext, useEffect } from "react";
+import { FiFileText, FiKey } from "react-icons/fi";
 import { MainContext } from "@/context/context";
 import { UploadDropzone } from "@/utils/uploadthing";
+import { toast } from "react-toastify";
 
 export default function Evaluators() {
   const {
@@ -14,7 +15,11 @@ export default function Evaluators() {
     updateEvaluation,
     getEvaluation,
     answerSheets,
-    setAnswerSheets } = useContext(MainContext);
+    setAnswerSheets,
+    evaluate,
+    evaluating,
+    setEvaluating
+  } = useContext(MainContext);
 
   useEffect(() => {
     getStudents(evaluators[selectedEvaluator]?.classId);
@@ -25,6 +30,22 @@ export default function Evaluators() {
     console.log(answerSheets)
     updateEvaluation(evaluators[selectedEvaluator]?._id, answerSheets);
   }, [answerSheets]);
+
+  const evaluateAnswerSheets = async () => {
+    if (students.length < 1) {
+      return;
+    }
+
+    for (let i = 0; i < students.length; i++) {
+      if (!answerSheets[i] || answerSheets[i].length < 1) {
+        continue;
+      }
+      await evaluate(i + 1);
+    }
+
+    setEvaluating(-1);
+    toast.success("Evaluation completed!");
+  };
 
   return (
     <div className="animate-fade-in-bottom flex flex-col w-full max-sm:max-w-none">
@@ -55,7 +76,8 @@ export default function Evaluators() {
                 <p className="flex items-center mb-1">{student?.rollNo}. {student?.name}</p>
                 {answerSheets[i] && answerSheets[i]?.length >= 1 ? <div className="flex flex-wrap">{
                   answerSheets[i]?.map((file: string, j: number) => {
-                    return <div className="relative">
+                    return <div className="relative flex items-center justify-center">
+                      {evaluating === student?.rollNo ? <div className="bg-white p-1 rounded-full absolute flex items-center text-sm"><span className="mr-1 loading loading-spinner loading-sm"></span><p>Evaluating...</p></div> : ""}
                       <button className="btn btn-sm btn-circle absolute right-3 top-1" onClick={() => {
                         answerSheets[i].splice(j, 1);
                         setAnswerSheets([...answerSheets]);
@@ -84,7 +106,10 @@ export default function Evaluators() {
             ))
           }
         </div>
-        <button className="btn btn-primary w-full max-w-lg my-5" onClick={() => console.log(answerSheets)}>Evaluate</button>
+        {evaluating !== -1 ? <div className="flex flex-col mb-5">
+          <p className="mb-2">Evaluating Answer Sheets {evaluating} of {students.length}</p>
+          <progress className="progress max-w-lg" value={evaluating} max={students.length}></progress>
+        </div> : <button className="btn btn-primary w-full max-w-lg my-5" onClick={() => evaluateAnswerSheets()}>Evaluate</button>}
       </div>
     </div>
   );

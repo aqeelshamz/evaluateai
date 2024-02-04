@@ -43,6 +43,8 @@ function Context({ children }: { children: React.ReactNode }) {
 
     const [answerSheets, setAnswerSheets] = useState<any>([]);
 
+    const [evaluating, setEvaluating] = useState<number>(-1);
+
     const getEvaluators = () => {
         const config = {
             method: "GET",
@@ -313,6 +315,26 @@ function Context({ children }: { children: React.ReactNode }) {
         axios(config);
     }
 
+    const evaluate = async (rollNo: number) => {
+        setEvaluating(rollNo);
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluators/evaluate`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            data: {
+                evaluatorId: evaluators[selectedEvaluator]?._id,
+                rollNo: rollNo,
+            }
+        };
+
+        var response = await axios(config);
+        console.log(`RESULT OF ${rollNo}: `);
+        console.log(response.data);
+        return response.data;
+    }
+
     return (
         <MainContext.Provider value={{
             theme,
@@ -380,6 +402,9 @@ function Context({ children }: { children: React.ReactNode }) {
             setAnswerSheets,
             newEvaluatorClassId,
             setNewEvaluatorClassId,
+            evaluate,
+            setEvaluating,
+            evaluating,
         }}>
             {children}
         </MainContext.Provider>
