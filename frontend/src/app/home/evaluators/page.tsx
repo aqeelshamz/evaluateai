@@ -5,6 +5,7 @@ import { MainContext } from "@/context/context";
 import { UploadDropzone } from "@/utils/uploadthing";
 import { toast } from "react-toastify";
 import { FaTrophy } from "react-icons/fa";
+import Link from "next/link";
 
 export default function Evaluators() {
   const {
@@ -61,7 +62,7 @@ export default function Evaluators() {
       </div>
       <div className="flex items-center justify-between mb-1 mt-4 w-full max-w-lg">
         <p className="flex items-center font-semibold text-xl"><FiFileText className="mr-2" /> {evaluators[selectedEvaluator]?.title}</p>
-        {Object.keys(evaluationData).length ? <button className="btn btn-primary" onClick={() => { console.log(evaluationData) }}><FaTrophy /> View Results</button> : ""}
+        {Object.keys(evaluationData).length ? <Link href={"/results/" + evaluators[selectedEvaluator]?._id}><label className="btn btn-primary"><FaTrophy /> View Results</label></Link> : ""}
       </div>
       <div className="overflow-y-auto">
         <p className="flex items-center mb-2 mt-4"><FiFileText className="mr-2" /> Question Paper(s)</p>

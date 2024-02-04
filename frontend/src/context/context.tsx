@@ -46,8 +46,8 @@ function Context({ children }: { children: React.ReactNode }) {
     const [evaluating, setEvaluating] = useState<number>(-1);
     const [evaluationData, setEvaluationData] = useState<any>({});
 
-    const [resultRollNo, setResultRollNo] = useState<number>(-1);
     const [resultData, setResultData] = useState<any>({});
+    const [resultDataTable, setResultDataTable] = useState<any>([]);
 
     const [imgPreviewURL, setImgPreviewURL] = useState<string>("");
 
@@ -65,6 +65,12 @@ function Context({ children }: { children: React.ReactNode }) {
             setUser(response.data.user);
             if (response.data.evaluators.length > 0 && pathname.includes("evaluators")) {
                 setSelectedEvaluator(0);
+            }
+            else {
+                if (window.location.href.includes("/evaluators")) {
+                    window.location.href = "/home";
+                }
+                setSelectedEvaluator(-1);
             }
         });
     }
@@ -342,7 +348,7 @@ function Context({ children }: { children: React.ReactNode }) {
         return response.data;
     }
 
-    const getResults = (evaluatorId?: string) => {
+    const getResults = (evaluatorId?: string, rollNo?: number) => {
         if (!evaluatorId) return;
         const config = {
             method: "POST",
@@ -352,12 +358,30 @@ function Context({ children }: { children: React.ReactNode }) {
             },
             data: {
                 evaluatorId: evaluatorId,
-                rollNo: resultRollNo,
+                rollNo: rollNo,
             }
         };
 
         axios(config).then((response) => {
             setResultData(response.data);
+        });
+    }
+
+    const getResultsTable = (evaluatorId?: string) => {
+        if (!evaluatorId) return;
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluations/results/all`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            data: {
+                evaluatorId: evaluatorId,
+            }
+        };
+
+        axios(config).then((response) => {
+            setResultDataTable(response.data);
         });
     }
 
@@ -454,11 +478,11 @@ function Context({ children }: { children: React.ReactNode }) {
             getResults,
             setResultData,
             resultData,
-            resultRollNo,
-            setResultRollNo,
             deleteEvaluation,
             setImgPreviewURL,
             imgPreviewURL,
+            getResultsTable,
+            resultDataTable,
         }}>
             {children}
         </MainContext.Provider>

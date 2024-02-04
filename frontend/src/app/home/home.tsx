@@ -67,7 +67,7 @@ export default function Home({
 
   useEffect(() => {
     if (selectedClass !== -1) {
-      getStudents();
+      getStudents(classes[selectedClass]?._id);
     }
   }, [selectedClass]);
 
