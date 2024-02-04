@@ -67,7 +67,6 @@ router.post("/update", validate, async (req, res) => {
         name: joi.string().required(),
         section: joi.string().required(),
         subject: joi.string().required(),
-        students: joi.array().required(),
     });
 
     try {
@@ -75,14 +74,13 @@ router.post("/update", validate, async (req, res) => {
 
         const _class = await Class.findById(data.classId);
 
-        if (_class.createdB.toString() != req.user._id.toString()) {
+        if (_class.createdBy.toString() != req.user._id.toString()) {
             return res.status(400).send("You are not authorized to update this class");
         }
 
         _class.name = data.name;
         _class.section = data.section;
         _class.subject = data.subject;
-        _class.students = data.students;
 
         await _class.save();
 
@@ -136,6 +134,38 @@ router.post("/students/delete", validate, async (req, res) => {
         }
 
         _class.students = _class.students.filter(student => student.rollNo != data.rollNo);
+
+        await _class.save();
+
+        return res.send(_class);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
+router.post("/students/update", validate, async (req, res) => {
+    const schema = joi.object({
+        classId: joi.string().required(),
+        rollNo: joi.number().required(),
+        name: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+
+        const _class = await Class.findById(data.classId);
+
+        if (_class.createdBy.toString() != req.user._id.toString()) {
+            return res.status(400).send("You are not authorized to update this class");
+        }
+
+        _class.students = _class.students.map(student => {
+            if (student.rollNo == data.rollNo) {
+                student.name = data.name;
+            }
+            return student;
+        });
 
         await _class.save();
 

@@ -20,7 +20,7 @@ const router = express.Router();
 //EVALUATORS
 router.get("/evaluators", validate, async (req, res) => {
     const evaluators = await Evaluator.find({ userId: req.user._id });
-    return res.send({ evaluators: evaluators, user: { name: req.user.name, email: req.user.email, type: req.user.type } });
+    return res.send({ evaluators: evaluators.reverse(), user: { name: req.user.name, email: req.user.email, type: req.user.type } });
 });
 
 router.post("/evaluators/create", validate, async (req, res) => {
@@ -92,6 +92,8 @@ router.post("/evaluators/delete", validate, async (req, res) => {
         await limits.save();
 
         await Evaluator.findByIdAndDelete(data.evaluatorId);
+
+        await Evaluation.deleteOne({ evaluatorId: data.evaluatorId });
 
         return res.send("Evaluator deleted");
     }
@@ -166,6 +168,12 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
         }
 
         const classData = await Class.findById(evaluator.classId);
+
+        for (const answerSheet of evaluation.answerSheets) {
+            if (answerSheet == null) {
+                await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + (evaluation.answerSheets.indexOf(answerSheet) + 1)]: null } });
+            }
+        }
 
         var questionPapersPrompt = [];
         var answerKeysPrompt = [];
@@ -275,6 +283,12 @@ router.post("/evaluations/get", validate, async (req, res) => {
             return res.send(null);
         }
 
+        for (const answerSheet of evaluation.answerSheets) {
+            if (answerSheet == null) {
+                await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + (evaluation.answerSheets.indexOf(answerSheet) + 1)]: null } });
+            }
+        }
+
         return res.send(evaluation);
     }
     catch (err) {
@@ -336,6 +350,152 @@ router.post("/evaluations/update", validate, async (req, res) => {
     }
     catch (err) {
         console.log(err);
+        return res.status(500).send(err);
+    }
+});
+
+router.post("/evaluations/results", validate, async (req, res) => {
+    const schema = joi.object({
+        evaluatorId: joi.string().required(),
+        rollNo: joi.number().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+
+        const evaluator = await Evaluator.findById(data.evaluatorId);
+
+        if (!evaluator) {
+            return res.status(400).send("Evaluator not found");
+        }
+
+        if (evaluator.userId.toString() != req.user._id.toString()) {
+            return res.status(400).send("Unauthorized");
+        }
+
+        const evaluation = await Evaluation.findOne({ evaluatorId: data.evaluatorId });
+
+        if (!evaluation) {
+            return res.send(null);
+        }
+
+        var resultsData = {};
+        const students = (await Class.findById(evaluator.classId)).students;
+        var studentData = {};
+
+        for (const student of students) {
+            if (data.rollNo === -1) {
+                studentData = student;
+                break;
+            }
+
+            if (student.rollNo === data.rollNo) {
+                studentData = student;
+            }
+        }
+
+        if (!evaluation.data[studentData.rollNo]) {
+            return res.send({});
+        }
+
+        var totalScore = 0;
+        var scored = 0;
+
+        for (const answer of evaluation.data[studentData.rollNo].answers) {
+            scored += answer.score[0];
+            totalScore += answer.score[1];
+        }
+
+        resultsData["student_name"] = studentData.name;
+        resultsData["roll_no"] = studentData.rollNo;
+        resultsData["class"] = (await Class.findById(evaluator.classId)).name + " " + (await Class.findById(evaluator.classId)).section;
+        resultsData["subject"] = (await Class.findById(evaluator.classId)).subject;
+        resultsData["question_papers"] = evaluator.questionPapers;
+        resultsData["answer_keys"] = evaluator.answerKeys;
+        resultsData["answer_sheets"] = evaluation.answerSheets[studentData.rollNo - 1];
+        resultsData["results"] = evaluation.data[studentData.rollNo].answers;
+        resultsData["score"] = [scored, totalScore];
+
+        return res.send(resultsData);
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).send(err);
+    }
+});
+
+router.post("/evaluations/results/all", validate, async (req, res) => {
+    const schema = joi.object({
+        evaluatorId: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+
+        const evaluator = await Evaluator.findById(data.evaluatorId);
+
+        if (!evaluator) {
+            return res.status(400).send("Evaluator not found");
+        }
+
+        if (evaluator.userId.toString() != req.user._id.toString()) {
+            return res.status(400).send("Unauthorized");
+        }
+
+        const evaluation = await Evaluation.findOne({ evaluatorId: data.evaluatorId });
+
+        if (!evaluation) {
+            return res.send(null);
+        }
+
+        var resultsData = [];
+
+        const students = (await Class.findById(evaluator.classId)).students;
+
+        for (const student of students) {
+            var studentData = {};
+
+            if (!evaluation.data[student.rollNo]) {
+                continue;
+            }
+
+            studentData["student_name"] = student.name;
+            studentData["roll_no"] = student.rollNo;
+            var scored = 0;
+            var totalScore = 0;
+
+            for (const answer of evaluation.data[student.rollNo].answers) {
+                scored += answer.score[0];
+                totalScore += answer.score[1];
+            }
+
+            studentData["score"] = scored + " / " + totalScore;
+
+            resultsData.push(studentData);
+        }
+
+        return res.send(resultsData);
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).send(err);
+    }
+});
+
+router.post("/evaluations/delete", validate, async (req, res) => {
+    const schema = joi.object({
+        evaluatorId: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+
+        await Evaluation.deleteOne({ evaluatorId: data.evaluatorId });
+
+        return res.send("Evaluation deleted");
+    }
+    catch (err) {
+        console.log(err)
         return res.status(500).send(err);
     }
 });
