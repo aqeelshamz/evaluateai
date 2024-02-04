@@ -44,6 +44,12 @@ function Context({ children }: { children: React.ReactNode }) {
     const [answerSheets, setAnswerSheets] = useState<any>([]);
 
     const [evaluating, setEvaluating] = useState<number>(-1);
+    const [evaluationData, setEvaluationData] = useState<any>({});
+
+    const [resultRollNo, setResultRollNo] = useState<number>(-1);
+    const [resultData, setResultData] = useState<any>({});
+
+    const [imgPreviewURL, setImgPreviewURL] = useState<string>("");
 
     const getEvaluators = () => {
         const config = {
@@ -295,6 +301,7 @@ function Context({ children }: { children: React.ReactNode }) {
         axios(config).then((response) => {
             const data = response.data.answerSheets ?? [];
             setAnswerSheets([...data]);
+            setEvaluationData(response.data.data ?? {});
         });
     }
 
@@ -334,6 +341,44 @@ function Context({ children }: { children: React.ReactNode }) {
         console.log(response.data);
         return response.data;
     }
+
+    const getResults = (evaluatorId?: string) => {
+        if (!evaluatorId) return;
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluations/results`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            data: {
+                evaluatorId: evaluatorId,
+                rollNo: resultRollNo,
+            }
+        };
+
+        axios(config).then((response) => {
+            setResultData(response.data);
+        });
+    }
+
+    const deleteEvaluation = async (evaluatorId?: string) => {
+        if (!evaluatorId) return;
+
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluations/delete`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            data: {
+                evaluatorId: evaluatorId,
+            }
+        };
+
+        await axios(config);
+        getEvaluation();
+    }
+
 
     return (
         <MainContext.Provider value={{
@@ -405,6 +450,15 @@ function Context({ children }: { children: React.ReactNode }) {
             evaluate,
             setEvaluating,
             evaluating,
+            evaluationData,
+            getResults,
+            setResultData,
+            resultData,
+            resultRollNo,
+            setResultRollNo,
+            deleteEvaluation,
+            setImgPreviewURL,
+            imgPreviewURL,
         }}>
             {children}
         </MainContext.Provider>
