@@ -30,7 +30,13 @@ export default function Classes() {
     setEditClassSection,
     editClassSubject,
     setEditClassSubject,
-    editClass } = useContext(MainContext);
+    editClass,
+    editStudentRollNo,
+    setEditStudentRollNo,
+    editStudentName,
+    setEditStudentName,
+    editStudent
+  } = useContext(MainContext);
 
   return (
     <div className="animate-fade-in-bottom flex flex-col w-full max-w-[50vw] max-sm:max-w-none">
@@ -62,7 +68,10 @@ export default function Classes() {
                 <tr>
                   <th>{student?.rollNo}</th>
                   <td>{student?.name}</td>
-                  <td><label className="btn btn-square"><FiEdit /></label></td>
+                  <td><label htmlFor="editstudent_modal" className="btn btn-square" onClick={() => {
+                    setEditStudentRollNo(student.rollNo);
+                    setEditStudentName(student.name);
+                  }}><FiEdit /></label></td>
                   <td><label htmlFor="deletestudent_modal" className="btn btn-square" onClick={() => setDeleteStudentRollNo(student.rollNo)}><FiTrash /></label></td>
                 </tr>
               ))
@@ -147,6 +156,22 @@ export default function Classes() {
           </div>
         </div>
         <label className="modal-backdrop" htmlFor="deletestudent_modal">Cancel</label>
+      </div>
+      {/* Edit Student Modal */}
+      <input type="checkbox" id="editstudent_modal" className="modal-toggle" />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiEdit className="mr-1" /> Edit Student</h3>
+          <p className="flex items-center py-4"><FiHash className='mr-2' />Roll No</p>
+          <p className="flex items-center py-4">{editStudentRollNo}</p>
+          <p className="flex items-center py-4"><FiUser className='mr-2' />Student Name</p>
+          <input className="input input-bordered w-full" placeholder="Student Name" type="text" onChange={(x) => setEditStudentName(x.target.value)} value={editStudentName} />
+          <div className="modal-action">
+            <label htmlFor="editstudent_modal" className="btn">Cancel</label>
+            <label htmlFor="editstudent_modal" className="btn btn-primary" onClick={() => editStudent()}>Save</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="editstudent_modal">Cancel</label>
       </div>
     </div>
   );

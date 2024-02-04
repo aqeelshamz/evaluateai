@@ -41,6 +41,8 @@ function Context({ children }: { children: React.ReactNode }) {
     const [students, setStudents] = useState<any[]>([]);
     const [newStudentName, setNewStudentName] = useState<string>("");
     const [newStudentRollNo, setNewStudentRollNo] = useState<number>(0);
+    const [editStudentName, setEditStudentName] = useState<string>("");
+    const [editStudentRollNo, setEditStudentRollNo] = useState<number>(-1);
     const [addingStudent, setAddingStudent] = useState<boolean>(false);
     const [deleteStudentRollNo, setDeleteStudentRollNo] = useState<number>(-1);
 
@@ -299,6 +301,39 @@ function Context({ children }: { children: React.ReactNode }) {
         });
     }
 
+    const editStudent = () => {
+        if (editStudentName === '') {
+            return toast.error("Please fill all the fields!");
+        }
+
+        setAddingStudent(true);
+
+        const config = {
+            method: "POST",
+            url: `${serverURL}/class/students/update`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": `application/json`,
+            },
+            data: {
+                "classId": classes[selectedClass]._id,
+                "rollNo": editStudentRollNo,
+                "name": editStudentName,
+            }
+        };
+
+        axios(config).then((response) => {
+            toast.success("Student saved!");
+            setEditStudentName("");
+            setEditStudentRollNo(-1);
+            getStudents();
+            setAddingStudent(false);
+        }).catch((error) => {
+            toast.error(error.response.data);
+            setAddingStudent(false);
+        });
+    }
+
     const deleteStudent = () => {
         setAddingStudent(true);
 
@@ -526,7 +561,12 @@ function Context({ children }: { children: React.ReactNode }) {
             setEditClassSection,
             editClassSubject,
             setEditClassSubject,
-            editClass
+            editClass,
+            editStudentName,
+            setEditStudentName,
+            editStudentRollNo,
+            setEditStudentRollNo,
+            editStudent
         }}>
             {children}
         </MainContext.Provider>
