@@ -62,7 +62,7 @@ export default function Evaluators() {
       </div>
       <div className="flex items-center justify-between mb-1 mt-4 w-full max-w-lg">
         <p className="flex items-center font-semibold text-xl"><FiFileText className="mr-2" /> {evaluators[selectedEvaluator]?.title}</p>
-        {Object.keys(evaluationData).length ? <Link href={"/results/" + evaluators[selectedEvaluator]?._id}><label className="btn btn-primary"><FaTrophy /> View Results</label></Link> : ""}
+        {Object.keys(evaluationData).length && answerSheets.length >= 1 ? <Link href={"/results/" + evaluators[selectedEvaluator]?._id}><label className="btn btn-primary"><FaTrophy /> View Results</label></Link> : ""}
       </div>
       <div className="overflow-y-auto">
         <p className="flex items-center mb-2 mt-4"><FiFileText className="mr-2" /> Question Paper(s)</p>
@@ -84,7 +84,7 @@ export default function Evaluators() {
               <div key={i} className="flex flex-col max-w-lg mb-4">
                 <p className="flex items-center mb-1">{student?.rollNo}. {student?.name} {evaluationData[student?.rollNo] && (answerSheets[i] && answerSheets[i]?.length >= 1) ? <div className="ml-2 flex items-center text-green-500 text-sm"><FiCheck className="mr-2" /> Evaluated</div> : ""}</p>
                 {answerSheets[i] && answerSheets[i]?.length >= 1 ? <div className="flex flex-wrap">{
-                  answerSheets[i]?.map((file: string, j: number) => {
+                  answerSheets[i]?.map((file: string, j: number) => { 
                     return <div className="relative flex items-center justify-center">
                       {evaluating === student?.rollNo ? <div className="bg-white p-1 rounded-full absolute flex items-center text-sm"><span className="mr-1 loading loading-spinner loading-sm"></span><p>Evaluating...</p></div> : ""}
                       <button className="btn btn-xs btn-circle absolute right-3 top-1" onClick={() => {

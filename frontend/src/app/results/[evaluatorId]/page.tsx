@@ -85,14 +85,15 @@ export default function Results() {
                     </div>
                     <div className='w-full flex mt-2 border overflow-y-hidden'>
                         <div className='w-full rounded p-2 overflow-y-auto'>
+                            {resultData?.score ? <div className='flex flex-col items-center text-lg font-semibold mt-2 mb-4'><FaTrophy className='mr-2' /><div>Total marks scored</div><p>{resultData?.score[0]} / {resultData?.score[1]}</p></div> : ""}
                             {
                                 resultData?.results?.map((result: any, i: number) => {
                                     return <div key={i} className='border p-2 rounded mb-2'>
-                                        <div className='flex flex-col text-semibold mb-6'><div className="mb-3 badge badge-md badge-neutral"><FiHelpCircle className='mr-1' />Question {result?.question_no}</div><p>{result?.question}</p></div>
-                                        <div className='flex flex-col text-semibold mb-6'><div className="mb-3 badge badge-md badge-ghost"><FiEdit3 className='mr-1' />Answer</div><p>{result?.answer}</p></div>
-                                        <div className='flex flex-col text-semibold mb-6'><div className="mb-3 badge badge-md badge-ghost"><FaTrophy className='mr-1' />Score</div><p>{result?.score[0]} / {result?.score[1]}</p></div>
-                                        <div className='flex flex-col text-semibold mb-6'><div className="mb-3 badge badge-md badge-ghost"><FiInfo className='mr-1' />Remarks</div><p>{result?.remarks}</p></div>
-                                        <div className='flex flex-col text-semibold mb-6'><div className="mb-3 badge badge-md badge-ghost"><FaRobot className='mr-1' />AI Confidence</div><progress className={"mb-1 progress w-56 " + (result?.confidence === 1 ? "progress-success" : result?.confidence === 0 ? "progress-error" : "progress-warning")} value={result?.confidence === 1 ? "100" : result?.confidence === 0 ? "0" : "50"} max="100"></progress><span className={"text-sm font-semibold " + (result?.confidence === 1 ? "text-green-500" : result?.confidence === 0 ? "text-red-500" : "text-orange-500")}>{(result?.confidence === 1 ? "High" : result?.confidence === 0 ? "Low" : "Medium")}</span></div>
+                                        <div className='flex flex-col text-lg font-semibold mb-6'><div className="mb-3 badge badge-md badge-neutral"><FiHelpCircle className='mr-1' />Question {result?.question_no}</div><p>{typeof result?.question === "object" ? JSON.stringify(result?.question) : result?.question}</p></div>
+                                        <div className='flex flex-col mb-6'><div className="mb-3 badge badge-md badge-ghost"><FiEdit3 className='mr-1' />Answer</div><p>{typeof result?.answer === "object" ? JSON.stringify(result?.answer) : result?.answer}</p></div>
+                                        <div className='flex flex-col mb-6'><div className="mb-3 badge badge-md badge-ghost"><FaTrophy className='mr-1' />Score</div><p>{result?.score[0]} / {result?.score[1]}</p></div>
+                                        <div className='flex flex-col mb-6'><div className="mb-3 badge badge-md badge-ghost"><FiInfo className='mr-1' />Remarks</div><p>{result?.remarks}</p></div>
+                                        <div className='flex flex-col mb-6'><div className="mb-3 badge badge-md badge-ghost"><FaRobot className='mr-1' />AI Confidence</div><progress className={"mb-1 progress w-56 " + (result?.confidence === 1 ? "progress-success" : result?.confidence === 0 ? "progress-error" : "progress-warning")} value={result?.confidence === 1 ? "100" : result?.confidence === 0 ? "0" : "50"} max="100"></progress><span className={"text-sm font-semibold " + (result?.confidence === 1 ? "text-green-500" : result?.confidence === 0 ? "text-red-500" : "text-orange-500")}>{(result?.confidence === 1 ? "High" : result?.confidence === 0 ? "Low" : "Medium")}</span></div>
                                     </div>
                                 })
                             }
@@ -105,7 +106,7 @@ export default function Results() {
                                     <a role="tab" className={"tab " + (selectedPreviewTab === 2 ? "tab-active" : "")} onClick={() => setSelectedPreviewTab(2)}><FiEdit3 className='mr-2' /> Answer Sheets</a>
                                 </div>
                             </div>
-                            <div className='h-full w-full overflow-y-auto px-2 relative'>
+                            <div className='h-full w-full overflow-y-auto px-2'>
                                 {mounted && ([resultData?.question_papers, resultData?.answer_keys, resultData?.answer_sheets][selectedPreviewTab])?.map((file: string, i: number) => {
                                     return <TransformWrapper initialScale={1} wheel={{ wheelDisabled: true }}>
                                         {({ zoomIn, zoomOut, resetTransform, ...rest }) => (<>

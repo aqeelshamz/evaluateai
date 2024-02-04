@@ -33,14 +33,16 @@ export default function Home({
     classes,
     selectedClass,
     setSelectedClass,
-    setNewClassName,
     getEvaluators,
     getClasses,
     createEvaluator,
     deleteEvaluator,
     getStudents,
     newEvaluatorClassId,
-    setNewEvaluatorClassId } = useContext(MainContext);
+    setNewEvaluatorClassId,
+    setEditClassName,
+    setEditClassSection,
+    setEditClassSubject } = useContext(MainContext);
 
   const pathname = usePathname();
 
@@ -78,7 +80,7 @@ export default function Home({
       {/* Sidebar */}
       <div className={'flex flex-col p-5 min-w-[275px] max-w-[15vw] h-full rounded-md ' + (!showMenu ? "max-sm:hidden " : "max-sm:fixed max-sm:w-full max-sm:h-full max-sm:max-w-none bg-base-100 max-sm:z-50 ")}>
         <div className="flex justify-between items-center max-sm:mb-4">
-          <p className="mb-5 font-semibold max-sm:mb-3">🤖 {appName} 📝<Link href="/shop"></Link></p>
+          <Link href="/home"><div className="mb-5 font-semibold max-sm:mb-3" onClick={() => setSelectedEvaluator(-1)}>🤖 {appName} 📝</div></Link>
           <div className="hidden max-sm:flex justify-end mb-3">
             <button className="btn btn-square btn-sm" onClick={() => setShowMenu(false)}>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -131,7 +133,11 @@ export default function Home({
                 </div>
                 {selectedClass === i ?
                   <div className='flex mt-2'>
-                    <label htmlFor='editclass_modal' className='cursor-pointer flex justify-center items-center w-full p-2 bg-base-300 rounded-md mr-1 hover:bg-gray-500 hover:text-white' onClick={() => setNewClassName(classes[i].title)}>
+                    <label htmlFor='editclass_modal' className='cursor-pointer flex justify-center items-center w-full p-2 bg-base-300 rounded-md mr-1 hover:bg-gray-500 hover:text-white' onClick={() => {
+                      setEditClassName(classes[i].name);
+                      setEditClassSection(classes[i].section);
+                      setEditClassSubject(classes[i].subject);
+                    }}>
                       <FiEdit /><p className='ml-2 text-xs'>Edit</p>
                     </label>
                     <label htmlFor='deleteclass_modal' className='cursor-pointer flex justify-center items-center w-full p-2 bg-base-300 rounded-md hover:bg-red-500 hover:text-white'>

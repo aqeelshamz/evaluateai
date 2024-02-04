@@ -1,5 +1,5 @@
 "use client";
-import { useContext } from "react";
+import { use, useContext, useEffect } from "react";
 import { FiUser, FiEdit, FiTrash, FiType, FiPlusCircle, FiUsers, FiBook, FiHash } from "react-icons/fi";
 import { MainContext } from "@/context/context";
 
@@ -23,7 +23,14 @@ export default function Classes() {
     createClass,
     deleteClass,
     addStudent,
-    deleteStudent } = useContext(MainContext);
+    deleteStudent,
+    editClassName,
+    setEditClassName,
+    editClassSection,
+    setEditClassSection,
+    editClassSubject,
+    setEditClassSubject,
+    editClass } = useContext(MainContext);
 
   return (
     <div className="animate-fade-in-bottom flex flex-col w-full max-w-[50vw] max-sm:max-w-none">
@@ -93,6 +100,24 @@ export default function Classes() {
           </div>
         </div>
         <label className="modal-backdrop" htmlFor="deleteclass_modal">Cancel</label>
+      </div>
+      {/* Edit Class Modal */}
+      <input type="checkbox" id="editclass_modal" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiEdit className="mr-1" /> Edit Class</h3>
+          <p className="flex items-center py-4"><FiType className='mr-2' />Class Name</p>
+          <input className="input input-bordered w-full" placeholder="Class Name" type="text" onChange={(x) => setEditClassName(x.target.value)} value={editClassName} />
+          <p className="flex items-center py-4"><FiUsers className='mr-2' />Section</p>
+          <input className="input input-bordered w-full" placeholder="Section" type="text" onChange={(x) => setEditClassSection(x.target.value)} value={editClassSection} />
+          <p className="flex items-center py-4"><FiBook className='mr-2' />Subject</p>
+          <input className="input input-bordered w-full" placeholder="Subject" type="text" onChange={(x) => setEditClassSubject(x.target.value)} value={editClassSubject} />
+          <div className="modal-action">
+            <label htmlFor="editclass_modal" className="btn">Cancel</label>
+            <label htmlFor="editclass_modal" className="btn btn-primary" onClick={() => editClass()}>Save</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="editclass_modal">Cancel</label>
       </div>
       {/* New Student Modal */}
       <input type="checkbox" id="newstudent_modal" className="modal-toggle" />

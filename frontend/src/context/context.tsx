@@ -32,6 +32,9 @@ function Context({ children }: { children: React.ReactNode }) {
     const [newClassName, setNewClassName] = useState<string>("");
     const [newClassSection, setNewClassSection] = useState<string>("");
     const [newClassSubject, setNewClassSubject] = useState<string>("");
+    const [editClassName, setEditClassName] = useState<string>("");
+    const [editClassSection, setEditClassSection] = useState<string>("");
+    const [editClassSubject, setEditClassSubject] = useState<string>("");
     const [loadingClass, setLoadingClass] = useState<boolean>(false);
     const [creatingClass, setCreatingClass] = useState<boolean>(false);
 
@@ -63,14 +66,13 @@ function Context({ children }: { children: React.ReactNode }) {
         axios(config).then((response) => {
             setEvaluators(response.data.evaluators);
             setUser(response.data.user);
-            if (response.data.evaluators.length > 0 && pathname.includes("evaluators")) {
+            if (selectedEvaluator === -1 && response.data.evaluators.length > 0 && pathname.includes("evaluators")) {
                 setSelectedEvaluator(0);
             }
             else {
                 if (window.location.href.includes("/evaluators")) {
                     window.location.href = "/home";
                 }
-                setSelectedEvaluator(-1);
             }
         });
     }
@@ -86,7 +88,7 @@ function Context({ children }: { children: React.ReactNode }) {
 
         axios(config).then((response) => {
             setClasses(response.data);
-            if (response.data.length > 0 && pathname.includes("classes")) {
+            if (response.data.length > 0 && pathname.includes("classes") && selectedClass === -1) {
                 setSelectedClass(0);
             }
         });
@@ -187,6 +189,41 @@ function Context({ children }: { children: React.ReactNode }) {
         });
     }
 
+    const editClass = () => {
+        if (editClassName === '' || editClassSection === '' || editClassSubject === '') {
+            return toast.error("Please fill all the fields!");
+        }
+
+        setCreatingClass(true);
+
+        const config = {
+            method: "POST",
+            url: `${serverURL}/class/update`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": `application/json`,
+            },
+            data: {
+                "classId": classes[selectedClass]._id,
+                "name": editClassName,
+                "section": editClassSection,
+                "subject": editClassSubject,
+            }
+        };
+
+        axios(config).then((response) => {
+            toast.success("Class Saved!");
+            setEditClassName("");
+            setEditClassSection("");
+            setEditClassSubject("");
+            getClasses();
+            setCreatingClass(false);
+        }).catch((error) => {
+            toast.error("Failed to save class!");
+            setCreatingClass(false);
+        });
+    }
+
     const deleteClass = async () => {
         const config = {
             method: "POST",
@@ -212,7 +249,7 @@ function Context({ children }: { children: React.ReactNode }) {
     }
 
     const getStudents = (classId?: string) => {
-        if (!classId) return;
+        if (!classId && !classes[selectedClass]?._id) return;
         const config = {
             method: "POST",
             url: `${serverURL}/class/students`,
@@ -483,6 +520,13 @@ function Context({ children }: { children: React.ReactNode }) {
             imgPreviewURL,
             getResultsTable,
             resultDataTable,
+            editClassName,
+            setEditClassName,
+            editClassSection,
+            setEditClassSection,
+            editClassSubject,
+            setEditClassSubject,
+            editClass
         }}>
             {children}
         </MainContext.Provider>
