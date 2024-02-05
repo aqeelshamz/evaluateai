@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import Home from './home';
+import Home from './page';
 import { ToastContainer } from 'react-toastify';
 import { Context } from '@/context/context';
 

@@ -151,7 +151,7 @@ export default function Home({
           <p>0 rewrites left</p>
           <Link href="/shop"><button className="btn btn-sm"><FiShoppingCart /> SHOP</button></Link>
         </div>
-        {user?.type === "admin" ? <Link href="/admin/dashboard"><label className='btn mb-2 w-full'><FiUser /> ADMIN PANEL <FiArrowRight /></label></Link> : ""}
+        {user?.type === 0 ? <Link href="/admin/dashboard"><label className='btn mb-2 w-full'><FiUser /> ADMIN PANEL <FiArrowRight /></label></Link> : ""}
         <div tabIndex={0} className='cursor-pointer dropdown dropdown-top flex items-center hover:bg-base-200 p-2 rounded-lg'>
           <div className='flex items-center justify-between w-full'>
             <div className='flex items-center'>
