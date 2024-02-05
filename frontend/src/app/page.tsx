@@ -1,9 +1,21 @@
 "use client";
 import { appName } from '@/utils/utils';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useEffect, useState } from 'react'
-import { FiFacebook, FiInstagram, FiLogIn, FiPlayCircle, FiTwitter, FiVideo } from 'react-icons/fi';
+import { FaRobot } from 'react-icons/fa';
+import { FiActivity, FiArrowRight, FiCloud, FiCreditCard, FiDatabase, FiFacebook, FiFileText, FiHome, FiInstagram, FiLogIn, FiPlayCircle, FiShoppingBag, FiShoppingCart, FiTwitter, FiUnlock, FiUsers, FiVideo, FiZap } from 'react-icons/fi';
 export default function Main() {
+  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (localStorage.getItem("token")) {
+        setLoggedIn(true);
+      }
+    }
+  }, []);
+
   const [color, setColor] = useState(false)
 
   const changeColor = () => {
@@ -23,47 +35,116 @@ export default function Main() {
 
   const [selectedTab, setSelectedTab] = useState(0);
 
-  return <main className="flex flex-col">
+  const features = [
+    {
+      icon: <FiUsers />,
+      title: "Effortless Class Management",
+      subtitle: "Create, organize, and add students with ease."
+    },
+    {
+      icon: <FaRobot />,
+      title: "AI-Powered Evaluation",
+      subtitle: "Leverage cutting-edge AI for accurate and efficient grading."
+    },
+    {
+      icon: <FiFileText />,
+      title: "Detailed Result Insights",
+      subtitle: "Explore detailed insights for a holistic view of student performance."
+    },
+    {
+      icon: <FiCloud />,
+      title: "SaaS Powered",
+      subtitle: "Enjoy a scalable solution with an intuitive admin panel."
+    },
+    {
+      icon: <FiShoppingCart />,
+      title: "Scale Your Evaluation Process",
+      subtitle: "Flexible plans to suit your institution's needs."
+    },
+    {
+      icon: <FiCreditCard />,
+      title: "Secure and Convenient Payments",
+      subtitle: "Multiple payment gateways for a hassle-free experience."
+    }
+  ];
+
+  const howItWorks = [
+    {
+      title: "Create Classes & Evaluators",
+      subtitle: "Effortlessly organize classes, add students, and create evaluators. Define class details and streamline the setup for a seamless evaluation process.",
+    },
+    {
+      title: "Upload Answer Sheets",
+      subtitle: "Upload question papers and answer keys, and let EvaluateAI's advanced AI algorithms take charge. Effortlessly upload answer sheets, eliminating manual grading hassles.",
+    },
+    {
+      title: "Explore Detailed Results",
+      subtitle: "Dive into detailed results effortlessly. Navigate between 'All Students' for a quick overview and 'Detailed View' for a granular analysis. Gain insights into individual performances and make informed decisions.",
+    }
+  ];
+
+  return <main className="flex flex-col realtive">
     <div id="home" className='min-h-screen w-screen bg-gradient-to-b from-purple-400 via-violet-500 to-indigo-600 flex flex-col justify-center items-center'>
       <div className={"flex z-50 items-center justify-between fixed top-0 w-full p-3 md:px-10 duration-200 backdrop-blur-md border-b border-[rgba(255,255,255,0.1)] " + (color ? "bg-white" : "text-white")}>
-        <Link href="/home"><div className="text-lg">🤖 {appName} 📝</div></Link>
-        <div className='flex'>
+        <Link href="/"><div className="text-lg">🤖 {appName} 📝</div></Link>
+        <div className='hidden md:flex'>
           <Link href={"#home"}><label onClick={() => setSelectedTab(0)} className={'mr-5 btn btn-sm btn-ghost ' + (selectedTab === 0 ? "btn-active text-white " : "") + (color ? " text-black" : "")}>Home</label></Link>
           <Link href={"#features"}><label onClick={() => setSelectedTab(1)} className={'mr-5 btn btn-sm btn-ghost ' + (selectedTab === 1 ? "btn-active text-white " : "") + (color ? " text-black" : "")}>Features</label></Link>
           <Link href={"#how-it-works"}><label onClick={() => setSelectedTab(2)} className={'mr-5 btn btn-sm btn-ghost ' + (selectedTab === 2 ? "btn-active text-white " : "") + (color ? " text-black" : "")}>How it works</label></Link>
         </div>
-        <button className={'btn btn-primary ' + (!color ? "glass text-white" : "")}><FiLogIn /> Sign In</button>
+        {loggedIn ?
+          <Link href={"/home"}><label className={'btn btn-primary ' + (!color ? "glass text-white" : "")}><FiHome /> Home</label></Link>
+          : <Link href={"/login"}><label className={'btn btn-primary ' + (!color ? "glass text-white" : "")}><FiLogIn /> Sign In</label></Link>}
       </div>
-      <h1 className='duration-200 font-black text-6xl md:text-7xl text-white w-full text-center'>🤖 Ultimate AI<br />Answer Sheet<br />Evaluator 📝</h1>
-      <p className='duration-200 text-center mt-5 font-normal text-lg md:text-xl text-white opacity-50 w-full'>A powerful AI tool to evaluate answer sheets<br />with ease and precision.</p>
-      <button className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary"><FiPlayCircle /> See how it works</button>
+      <motion.h1
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: -30 }}
+        transition={{ type: "spring", stiffness: 100, duration: 0.1, ease: "easeInOut" }}
+        className='duration-200 font-black text-5xl md:text-7xl text-white w-full text-center'>🤖 Ultimate AI<br />Answer Sheet<br />Evaluator 📝</motion.h1>
+      <motion.p initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 0.8, y: -30 }}
+        transition={{ type: "spring", stiffness: 100, duration: 0.1, ease: "easeInOut", delay: 0.2 }}
+        className='duration-200 text-center mt-5 font-normal text-md md:text-xl text-white w-full'>A powerful AI tool to evaluate answer sheets<br />with ease and precision.</motion.p>
+      <motion.button initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: -30 }}
+        transition={{ type: "spring", stiffness: 100, duration: 0.1, ease: "easeInOut", delay: 0.4 }} className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary"><FiPlayCircle /> See how it works</motion.button>
+      <Link href={loggedIn ? "/home" : "/login"}><motion.button initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 0.7, y: -30 }}
+        transition={{ type: "spring", stiffness: 100, duration: 0.1, ease: "easeInOut", delay: 0.6 }} className="mt-5 btn btn-sm md:btn-md text-white btn-ghost">{loggedIn ? "Go to home" : "Sign in"}<FiArrowRight /></motion.button></Link>
     </div>
     <div id="features" className='min-h-screen w-screen bg-white flex flex-col items-center py-20 md:p-20'>
       <h1 className='text-4xl md:text-5xl font-bold mb-20'>Features</h1>
       <div className='flex flex-wrap justify-evenly items-center w-full md:w-3/4'>
-        {[...Array(6)].map((_, i) => {
-          return <div className='flex group m-5'>
+        {features.map((feature: any, i) => {
+          return <div key={i} className='flex group m-5'>
             <div className='bg-gray-100 group-hover:bg-black group-hover:text-white group-hover:scale-110 duration-200 text-3xl flex justify-center items-center w-20 h-20 rounded-lg mr-4'>
-              <FiVideo />
+              {feature?.icon}
             </div>
             <div className='flex flex-col'>
-              <p className='text-xl font-semibold'>Lorem ipsum dolor</p>
-              <p className='text-lg'>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+              <p className='text-xl font-semibold'>{feature?.title}</p>
+              <p className='text-lg max-w-sm'>{feature?.subtitle}</p>
             </div>
           </div>
         })}
       </div>
     </div>
-    <div id="how-it-works" className='text-white min-h-screen w-screen flex flex-col items-center py-20 md:p-20 bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-blue-700 via-blue-800 to-gray-900'>
+    <div id="how-it-works" className='text-white min-h-screen w-screen flex flex-col items-center py-20 md:p-20 bg-gradient-to-br from-violet-500 via-purple-600 to-indigo-700 '>
       <h1 className='text-4xl md:text-5xl font-bold mb-20'>How does it work?</h1>
       <div className='flex flex-col md:flex-row flex-wrap justify-evenly items-center w-full md:w-3/4'>
-        {[...Array(3)].map((_, i) => {
-          return <div className='flex flex-col group m-5 max-w-xs items-center'>
+        {howItWorks.map((step: any, i: number) => {
+          return <div key={i} className='flex flex-col group m-5 max-w-xs items-center'>
             <div className='group-hover:scale-110 group-hover:bg-white group-hover:text-black duration-200 text-2xl border border-[rgba(255,255,255,0.2)] rounded-full p-5 w-16 md:w-20 h-16 md:h-20 flex justify-center items-center'>{i + 1}</div>
-            <p className='text-center mt-10 duration-200 text-xl opacity-65'>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eaque non, exercitationem, ducimus praesentium voluptates dolor adipisci at sunt eum delectus harum ad? At maiores incidunt dolorum quibusdam sint, ratione earum?</p>
+            <p className='text-center mt-10 duration-200 text-2xl'>{step?.title}</p>
+            <p className='text-center mt-5 duration-200 text-xl opacity-65'>{step?.subtitle}</p>
           </div>
         })}
       </div>
+      <button className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary"><FiPlayCircle /> See how it works</button>
+    </div>
+    <div id="get-started" className='text-white w-screen flex flex-col items-center py-20 md:p-20 bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-blue-700 via-blue-800 to-gray-900'>
+      <h1 className='text-4xl md:text-7xl font-bold mb-5'>Get Started Now.</h1>
+      <Link href={"#home"}><button className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary"><FiZap /> Unlock the Future of Grading</button></Link>
+      <p className='opacity-75 duration-200 text-center mt-10 font-normal text-md md:text-xl text-white w-full'>Experience the power of EvaluateAI in revolutionizing your evaluation process.</p>
     </div>
     <div className='text-white w-screen flex flex-col items-center py-20 md:px-32 bg-black'>
       <div className='w-full flex flex-col md:flex-row items-center justify-between'>
@@ -77,5 +158,10 @@ export default function Main() {
       <div className="divider divider-neutral"></div>
       <p>© 2024 {appName}. All rights reserved.</p>
     </div>
+    <button className='btn btn-neutral btn-lg btn-square fixed z-[100] bottom-10 right-10'>
+      <svg fill="#0ac994" xmlns="http://www.w3.org/2000/svg" width="19.824" height="22.629" viewBox="0 0 19.824 22.629">
+        <path d="M17.217,9.263c-.663-.368-2.564-.14-4.848.566-4,2.731-7.369,6.756-7.6,13.218-.043.155-.437-.021-.515-.069a9.2,9.2,0,0,1-.606-7.388c.168-.28-.381-.624-.48-.525A11.283,11.283,0,0,0,1.6,17.091a9.84,9.84,0,0,0,17.2,9.571c3.058-5.481.219-16.4-1.574-17.4Z" transform="translate(-0.32 -9.089)"></path>
+      </svg>
+    </button>
   </main>
 }

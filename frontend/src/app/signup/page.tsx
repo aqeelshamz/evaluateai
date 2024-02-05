@@ -15,7 +15,7 @@ export default function Home() {
         if (typeof window !== 'undefined') {
             setTheme(localStorage.getItem("theme") ? localStorage.getItem("theme") : "light");
             if (localStorage.getItem("token")) {
-                window.location.href = "/chat";
+                window.location.href = "/home";
             }
         }
     }, [])
@@ -134,8 +134,8 @@ export default function Home() {
 
     return (
         <main className="w-screen h-screen bg-base-100 flex p-2 overflow-hidden">
-            <div className='flex flex-col text-white p-10 max-w-[30vw] bg-primary h-full rounded-md'>
-                <p className="mb-10">🤖 {appName} 📝</p>
+            <div className='flex flex-col text-white p-10 max-w-[30vw] bg-gradient-to-b to-purple-400 via-violet-500 from-indigo-600 h-full rounded-md'>
+                <Link href={"/"}><p className="mb-10">🤖 {appName} 📝</p></Link>
                 <p className="text-2xl font-semibold mb-2">
                     {appName} - Your AI-Powered Text Rewriter
                 </p>
@@ -155,7 +155,7 @@ export default function Home() {
                     <input className="input input-bordered mb-5 max-w-xs" placeholder="Verification Code" type="text" onChange={(x) => setVerificationCode(x.target.value)} value={verificationCode} />
                 </div>}
                 <button className="btn btn-primary max-w-xs" onClick={() => {
-                    if(loading) return;
+                    if (loading) return;
                     if (!verificationCodeSent) {
                         sendVerificationCode();
                     }

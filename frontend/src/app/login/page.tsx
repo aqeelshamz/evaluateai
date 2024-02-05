@@ -15,7 +15,7 @@ export default function Home() {
         if (typeof window !== 'undefined') {
             setTheme(localStorage.getItem("theme") ? localStorage.getItem("theme") : "light");
             if (localStorage.getItem("token")) {
-                window.location.href = "/chat";
+                window.location.href = "/home";
             }
         }
     }, [])
@@ -48,7 +48,7 @@ export default function Home() {
             .then((response) => {
                 toast.success("Logged In!");
                 localStorage.setItem("token", response.data.token);
-                window.location.href = response.data.user.type === "admin" ? "/admin" : "/";
+                window.location.href = response.data.user.type === "admin" ? "/admin" : "/home";
             })
             .catch((error) => {
                 toast.error("Something went wrong!");
@@ -57,8 +57,8 @@ export default function Home() {
 
     return (
         <main className="w-screen h-screen bg-base-100 flex p-2 overflow-hidden">
-            <div className='flex flex-col text-white p-10 max-w-[30vw] bg-primary h-full rounded-md'>
-                <p className="mb-10">🤖 {appName} 📝</p>
+            <div className='flex flex-col text-white p-10 max-w-[30vw] bg-gradient-to-b to-purple-400 via-violet-500 from-indigo-600 h-full rounded-md'>
+                <Link href={"/"}><p className="mb-10">🤖 {appName} 📝</p></Link>
                 <p className="text-2xl font-semibold mb-2">
                     {appName} - AI Powered Exam Sheet Evaluator
                 </p>
