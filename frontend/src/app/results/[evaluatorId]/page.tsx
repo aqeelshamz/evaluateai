@@ -20,7 +20,7 @@ export default function Results() {
     const [selectedTab, setSelectedTab] = useState(0);
     const [selectedRollNo, setSelectedRollNo] = useState(1);
 
-    const [selectedPreviewTab, setSelectedPreviewTab] = useState(0);
+    const [selectedPreviewTab, setSelectedPreviewTab] = useState(2);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -101,9 +101,9 @@ export default function Results() {
                         <div className='flex flex-col w-full h-full'>
                             <div className='flex p-2'>
                                 <div role="tablist" className="tabs-sm tabs tabs-boxed">
+                                    <a role="tab" className={"tab " + (selectedPreviewTab === 2 ? "tab-active" : "")} onClick={() => setSelectedPreviewTab(2)}><FiEdit3 className='mr-2' /> Answer Sheets</a>
                                     <a role="tab" className={"tab " + (selectedPreviewTab === 0 ? "tab-active" : "")} onClick={() => setSelectedPreviewTab(0)}><FiFileText className='mr-2' /> Question Paper</a>
                                     <a role="tab" className={"tab " + (selectedPreviewTab === 1 ? "tab-active" : "")} onClick={() => setSelectedPreviewTab(1)}><FiKey className='mr-2' /> Answer Key</a>
-                                    <a role="tab" className={"tab " + (selectedPreviewTab === 2 ? "tab-active" : "")} onClick={() => setSelectedPreviewTab(2)}><FiEdit3 className='mr-2' /> Answer Sheets</a>
                                 </div>
                             </div>
                             <div className='h-full w-full overflow-y-auto px-2'>

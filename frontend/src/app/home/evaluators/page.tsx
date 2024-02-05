@@ -31,11 +31,6 @@ export default function Evaluators() {
     getEvaluation();
   }, [selectedEvaluator]);
 
-  useEffect(() => {
-    console.log(answerSheets)
-    updateEvaluation(evaluators[selectedEvaluator]?._id, answerSheets);
-  }, [answerSheets]);
-
   const evaluateAnswerSheets = async () => {
     if (students.length < 1) {
       return;
@@ -51,6 +46,7 @@ export default function Evaluators() {
     setEvaluating(-1);
     toast.success("Evaluation completed!");
     getEvaluation();
+    window.location.href = "/results/" + evaluators[selectedEvaluator]?._id;
   };
 
   return (
@@ -84,12 +80,13 @@ export default function Evaluators() {
               <div key={i} className="flex flex-col max-w-lg mb-4">
                 <p className="flex items-center mb-1">{student?.rollNo}. {student?.name} {evaluationData[student?.rollNo] && (answerSheets[i] && answerSheets[i]?.length >= 1) ? <div className="ml-2 flex items-center text-green-500 text-sm"><FiCheck className="mr-2" /> Evaluated</div> : ""}</p>
                 {answerSheets[i] && answerSheets[i]?.length >= 1 ? <div className="flex flex-wrap">{
-                  answerSheets[i]?.map((file: string, j: number) => { 
+                  answerSheets[i]?.map((file: string, j: number) => {
                     return <div className="relative flex items-center justify-center">
                       {evaluating === student?.rollNo ? <div className="bg-white p-1 rounded-full absolute flex items-center text-sm"><span className="mr-1 loading loading-spinner loading-sm"></span><p>Evaluating...</p></div> : ""}
                       <button className="btn btn-xs btn-circle absolute right-3 top-1" onClick={() => {
                         answerSheets[i].splice(j, 1);
                         setAnswerSheets([...answerSheets]);
+                        updateEvaluation(evaluators[selectedEvaluator]?._id, answerSheets);
                       }}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                       </button>
@@ -106,6 +103,7 @@ export default function Evaluators() {
 
                     answerSheets[i] = files;
                     setAnswerSheets([...answerSheets]);
+                    updateEvaluation(evaluators[selectedEvaluator]?._id, answerSheets);
                   }}
                   onUploadError={(error: Error) => {
                     alert(`ERROR! ${error.message}`);

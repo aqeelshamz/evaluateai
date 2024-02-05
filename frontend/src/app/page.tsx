@@ -75,7 +75,7 @@ export default function Main() {
     },
     {
       title: "Upload Answer Sheets",
-      subtitle: "Upload question papers and answer keys, and let EvaluateAI's advanced AI algorithms take charge. Effortlessly upload answer sheets, eliminating manual grading hassles.",
+      subtitle: `Upload question papers and answer keys, and let ${appName}'s advanced AI algorithms take charge. Effortlessly upload answer sheets, eliminating manual grading hassles.`,
     },
     {
       title: "Explore Detailed Results",
@@ -144,7 +144,7 @@ export default function Main() {
     <div id="get-started" className='text-white w-screen flex flex-col items-center py-20 md:p-20 bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-blue-700 via-blue-800 to-gray-900'>
       <h1 className='text-4xl md:text-7xl font-bold mb-5'>Get Started Now.</h1>
       <Link href={"#home"}><button className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary"><FiZap /> Unlock the Future of Grading</button></Link>
-      <p className='opacity-75 duration-200 text-center mt-10 font-normal text-md md:text-xl text-white w-full'>Experience the power of EvaluateAI in revolutionizing your evaluation process.</p>
+      <p className='opacity-75 duration-200 text-center mt-10 font-normal text-md md:text-xl text-white w-full'>Experience the power of {appName} in revolutionizing your evaluation process.</p>
     </div>
     <div className='text-white w-screen flex flex-col items-center py-20 md:px-32 bg-black'>
       <div className='w-full flex flex-col md:flex-row items-center justify-between'>
