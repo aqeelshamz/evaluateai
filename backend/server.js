@@ -6,6 +6,7 @@ import userRouter from "./routes/users.js";
 import evaluateRouter from "./routes/evaluate.js";
 import shopRouter from "./routes/shop.js";
 import classRouter from "./routes/class.js";
+import adminRouter from "./routes/admin.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use("/users", userRouter);
 app.use("/evaluate", evaluateRouter);
 app.use("/shop", shopRouter);
 app.use("/class", classRouter);
+app.use("/admin", adminRouter);
 
 app.get("/", (req, res) => {
     res.send("EvaluateAI API");
