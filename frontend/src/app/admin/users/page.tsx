@@ -41,7 +41,8 @@ export default function Page() {
                         <th></th>
                         <th>User</th>
                         <th>Email</th>
-                        <th>Rewrites Left</th>
+                        <th>Evaluator Limit</th>
+                        <th>Evaluation Limit</th>
                         <th>Purchases</th>
                     </tr>
                 </thead>
@@ -67,7 +68,8 @@ export default function Page() {
                                 <td>
                                     <Link href={`mailto:${user?.email}`} target='_blank' className='underline'>{user?.email}</Link>
                                 </td>
-                                <td>{user?.rewrites}</td>
+                                <td>{user?.limits?.evaluatorLimit}</td>
+                                <td>{user?.limits?.evaluationLimit}</td>
                                 <td>{user?.purchases}</td>
                             </tr>
                         })
