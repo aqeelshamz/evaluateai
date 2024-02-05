@@ -349,8 +349,7 @@ router.post("/evaluations/update", validate, async (req, res) => {
         return res.send(evaluation);
     }
     catch (err) {
-        console.log(err);
-        return res.status(500).send(err);
+        return res.send(err);
     }
 });
 
