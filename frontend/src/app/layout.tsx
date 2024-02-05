@@ -5,7 +5,7 @@ import { Golos_Text } from 'next/font/google'
 import "react-toastify/dist/ReactToastify.css";
 
 const golos = Golos_Text({
-  weight: '400',
+  weight: ["400", "500", "600", "700"],
   subsets: ['latin'],
 })
 
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light">
+    <html lang="en" data-theme="light" className="scroll-smooth">
       <body className={golos.className}>{children}</body>
     </html>
   );
