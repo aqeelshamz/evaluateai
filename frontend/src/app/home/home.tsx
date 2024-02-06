@@ -95,7 +95,7 @@ export default function Home({
         <div className='p-0 my-2 h-full w-full overflow-hidden hover:overflow-y-auto'>
           {selectedTab === 0 ?
             evaluators?.map((evaluator: any, i: number) => {
-              return <Link href={"/home/evaluators"}><div key={i} className={(selectedEvaluator === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => {
+              return <Link key={i} href={"/home/evaluators"}><div className={(selectedEvaluator === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => {
                 setSelectedEvaluator(i); setShowMenu(false);
               }}>
                 <div className='flex justify-start items-center'>

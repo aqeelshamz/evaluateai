@@ -49,7 +49,7 @@ export default function Page() {
                 <tbody>
                     {
                         users.map((user: any, index: number) => {
-                            return <tr>
+                            return <tr key={index}>
                                 <td>
                                     {index + 1}
                                 </td>

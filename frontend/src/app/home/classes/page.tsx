@@ -65,7 +65,7 @@ export default function Classes() {
           <tbody>
             {
               students.map((student: any, i: any) => (
-                <tr>
+                <tr key={i}>
                   <th>{student?.rollNo}</th>
                   <td>{student?.name}</td>
                   <td><label htmlFor="editstudent_modal" className="btn btn-square" onClick={() => {

@@ -64,13 +64,13 @@ export default function Evaluators() {
         <p className="flex items-center mb-2 mt-4"><FiFileText className="mr-2" /> Question Paper(s)</p>
         <div className="flex flex-wrap">{
           evaluators[selectedEvaluator]?.questionPapers.map((file: string, i: number) => {
-            return <label htmlFor="preview_modal" onClick={() => setImgPreviewURL(file)}><img key={i} src={file} className="cursor-pointer w-20 h-20 border object-cover rounded-md mr-2 mb-2" /></label>
+            return <label key={i} htmlFor="preview_modal" onClick={() => setImgPreviewURL(file)}><img key={i} src={file} className="cursor-pointer w-20 h-20 border object-cover rounded-md mr-2 mb-2" /></label>
           })
         }</div>
         <p className="flex items-center mb-2 mt-4"><FiKey className="mr-2" /> Answer Key / Criteria</p>
         <div className="flex flex-wrap">{
           evaluators[selectedEvaluator]?.answerKeys.map((file: string, i: number) => {
-            return <label htmlFor="preview_modal" onClick={() => setImgPreviewURL(file)}><img key={i} src={file} className="cursor-pointer w-20 h-20 border object-cover rounded-md mr-2 mb-2" /></label>
+            return <label key={i} htmlFor="preview_modal" onClick={() => setImgPreviewURL(file)}><img key={i} src={file} className="cursor-pointer w-20 h-20 border object-cover rounded-md mr-2 mb-2" /></label>
           })
         }</div>
         <p className="flex items-center mb-1 mt-4"><FiFileText className="mr-2" /> Upload answer sheets</p>
@@ -81,7 +81,7 @@ export default function Evaluators() {
                 <p className="flex items-center mb-1">{student?.rollNo}. {student?.name} {evaluationData[student?.rollNo] && (answerSheets[i] && answerSheets[i]?.length >= 1) ? <div className="ml-2 flex items-center text-green-500 text-sm"><FiCheck className="mr-2" /> Evaluated</div> : ""}</p>
                 {answerSheets[i] && answerSheets[i]?.length >= 1 ? <div className="flex flex-wrap">{
                   answerSheets[i]?.map((file: string, j: number) => {
-                    return <div className="relative flex items-center justify-center">
+                    return <div key={j} className="relative flex items-center justify-center">
                       {evaluating === student?.rollNo ? <div className="bg-white p-1 rounded-full absolute flex items-center text-sm"><span className="mr-1 loading loading-spinner loading-sm"></span><p>Evaluating...</p></div> : ""}
                       <button className="btn btn-xs btn-circle absolute right-3 top-1" onClick={() => {
                         answerSheets[i].splice(j, 1);

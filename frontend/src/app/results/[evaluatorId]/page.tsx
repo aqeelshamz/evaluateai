@@ -108,7 +108,7 @@ export default function Results() {
                             </div>
                             <div className='h-full w-full overflow-y-auto px-2'>
                                 {mounted && ([resultData?.question_papers, resultData?.answer_keys, resultData?.answer_sheets][selectedPreviewTab])?.map((file: string, i: number) => {
-                                    return <TransformWrapper initialScale={1} wheel={{ wheelDisabled: true }}>
+                                    return <TransformWrapper key={i} initialScale={1} wheel={{ wheelDisabled: true }}>
                                         {({ zoomIn, zoomOut, resetTransform, ...rest }) => (<>
                                             <div className="flex tools p-2 items-center">
                                                 <p className='mr-2'>Page {i + 1}</p>

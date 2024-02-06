@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import Home from './page';
+import Dashboard from './dashboard';
 import { ToastContainer } from 'react-toastify';
 import { Context } from '@/context/context';
 
@@ -9,5 +9,5 @@ export default function RootLayout({
 }: {
     children: React.ReactNode
 }) {
-    return (<Context><Home>{children}</Home><ToastContainer /></Context>)
+    return (<Context><Dashboard>{children}</Dashboard><ToastContainer /></Context>)
 }

@@ -1,10 +1,9 @@
 "use client";
 import axios from 'axios';
 import Link from 'next/link';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { currencySymbol, serverURL } from "@/utils/utils";
 import { FiCreditCard, FiDollarSign, FiHome, FiShoppingCart, FiUsers } from 'react-icons/fi';
-import { MainContext } from '@/context/context';
 
 export default function Page() {
     const adminPath = "/admin";
