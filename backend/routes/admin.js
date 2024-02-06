@@ -36,23 +36,24 @@ router.get("/shop", validateAdmin, async (req, res) => {
 router.post("/shop/create", validateAdmin, async (req, res) => {
     const schema = joi.object({
         title: joi.string().required(),
-        rewriteLimit: joi.number().required().min(1),
-        price: joi.number().required().min(0),
-        type: joi.number().required().min(0).max(3), // 0 = free, 1 = monthly, 2 = yearly, 3 = lifetime
+        evaluatorLimit: joi.number().required(),
+        evaluationLimit: joi.number().required(),
+        price: joi.number().required(),
     });
 
     try {
         const data = await schema.validateAsync(req.body);
-        const newItem = new ShopItem({
+
+        const newItem = await ShopItem({
             enable: true,
-            userId: req.user._id,
             title: data.title,
-            rewriteLimit: data.rewriteLimit,
+            evaluatorLimit: data.evaluatorLimit,
+            evaluationLimit: data.evaluationLimit,
             price: data.price,
-            type: data.type,
         });
 
         await newItem.save();
+
         return res.send(newItem);
     }
     catch (err) {
@@ -65,19 +66,19 @@ router.post("/shop/edit", validateAdmin, async (req, res) => {
         itemId: joi.string().required(),
         enable: joi.boolean().required(),
         title: joi.string().required(),
-        rewriteLimit: joi.number().required().min(1),
+        evaluatorLimit: joi.number().required().min(0),
+        evaluationLimit: joi.number().required().min(0),
         price: joi.number().required().min(0),
-        type: joi.number().required().min(0).max(3), // 0 = free, 1 = monthly, 2 = yearly, 3 = lifetime
     });
 
     try {
         const data = await schema.validateAsync(req.body);
-        await ShopItem.findOneAndUpdate({ _id: data.itemId, userId: req.user._id }, {
+        await ShopItem.findOneAndUpdate({ _id: data.itemId }, {
             enable: data.enable,
             title: data.title,
-            rewriteLimit: data.rewriteLimit,
+            evaluatorLimit: data.evaluatorLimit,
+            evaluationLimit: data.evaluationLimit,
             price: data.price,
-            type: data.type,
         });
 
         return res.send("Updated!");

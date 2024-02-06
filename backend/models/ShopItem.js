@@ -2,16 +2,19 @@ import mongoose from "mongoose";
 
 const ShopItemSchema = new mongoose.Schema(
     {
+        enable: {
+            type: Boolean,
+            required: true,
+        },
         title: {
             type: String,
             required: true
         },
-        type: {
+        evaluatorLimit: {
             type: Number,
-            enum: [0, 1], // 0: evaluator, 1: evaluation
             required: true,
         },
-        value: {
+        evaluationLimit: {
             type: Number,
             required: true,
         },
