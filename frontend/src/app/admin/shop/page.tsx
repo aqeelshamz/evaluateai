@@ -3,14 +3,14 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import React, { useEffect, useState } from 'react';
 import { currencySymbol, serverURL } from "@/utils/utils";
-import { FiCheckCircle, FiDollarSign, FiEdit, FiFile, FiPlus, FiShoppingCart, FiTrash, FiType } from 'react-icons/fi';
+import { FiCheckCircle, FiDollarSign, FiEdit, FiFile, FiFileText, FiPlus, FiSettings, FiShoppingCart, FiTrash, FiType } from 'react-icons/fi';
 
 export default function Page() {
     const [items, setItems] = useState<any[]>([]);
     const [title, setTitle] = useState("");
-    const [rewriteLimit, setRewriteLimit] = useState(1);
+    const [evaluatorLimit, setEvaluatorLimit] = useState(0);
+    const [evaluationLimit, setEvaluationLimit] = useState(0);
     const [price, setPrice] = useState(0);
-    const [type, setType] = useState(0);
     const [enable, setEnable] = useState(false);
 
     const [editItemId, setEditItemId] = useState("");
@@ -33,8 +33,6 @@ export default function Page() {
 
     const createItem = async () => {
         if (!title) return toast.error("Please enter a title!");
-        if (!rewriteLimit) return toast.error("Please enter a rewrite limit!");
-        if (!price) return toast.error("Please enter a price!");
 
         const config = {
             method: "POST",
@@ -45,9 +43,9 @@ export default function Page() {
             },
             data: {
                 title: title,
-                rewriteLimit: rewriteLimit,
-                price: type === 0 ? 0 : price,
-                type: type,
+                evaluatorLimit: evaluatorLimit,
+                evaluationLimit: evaluationLimit,
+                price: price,
             }
         };
 
@@ -55,9 +53,9 @@ export default function Page() {
             .then((response) => {
                 toast.success("Item created!");
                 setTitle("");
-                setRewriteLimit(1);
+                setEvaluatorLimit(0);
+                setEvaluationLimit(0);
                 setPrice(0);
-                setType(0);
                 getItems();
             })
             .catch((error) => {
@@ -65,11 +63,8 @@ export default function Page() {
             });
     }
 
-
     const editItem = async () => {
         if (!title) return toast.error("Please enter a title!");
-        if (!rewriteLimit) return toast.error("Please enter a rewrite limit!");
-        if (!price) return toast.error("Please enter a price!");
 
         const config = {
             method: "POST",
@@ -82,9 +77,9 @@ export default function Page() {
                 itemId: editItemId,
                 enable: enable,
                 title: title,
-                rewriteLimit: rewriteLimit,
-                price: type === 0 ? 0 : price,
-                type: type,
+                evaluatorLimit: evaluatorLimit,
+                evaluationLimit: evaluationLimit,
+                price: price,
             }
         };
 
@@ -92,9 +87,9 @@ export default function Page() {
             .then((response) => {
                 toast.success("Item updated!");
                 setTitle("");
-                setRewriteLimit(1);
+                setEvaluatorLimit(0);
+                setEvaluationLimit(0);
                 setPrice(0);
-                setType(0);
                 setEnable(false);
                 setEditItemId("");
                 getItems();
@@ -140,17 +135,18 @@ export default function Page() {
                         <div className="card-body">
                             <h2 className="card-title">
                                 {item?.title}
-                                <div className="badge badge-secondary">{["Free", "Paid"][item?.type]}</div>
+                                <div className="badge badge-secondary">{["Free", "Paid"][item?.price <= 0 ? 0 : 1]}</div>
                                 {!item?.enable ? <div className="badge badge-ghost">Disabled</div> : ""}
                             </h2>
                             <p className="font-semibold text-4xl mb-4">{currencySymbol} {item?.price}</p>
-                            <p className='flex items-center'><FiCheckCircle className='mr-2' />{item?.rewriteLimit} rewrites</p>
+                            <p className='flex items-center'><FiSettings className='mr-2' />{item?.evaluatorLimit} Evaluators</p>
+                            <p className='flex items-center mb-4'><FiFileText className='mr-2' />{item?.evaluationLimit} Evaluations</p>
                             <div className="card-actions justify-end">
                                 <label htmlFor='edititem_modal' className='btn btn-sm' onClick={() => {
                                     setTitle(item?.title);
-                                    setRewriteLimit(item?.rewriteLimit);
+                                    setEvaluatorLimit(item?.evaluatorLimit);
+                                    setEvaluationLimit(item?.evaluationLimit);
                                     setPrice(item?.price);
-                                    setType(item?.type);
                                     setEditItemId(item?._id);
                                     setEnable(item?.enable);
                                 }}><FiEdit />Edit</label>
@@ -172,15 +168,12 @@ export default function Page() {
                 <h3 className="flex items-center font-bold text-lg"><FiShoppingCart className="mr-1" /> New Item</h3>
                 <p className="flex items-center py-4"><FiType className='mr-2' />Title</p>
                 <input className="input input-bordered w-full" placeholder="Item title" type="text" onChange={(x) => setTitle(x.target.value)} value={title} />
-                <p className="flex items-center py-4"><FiEdit className='mr-2' />Rewrite Limit</p>
-                <input className="input input-bordered w-full" placeholder="Limit" type="number" min={1} onChange={(x) => setRewriteLimit(parseInt(x.target.value))} value={rewriteLimit} />
+                <p className="flex items-center py-4"><FiSettings className='mr-2' />Evaluator Limit</p>
+                <input className="input input-bordered w-full" placeholder="Limit" type="number" min={1} onChange={(x) => setEvaluatorLimit(parseInt(x.target.value))} value={evaluatorLimit} />
+                <p className="flex items-center py-4"><FiFileText className='mr-2' />Evaluation Limit</p>
+                <input className="input input-bordered w-full" placeholder="Limit" type="number" min={1} onChange={(x) => setEvaluationLimit(parseInt(x.target.value))} value={evaluationLimit} />
                 <p className="flex items-center py-4"><FiDollarSign className='mr-2' />Price</p>
                 <input className="input input-bordered w-full" placeholder="Price" type="number" min={0} onChange={(x) => setPrice(parseInt(x.target.value))} value={price} />
-                <p className="flex items-center py-4"><FiFile className='mr-2' />Type</p>
-                <div className='flex flex-wrap'>
-                    <button onClick={() => setType(0)} className={(type === 0 ? "btn-primary" : "") + ' btn btn-sm mr-2'}>Free</button>
-                    <button onClick={() => setType(1)} className={(type === 1 ? "btn-primary" : "") + ' btn btn-sm mr-2'}>Paid</button>
-                </div>
                 <div className="modal-action">
                     <label htmlFor="newitem_modal" className="btn">Cancel</label>
                     <label htmlFor="newitem_modal" className="btn btn-primary" onClick={() => createItem()}>Create item</label>
@@ -200,15 +193,12 @@ export default function Page() {
                 </div>
                 <p className="flex items-center py-4"><FiType className='mr-2' />Title</p>
                 <input className="input input-bordered w-full" placeholder="Item title" type="text" onChange={(x) => setTitle(x.target.value)} value={title} />
-                <p className="flex items-center py-4"><FiEdit className='mr-2' />Rewrite Limit</p>
-                <input className="input input-bordered w-full" placeholder="Limit" type="number" min={1} onChange={(x) => setRewriteLimit(parseInt(x.target.value))} value={rewriteLimit} />
+                <p className="flex items-center py-4"><FiSettings className='mr-2' />Evaluator Limit</p>
+                <input className="input input-bordered w-full" placeholder="Limit" type="number" min={1} onChange={(x) => setEvaluatorLimit(parseInt(x.target.value))} value={evaluatorLimit} />
+                <p className="flex items-center py-4"><FiFileText className='mr-2' />Evaluation Limit</p>
+                <input className="input input-bordered w-full" placeholder="Limit" type="number" min={1} onChange={(x) => setEvaluationLimit(parseInt(x.target.value))} value={evaluationLimit} />
                 <p className="flex items-center py-4"><FiDollarSign className='mr-2' />Price</p>
                 <input className="input input-bordered w-full" placeholder="Price" type="number" min={0} onChange={(x) => setPrice(parseInt(x.target.value))} value={price} />
-                <p className="flex items-center py-4"><FiFile className='mr-2' />Type</p>
-                <div className='flex flex-wrap'>
-                    <button onClick={() => setType(0)} className={(type === 0 ? "btn-primary" : "") + ' btn btn-sm mr-2'}>Free</button>
-                    <button onClick={() => setType(1)} className={(type === 1 ? "btn-primary" : "") + ' btn btn-sm mr-2'}>Paid</button>
-                </div>
                 <div className="modal-action">
                     <label htmlFor="edititem_modal" className="btn">Cancel</label>
                     <label htmlFor="edititem_modal" className="btn btn-primary" onClick={() => editItem()}>Save</label>
