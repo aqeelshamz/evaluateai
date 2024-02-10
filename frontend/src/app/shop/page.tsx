@@ -3,7 +3,7 @@ import axios from "axios";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { currencySymbol, serverURL } from "@/utils/utils";
-import { FiArrowLeft, FiArrowRight, FiCheckCircle, FiChevronLeft, FiCreditCard, FiShoppingCart } from "react-icons/fi";
+import { FiArrowLeft, FiArrowRight, FiCheckCircle, FiChevronLeft, FiCreditCard, FiFileText, FiSettings, FiShoppingCart } from "react-icons/fi";
 
 export default function Page() {
     const [paymentMethods, setPaymentMethods] = useState<any>();
@@ -32,7 +32,7 @@ export default function Page() {
     }, []);
 
     return <main className="flex flex-col w-screen h-screen bg-base-100 p-4 overflow-hidden">
-       <div className='flex items-center text-lg'><button className='btn btn-sm btn-square text-lg mr-2' onClick={() => { window.history.back() }}><FiChevronLeft /></button> <p className="flex items-center"><FiShoppingCart className="mr-2"/> Shop</p></div>
+        <div className='flex items-center text-lg'><button className='btn btn-sm btn-square text-lg mr-2' onClick={() => { window.history.back() }}><FiChevronLeft /></button> <p className="flex items-center"><FiShoppingCart className="mr-2" /> Shop</p></div>
         <div className="animate-fade-in-bottom w-full h-full flex items-center justify-center flex-wrap overflow-y-auto">
             {
                 items?.map((item: any, i: number) => {
@@ -40,11 +40,12 @@ export default function Page() {
                         <div className="card-body">
                             <h2 className="card-title">
                                 {item?.title}
-                                <div className="badge badge-secondary">{["Free", "Paid"][item?.type]}</div>
+                                <div className="badge badge-secondary">{["Free", "Paid"][item?.price <= 0 ? 0 : 1]}</div>
                                 {!item?.enable ? <div className="badge badge-ghost">Disabled</div> : ""}
                             </h2>
                             <p className="font-semibold text-4xl mb-4">{currencySymbol} {item?.price}</p>
-                            <p className='flex items-center'><FiCheckCircle className='mr-2' />{item?.rewriteLimit} rewrites</p>
+                            <p className='flex items-center'><FiSettings className='mr-2' />{item?.evaluatorLimit} Evaluators</p>
+                            <p className='flex items-center mb-4'><FiFileText className='mr-2' />{item?.evaluationLimit} Evaluations</p>
                         </div>
                     </div>
                 })

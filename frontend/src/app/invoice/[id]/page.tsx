@@ -2,7 +2,7 @@
 import axios from "axios";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { FiArrowLeft, FiFileText } from "react-icons/fi";
+import { FiArrowLeft, FiChevronLeft, FiFileText } from "react-icons/fi";
 import { appName, currencySymbol, serverURL } from "@/utils/utils";
 
 export default function Page() {
@@ -38,7 +38,7 @@ export default function Page() {
     }, [data]);
 
     return <main className="invoice-page flex flex-col w-screen h-screen p-4 overflow-hidden bg-purple-100">
-        <div className="headerp flex items-center mb-5 font-semibold text-2xl max-sm:mb-3"><div className="cursor-pointer" onClick={() => { window.location.href = "/home" }}><FiArrowLeft className="mr-5" /></div> <FiFileText className="mr-2" /> Invoice</div>
+        <div className='headerp flex items-center text-lg'><button className='btn btn-sm btn-square btn-ghost text-lg mr-2' onClick={() => { window.location.href = "/home" }}><FiChevronLeft /></button> <p className="flex items-center"><FiFileText className="mr-2" /> Invoice</p></div>
         <div className="w-full h-full flex flex-col justify-center items-center ">
             <p className="mb-5 text-lg">{appName}</p>
             <div className="min-w-[35vw] bg-white rounded-xl overflow-hidden">
