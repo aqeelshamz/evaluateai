@@ -72,6 +72,13 @@ export default function Page() {
                         </h2>
                     </div>
                 </div> : ""}
+                {paymentMethods?.paypal ? <div onClick={() => setPaymentMethod("paypal")} className={(paymentMethod === "paypal" ? "border-primary " : "") + "cursor-pointer border-2 select-none card bg-base-100 hover:bg-base-200 duration-75 active:scale-95 shadow-xl mr-5 my-4"}>
+                    <div className="card-body">
+                        <h2 className="card-title">
+                            PayPal
+                        </h2>
+                    </div>
+                </div> : ""}
                 <div className="modal-action mt-10">
                     <label htmlFor="paymentmethod_modal" className="btn">Cancel</label>
                     <label className="btn btn-primary" onClick={() => window.location.href = `/shop/payment?item=${items[selectedItem]?._id}&method=${paymentMethod}`}>Pay</label>

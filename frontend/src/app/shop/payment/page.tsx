@@ -6,9 +6,10 @@ import RazorpayIntegration from "./razorpay_form";
 import { useSearchParams } from "next/navigation";
 import { Elements } from "@stripe/react-stripe-js";
 import React, { useEffect, useState } from "react";
-import { appName, serverURL, stripeKey } from "@/utils/utils";
+import { appName, serverURL } from "@/utils/utils";
+import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 
-const stripePromise = loadStripe(stripeKey);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!);
 
 export default function Page() {
     const params = useSearchParams();
@@ -16,6 +17,7 @@ export default function Page() {
     const [orderId, setOrderId] = useState("");
 
     useEffect(() => {
+        if (params.get("method") === "razorpay" || params.get("method") === "paypal") return;
         // Create PaymentIntent as soon as the page loads (STRIPE)
         fetch(`${serverURL}/shop/create-order-stripe`, {
             method: "POST",
@@ -51,9 +53,17 @@ export default function Page() {
                 <Elements options={options} stripe={stripePromise}>
                     <CheckoutForm orderId={orderId} />
                 </Elements>
-            ) :
+            ) : params.get("method") === "razorpay" ?
                 <RazorpayIntegration item={params.get("item")} />
-            }
+                : <PayPalScriptProvider options={{ clientId: `${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}` }}>
+                    <PayPalButtons
+                        style={{"layout":"vertical"}}
+                        disabled={false}
+                        forceReRender={[{"layout":"vertical"}]}
+                        // createOrder={(x)=>{}}
+                        // onApprove={(x,y)=>{}}
+                    />
+                </PayPalScriptProvider>}
         </div>
     </main>
 }
