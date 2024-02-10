@@ -3,7 +3,7 @@ import { MainContext } from '@/context/context';
 import { useParams } from 'next/navigation';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { FaRobot, FaTrophy } from 'react-icons/fa';
-import { FiArrowDownCircle, FiChevronLeft, FiEdit, FiEdit2, FiEdit3, FiFile, FiFileText, FiHelpCircle, FiInfo, FiKey, FiMinus, FiPlus, FiRepeat, FiRewind, FiRotateCcw, FiRotateCw, FiUser, FiUsers, FiX, FiZoomIn, FiZoomOut } from 'react-icons/fi';
+import { FiArrowDownCircle, FiChevronLeft, FiEdit, FiEdit2, FiEdit3, FiFile, FiFileText, FiHelpCircle, FiInfo, FiKey, FiMinus, FiPlus, FiPrinter, FiRepeat, FiRewind, FiRotateCcw, FiRotateCw, FiUser, FiUsers, FiX, FiZoomIn, FiZoomOut } from 'react-icons/fi';
 import 'react-toastify/dist/ReactToastify.css';
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
 
@@ -37,21 +37,24 @@ export default function Results() {
 
     return (
         <main className="w-screen h-screen bg-base-100 flex flex-col p-2 overflow-auto box-border">
-            <div className='flex items-center text-lg'><button className='btn btn-sm btn-square text-lg mr-2' onClick={() => { window.history.back() }}><FiChevronLeft /></button> <p>Results</p></div>
-            <div className='flex my-4 justify-center'>
+            <div className='print flex items-center text-lg'><button className='btn btn-sm btn-square text-lg mr-2' onClick={() => { window.history.back() }}><FiChevronLeft /></button> <p>Results</p></div>
+            <div className='print flex my-4 justify-center'>
                 <div role="tablist" className="tabs-md tabs tabs-boxed">
                     <a role="tab" className={"tab " + (selectedTab === 0 ? "tab-active" : "")} onClick={() => setSelectedTab(0)}><FiUsers className='mr-2' /> All Students</a>
                     <a role="tab" className={"tab " + (selectedTab === 1 ? "tab-active" : "")} onClick={() => setSelectedTab(1)}><FiUser className='mr-2' /> Detailed View</a>
                 </div>
             </div>
-            {selectedTab === 0 ? <div className="overflow-x-auto flex justify-center">
+            {selectedTab === 0 ? <div className="overflow-x-auto flex flex-col items-center justify-center">
+                <div className='print flex w-full items-center max-w-7xl p-5'>
+                    <button className='btn btn-primary' onClick={() => window.print()}><FiPrinter />Download / Print</button>
+                </div>
                 <table className="table max-w-7xl">
                     <thead>
                         <tr>
                             <th>Roll No</th>
                             <th>Name</th>
                             <th>Score</th>
-                            <th>View Detailed Result</th>
+                            <th className='print'>View Detailed Result</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -61,7 +64,7 @@ export default function Results() {
                                     <th>{student?.roll_no}</th>
                                     <td>{student?.student_name}</td>
                                     <td>{student?.score}</td>
-                                    <td><button className='btn btn-primary btn-square' onClick={() => {
+                                    <td className='print'><button className='btn btn-primary btn-square' onClick={() => {
                                         setSelectedRollNo(student?.roll_no);
                                         setSelectedTab(1);
                                     }}><FiFileText /></button></td>

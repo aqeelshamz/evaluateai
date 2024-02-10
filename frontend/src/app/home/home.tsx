@@ -78,7 +78,7 @@ export default function Home({
       if (moreMenuOpen) setMoreMenuOpen(false);
     }}>
       {/* Sidebar */}
-      <div className={'flex flex-col p-5 min-w-[275px] max-w-[15vw] h-full rounded-md ' + (!showMenu ? "max-sm:hidden " : "max-sm:fixed max-sm:w-full max-sm:h-full max-sm:max-w-none bg-base-100 max-sm:z-50 ")}>
+      <div className={'print flex flex-col p-5 min-w-[275px] max-w-[15vw] h-full rounded-md ' + (!showMenu ? "max-sm:hidden " : "max-sm:fixed max-sm:w-full max-sm:h-full max-sm:max-w-none bg-base-100 max-sm:z-50 ")}>
         <div className="flex justify-between items-center max-sm:mb-4">
           <Link href="/"><div className="mb-5 font-semibold max-sm:mb-3" onClick={() => setSelectedEvaluator(-1)}>🤖 {appName} 📝</div></Link>
           <div className="hidden max-sm:flex justify-end mb-3">

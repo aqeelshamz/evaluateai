@@ -1,6 +1,6 @@
 "use client";
-import { use, useContext, useEffect } from "react";
-import { FiUser, FiEdit, FiTrash, FiType, FiPlusCircle, FiUsers, FiBook, FiHash } from "react-icons/fi";
+import { useContext } from "react";
+import { FiUser, FiEdit, FiTrash, FiType, FiPlusCircle, FiUsers, FiBook, FiHash, FiPrinter } from "react-icons/fi";
 import { MainContext } from "@/context/context";
 
 export default function Classes() {
@@ -45,21 +45,24 @@ export default function Classes() {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </div>
-      <div className="flex items-center font-semibold text-xl mb-1 mt-4"><FiUsers className="mr-2" />
-        <p className='text-xl text-ellipsis line-clamp-1 font-semibold'>{classes[selectedClass]?.subject} | {classes[selectedClass]?.name} {classes[selectedClass]?.section}</p>
+      <div className="flex items-center justify-between mb-1 mt-4 w-full max-w-lg">
+        <p className="flex items-center font-semibold text-xl"><FiBook className="mr-2" /> {classes[selectedClass]?.subject} <FiUsers className="ml-5 mr-2" /> {classes[selectedClass]?.name} {classes[selectedClass]?.section}</p>
       </div>
-      <div className="flex mt-5">
+      <div className="print flex mt-5">
         <label htmlFor="newstudent_modal" className="btn btn-primary" onClick={() => setNewStudentRollNo(students.length + 1)}>+ New Student</label>
       </div>
       <div className="overflow-y-auto h-[70vh] mt-5">
+        <div className='print flex w-full items-center max-w-7xl py-5'>
+          <button className='btn btn-primary' onClick={() => window.print()}><FiPrinter />Download / Print</button>
+        </div>
         <table className="table">
           {/* head */}
           <thead>
             <tr>
               <th>RollNo</th>
               <th>Name</th>
-              <th>Edit</th>
-              <th>Delete</th>
+              <th className="print">Edit</th>
+              <th className="print">Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -68,11 +71,11 @@ export default function Classes() {
                 <tr key={i}>
                   <th>{student?.rollNo}</th>
                   <td>{student?.name}</td>
-                  <td><label htmlFor="editstudent_modal" className="btn btn-square" onClick={() => {
+                  <td className="print"><label htmlFor="editstudent_modal" className="btn btn-square" onClick={() => {
                     setEditStudentRollNo(student.rollNo);
                     setEditStudentName(student.name);
                   }}><FiEdit /></label></td>
-                  <td><label htmlFor="deletestudent_modal" className="btn btn-square" onClick={() => setDeleteStudentRollNo(student.rollNo)}><FiTrash /></label></td>
+                  <td className="print"><label htmlFor="deletestudent_modal" className="btn btn-square" onClick={() => setDeleteStudentRollNo(student.rollNo)}><FiTrash /></label></td>
                 </tr>
               ))
             }

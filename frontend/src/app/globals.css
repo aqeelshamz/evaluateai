@@ -21,7 +21,7 @@
 }
 
 @media print {
-  .headerp {
+  .headerp, .print {
     display: none;
   }
 }

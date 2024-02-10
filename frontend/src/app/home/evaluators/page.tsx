@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useEffect } from "react";
-import { FiCheck, FiExternalLink, FiFileText, FiImage, FiKey, FiX } from "react-icons/fi";
+import { FiBook, FiCheck, FiExternalLink, FiFileText, FiImage, FiKey, FiUsers, FiX } from "react-icons/fi";
 import { MainContext } from "@/context/context";
 import { UploadDropzone } from "@/utils/uploadthing";
 import { toast } from "react-toastify";
@@ -56,10 +56,18 @@ export default function Evaluators() {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </div>
-      <div className="flex items-center justify-between mb-1 mt-4 w-full max-w-lg">
-        <p className="flex items-center font-semibold text-xl"><FiFileText className="mr-2" /> {evaluators[selectedEvaluator]?.title}</p>
+      <div className="flex items-center justify-between max-w-lg">
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between mb-1 mt-4 w-full max-w-lg">
+            <p className="flex items-center font-semibold text-xl"><FiFileText className="mr-2" /> {evaluators[selectedEvaluator]?.title}</p>
+          </div>
+          <div className="flex items-center">
+            <p className="flex items-center text-sm mr-5"><FiBook className="mr-2" /> {evaluators[selectedEvaluator]?.class?.subject}</p>
+            <p className="flex items-center text-sm"><FiUsers className="mr-2" /> {evaluators[selectedEvaluator]?.class?.name} {evaluators[selectedEvaluator]?.class?.section}</p>
+          </div>
+        </div>
         {Object.keys(evaluationData).length && answerSheets.length >= 1 ? <Link href={"/results/" + evaluators[selectedEvaluator]?._id}><label className="btn btn-primary"><FaTrophy /> View Results</label></Link> : ""}
-      </div>
+      </div> <div className="divider max-w-lg"></div>
       <div className="overflow-y-auto">
         <p className="flex items-center mb-2 mt-4"><FiFileText className="mr-2" /> Question Paper(s)</p>
         <div className="flex flex-wrap">{
@@ -113,12 +121,11 @@ export default function Evaluators() {
             ))
           }
         </div>
-        {evaluating !== -1 ? <div className="flex flex-col mb-5">
+      </div>
+      {evaluating !== -1 ? <div className="flex flex-col mb-5">
           <p className="mb-2">Evaluating Answer Sheets of {students[evaluating - 1]?.name}... (Student {evaluating} of {students.length})</p>
           <progress className="progress max-w-lg" value={evaluating} max={students.length}></progress>
-        </div> : <button className="btn btn-primary w-full max-w-lg my-5" onClick={() => evaluateAnswerSheets()}>Evaluate</button>}
-      </div>
-      {/* The button to open modal */}
+        </div> : <button className="btn btn-primary w-full max-w-lg my-5" onClick={() => evaluateAnswerSheets()}>🤖 Evaluate</button>}
       <input type="checkbox" id="preview_modal" className="modal-toggle" />
       <div className="modal" role="dialog">
         <div className="modal-box">
