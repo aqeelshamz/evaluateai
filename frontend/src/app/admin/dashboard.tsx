@@ -17,7 +17,7 @@ export default function Home({
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const pathName = usePathname();
 
-  const { getEvaluators, setTheme, user } = useContext(MainContext);
+  const { getEvaluators, user } = useContext(MainContext);
 
   useEffect(() => {
     getEvaluators();
@@ -25,7 +25,6 @@ export default function Home({
     if (typeof window !== 'undefined') {
       if (pathName === "/admin") window.location.href = "/admin/dashboard";
 
-      setTheme(localStorage.getItem("theme") ? localStorage.getItem("theme") : "light");
       if (!localStorage.getItem("token")) {
         window.location.href = "/login";
       }

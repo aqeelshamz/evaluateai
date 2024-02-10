@@ -7,7 +7,7 @@ import { MainContext } from '@/context/context';
 export default function Home() {
   const pathName = usePathname();
 
-  const { getEvaluators, setTheme } = useContext(MainContext);
+  const { getEvaluators } = useContext(MainContext);
 
   useEffect(() => {
     getEvaluators();
@@ -15,7 +15,6 @@ export default function Home() {
     if (typeof window !== 'undefined') {
       if (pathName === "/admin") window.location.href = "/admin/dashboard";
 
-      setTheme(localStorage.getItem("theme") ? localStorage.getItem("theme") : "light");
       if (!localStorage.getItem("token")) {
         window.location.href = "/login";
       }
