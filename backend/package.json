@@ -10,6 +10,7 @@
   "type": "module",
   "license": "ISC",
   "dependencies": {
+    "@paypal/checkout-server-sdk": "^1.0.3",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
@@ -20,6 +21,8 @@
     "nodemailer": "^6.9.8",
     "nodemailer-smtp-transport": "^2.7.4",
     "nodemon": "^3.0.3",
-    "openai": "^4.26.0"
+    "openai": "^4.26.0",
+    "razorpay": "^2.9.2",
+    "stripe": "^14.16.0"
   }
 }

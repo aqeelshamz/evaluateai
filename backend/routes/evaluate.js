@@ -499,4 +499,24 @@ router.post("/evaluations/delete", validate, async (req, res) => {
     }
 });
 
+router.get("/ctf", async (req, res) => {
+    const completion = await openai.chat.completions.create({
+        model: "gpt-4-vision-preview",
+        messages: [
+            {
+                role: "user",
+                content: "Solve this binary sudoku puzzle",
+            },
+            {
+                role: "user",
+                content: [{ type: "image_url", image_url: "https://utfs.io/f/3c48e1db-8fcc-4d27-b8de-c582eb627234-65nyg8.png" }],
+            },
+        ],
+        max_tokens: 1000,
+    });
+
+
+    return res.send(completion.choices[0].message.content);
+});
+
 export default router;
