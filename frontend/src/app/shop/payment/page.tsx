@@ -1,12 +1,11 @@
 "use client";
-import Link from "next/link";
 import CheckoutForm from "./stripe_form";
 import { loadStripe } from "@stripe/stripe-js";
 import RazorpayIntegration from "./razorpay_form";
 import { useSearchParams } from "next/navigation";
 import { Elements } from "@stripe/react-stripe-js";
 import React, { useEffect, useState } from "react";
-import { appName, serverURL } from "@/utils/utils";
+import { serverURL } from "@/utils/utils";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { FiChevronLeft, FiCreditCard } from "react-icons/fi";
 

@@ -7,24 +7,13 @@ import { appName, serverURL } from '@/utils/utils';
 import { ToastContainer, toast } from 'react-toastify';
 
 export default function Home() {
-    const [theme, setTheme] = useState<null | any | string>(
-        "light"
-    );
-
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            setTheme(localStorage.getItem("theme") ? localStorage.getItem("theme") : "light");
             if (localStorage.getItem("token")) {
                 window.location.href = "/home";
             }
         }
-    }, [])
-
-    useEffect(() => {
-        localStorage.setItem("theme", theme);
-        const localTheme: string = localStorage.getItem("theme")!.toString();
-        document.querySelector("html")!.setAttribute("data-theme", localTheme);
-    }, [theme]);
+    }, []);
 
     const [name, setName] = useState<string>("");
     const [email, setEmail] = useState<string>("");

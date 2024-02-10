@@ -3,7 +3,7 @@ import { useContext, useEffect } from "react";
 import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey, FiUsers } from "react-icons/fi";
 import Link from "next/link";
 import { appName } from "@/utils/utils";
-import { UploadButton, UploadDropzone } from "@/utils/uploadthing";
+import { UploadButton } from "@/utils/uploadthing";
 import { MainContext } from "@/context/context";
 import { usePathname } from "next/navigation";
 
@@ -12,8 +12,7 @@ export default function Home({
 }: {
   children: React.ReactNode
 }) {
-  const { theme,
-    setTheme,
+  const {
     moreMenuOpen,
     setMoreMenuOpen,
     showMenu,
@@ -21,6 +20,7 @@ export default function Home({
     user,
     selectedTab,
     setSelectedTab,
+    limits,
     evaluators,
     selectedEvaluator,
     setSelectedEvaluator,
@@ -42,7 +42,7 @@ export default function Home({
     setNewEvaluatorClassId,
     setEditClassName,
     setEditClassSection,
-    setEditClassSubject } = useContext(MainContext);
+    setEditClassSubject, } = useContext(MainContext);
 
   const pathname = usePathname();
 
@@ -54,18 +54,11 @@ export default function Home({
     setSelectedEvaluator(-1);
 
     if (typeof window !== 'undefined') {
-      setTheme(localStorage.getItem("theme") ? localStorage.getItem("theme") : "light");
       if (!localStorage.getItem("token")) {
         window.location.href = "/login";
       }
     }
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem("theme", theme);
-    const localTheme: string = localStorage.getItem("theme")!.toString();
-    document.querySelector("html")!.setAttribute("data-theme", localTheme);
-  }, [theme]);
 
   useEffect(() => {
     if (selectedClass !== -1) {
@@ -147,9 +140,9 @@ export default function Home({
           }
         </div>
         <hr />
-        <div className="flex items-center justify-between my-4">
-          <p>0 rewrites left</p>
-          <Link href="/shop"><button className="btn btn-sm"><FiShoppingCart /> SHOP</button></Link>
+        <div className="flex justify-between my-4">
+          <p className="flex items-center text-sm mb-2"><FiSettings className="mr-1" /> {limits?.evaluatorLimit} evaluators left</p>
+          <Link href="/shop"><button className="btn btn-xs"><FiShoppingCart /> SHOP</button></Link>
         </div>
         {user?.type === 0 ? <Link href="/admin/dashboard"><label className='btn mb-2 w-full'><FiUser /> ADMIN PANEL <FiArrowRight /></label></Link> : ""}
         <div tabIndex={0} className='cursor-pointer dropdown dropdown-top flex items-center hover:bg-base-200 p-2 rounded-lg'>
@@ -165,7 +158,6 @@ export default function Home({
             <FiMoreHorizontal />
           </div>
           <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mb-2">
-            <label htmlFor='settings_modal'><li className='flex'><p><FiSettings />Settings</p></li></label>
             <Link href="/shop"><label><li className='flex'><p><FiShoppingCart />Shop</p></li></label></Link>
             <Link href="/purchases"><label><li className='flex'><p><FiShoppingBag />My Purchases</p></li></label></Link>
             <hr className='my-2' />

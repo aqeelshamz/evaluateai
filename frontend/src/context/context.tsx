@@ -8,15 +8,13 @@ const MainContext = createContext<any>(null);
 
 function Context({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const [theme, setTheme] = useState<null | any | string>(
-        "light"
-    );
 
     const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
     const [showMenu, setShowMenu] = useState<boolean>(false);
     const [user, setUser] = useState<any>({});
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedTab, setSelectedTab] = useState<number>(0);
+    const [limits, setLimits] = useState<any>({});
 
     const [evaluators, setEvaluators] = useState<any[]>([]);
     const [selectedEvaluator, setSelectedEvaluator] = useState<number>(-1);
@@ -68,6 +66,7 @@ function Context({ children }: { children: React.ReactNode }) {
         axios(config).then((response) => {
             setEvaluators(response.data.evaluators);
             setUser(response.data.user);
+            setLimits(response.data.limits);
             if (selectedEvaluator === -1 && response.data.evaluators.length > 0 && pathname.includes("evaluators")) {
                 setSelectedEvaluator(0);
             }
@@ -478,8 +477,6 @@ function Context({ children }: { children: React.ReactNode }) {
 
     return (
         <MainContext.Provider value={{
-            theme,
-            setTheme,
             moreMenuOpen,
             setMoreMenuOpen,
             showMenu,
@@ -490,6 +487,7 @@ function Context({ children }: { children: React.ReactNode }) {
             setLoading,
             selectedTab,
             setSelectedTab,
+            limits,
             evaluators,
             setEvaluators,
             selectedEvaluator,

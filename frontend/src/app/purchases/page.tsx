@@ -3,7 +3,7 @@ import axios from "axios";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { currencySymbol, serverURL } from "@/utils/utils";
-import { FiArrowLeft, FiChevronLeft, FiDownload, FiShoppingBag } from "react-icons/fi";
+import { FiChevronLeft, FiDownload, FiShoppingBag } from "react-icons/fi";
 
 export default function Page() {
     const [data, setData] = useState([]);

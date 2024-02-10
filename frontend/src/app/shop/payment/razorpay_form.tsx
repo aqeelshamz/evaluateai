@@ -1,6 +1,5 @@
 "use client";
 import axios from 'axios';
-import { toast } from 'react-toastify';
 import React, { useEffect } from 'react';
 import { serverURL } from '@/utils/utils';
 

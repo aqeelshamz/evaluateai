@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light" className="scroll-smooth">
+    <html lang="en" data-theme="dark" className="scroll-smooth">
       <Head>
         <title>My Page | Next.js SEO</title>
         <meta

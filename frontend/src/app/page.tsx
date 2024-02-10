@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useEffect, useState } from 'react'
 import { FaRobot } from 'react-icons/fa';
-import { FiActivity, FiArrowRight, FiCloud, FiCreditCard, FiDatabase, FiFacebook, FiFileText, FiHome, FiInstagram, FiLogIn, FiPlayCircle, FiShoppingBag, FiShoppingCart, FiTwitter, FiUnlock, FiUsers, FiVideo, FiZap } from 'react-icons/fi';
+import { FiArrowRight, FiCloud, FiCreditCard, FiFacebook, FiFileText, FiHome, FiInstagram, FiLogIn, FiPlayCircle, FiShoppingCart, FiTwitter, FiUsers, FiZap } from 'react-icons/fi';
 export default function Main() {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
 

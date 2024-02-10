@@ -2,7 +2,7 @@
 import axios from "axios";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { FiArrowLeft, FiChevronLeft, FiFileText } from "react-icons/fi";
+import { FiChevronLeft, FiFileText } from "react-icons/fi";
 import { appName, currencySymbol, serverURL } from "@/utils/utils";
 
 export default function Page() {

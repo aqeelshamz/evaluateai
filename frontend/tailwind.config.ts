@@ -24,7 +24,8 @@ const config: Config = withUt({
           primary: "#0055ff",
           secondary: "teal",
         },
-      },
+      },  
+      "dark"
     ],
   },
   plugins: [require("daisyui")],

@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useEffect } from "react";
-import { FiBook, FiCheck, FiExternalLink, FiFileText, FiImage, FiKey, FiUsers, FiX } from "react-icons/fi";
+import { FiBook, FiCheck, FiExternalLink, FiFileText, FiImage, FiKey, FiShoppingCart, FiUsers, FiX } from "react-icons/fi";
 import { MainContext } from "@/context/context";
 import { UploadDropzone } from "@/utils/uploadthing";
 import { toast } from "react-toastify";
@@ -23,7 +23,8 @@ export default function Evaluators() {
     setEvaluating,
     evaluationData,
     setImgPreviewURL,
-    imgPreviewURL
+    imgPreviewURL,
+    limits
   } = useContext(MainContext);
 
   useEffect(() => {
@@ -123,9 +124,13 @@ export default function Evaluators() {
         </div>
       </div>
       {evaluating !== -1 ? <div className="flex flex-col mb-5">
-          <p className="mb-2">Evaluating Answer Sheets of {students[evaluating - 1]?.name}... (Student {evaluating} of {students.length})</p>
-          <progress className="progress max-w-lg" value={evaluating} max={students.length}></progress>
-        </div> : <button className="btn btn-primary w-full max-w-lg my-5" onClick={() => evaluateAnswerSheets()}>🤖 Evaluate</button>}
+        <p className="mb-2">Evaluating Answer Sheets of {students[evaluating - 1]?.name}... (Student {evaluating} of {students.length})</p>
+        <progress className="progress max-w-lg" value={evaluating} max={students.length}></progress>
+      </div> : <button className="btn btn-primary w-full max-w-lg mt-5" onClick={() => evaluateAnswerSheets()}>🤖 Evaluate</button>}
+      <div className="flex justify-center my-2 max-w-lg">
+        <p className="flex items-center text-xs opacity-70 mr-1"><FiFileText className="mr-1" /> {limits?.evaluationLimit} evaluations left</p>
+        <Link href="/shop"><button className="btn btn-xs btn-ghost"><FiShoppingCart /> SHOP</button></Link>
+      </div>
       <input type="checkbox" id="preview_modal" className="modal-toggle" />
       <div className="modal" role="dialog">
         <div className="modal-box">

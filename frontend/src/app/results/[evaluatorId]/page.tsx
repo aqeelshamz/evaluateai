@@ -1,9 +1,9 @@
 "use client";
 import { MainContext } from '@/context/context';
 import { useParams } from 'next/navigation';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FaRobot, FaTrophy } from 'react-icons/fa';
-import { FiArrowDownCircle, FiChevronLeft, FiEdit, FiEdit2, FiEdit3, FiFile, FiFileText, FiHelpCircle, FiInfo, FiKey, FiMinus, FiPlus, FiPrinter, FiRepeat, FiRewind, FiRotateCcw, FiRotateCw, FiUser, FiUsers, FiX, FiZoomIn, FiZoomOut } from 'react-icons/fi';
+import { FiChevronLeft, FiEdit3, FiFileText, FiHelpCircle, FiInfo, FiKey, FiPrinter, FiRotateCw, FiUser, FiUsers, FiZoomIn, FiZoomOut } from 'react-icons/fi';
 import 'react-toastify/dist/ReactToastify.css';
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
 
