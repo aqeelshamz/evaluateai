@@ -19,8 +19,13 @@ const router = express.Router();
 
 //EVALUATORS
 router.get("/evaluators", validate, async (req, res) => {
-    const evaluators = await Evaluator.find({ userId: req.user._id });
-    return res.send({ evaluators: evaluators.reverse(), user: { name: req.user.name, email: req.user.email, type: req.user.type } });
+    const evaluators = await Evaluator.find({ userId: req.user._id }).lean();
+
+    for (const evaluator of evaluators) {
+        evaluator.class = await Class.findById(evaluator.classId).select("name section subject");
+    }
+
+    return res.send({ evaluators: evaluators.reverse(), user: { name: req.user.name, email: req.user.email, type: req.user.type }, limits: await Limits.findOne({ userId: req.user._id }).select("evaluatorLimit evaluationLimit") });
 });
 
 router.post("/evaluators/create", validate, async (req, res) => {
@@ -249,6 +254,8 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
         console.log(respData);
 
         await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + (data.rollNo)]: respData } });
+
+        await Limits.updateOne({ userId: req.user._id }, { $inc: { evaluationLimit: -1 } });
 
         return res.send(respData);
     }
