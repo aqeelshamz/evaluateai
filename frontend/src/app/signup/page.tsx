@@ -126,13 +126,13 @@ export default function Home() {
             <div className='flex flex-col text-white p-10 max-w-[30vw] bg-gradient-to-b to-purple-400 via-violet-500 from-indigo-600 h-full rounded-md'>
                 <Link href={"/"}><p className="mb-10">🤖 {appName} 📝</p></Link>
                 <p className="text-2xl font-semibold mb-2">
-                    {appName} - Your AI-Powered Text Rewriter
+                    {appName} - AI Powered Exam Sheet Evaluator
                 </p>
                 <p className="opacity-70">Seamless Access, Effortless Evaluation: Welcome to EvaluateAI, Where Innovation Meets Intelligent Grading.</p>
             </div>
             <div className="animate-fade-in-bottom flex flex-col w-full h-full ml-2 rounded-md p-10">
                 <p className="font-bold text-xl mb-3">Sign Up</p>
-                <p className="mb-5">Have an account? <Link href={'/login'}><label htmlFor="createchatbot_modal" className="btn btn-sm">Login</label></Link></p>
+                <p className="mb-5">Already have an account? <Link href={'/login'}><label htmlFor="createchatbot_modal" className="btn btn-sm">Login</label></Link></p>
                 <p className="text-sm mb-1">Full Name</p>
                 <input className="input input-bordered mb-5 max-w-xs" placeholder="Full Name" type="text" onChange={(x) => setName(x.target.value)} value={name} />
                 <p className="text-sm mb-1">Email</p>

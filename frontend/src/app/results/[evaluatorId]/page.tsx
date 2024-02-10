@@ -40,13 +40,13 @@ export default function Results() {
             <div className='print flex items-center text-lg'><button className='btn btn-sm btn-square text-lg mr-2' onClick={() => { window.history.back() }}><FiChevronLeft /></button> <p>Results</p></div>
             <div className='print flex my-4 justify-center'>
                 <div role="tablist" className="tabs-md tabs tabs-boxed">
-                    <a role="tab" className={"tab " + (selectedTab === 0 ? "tab-active" : "")} onClick={() => setSelectedTab(0)}><FiUsers className='mr-2' /> All Students</a>
+                    <a role="tab" className={"tab " + (selectedTab === 0 ? "tab-active" : "")} onClick={() => setSelectedTab(0)}><FiFileText className='mr-2' /> Marksheet</a>
                     <a role="tab" className={"tab " + (selectedTab === 1 ? "tab-active" : "")} onClick={() => setSelectedTab(1)}><FiUser className='mr-2' /> Detailed View</a>
                 </div>
             </div>
             {selectedTab === 0 ? <div className="overflow-x-auto flex flex-col items-center justify-center">
                 <div className='print flex w-full items-center max-w-7xl p-5'>
-                    <button className='btn btn-primary' onClick={() => window.print()}><FiPrinter />Download / Print</button>
+                    <button className='btn btn-primary' onClick={() => window.print()}><FiPrinter />Print Marksheet</button>
                 </div>
                 <table className="table max-w-7xl">
                     <thead>
