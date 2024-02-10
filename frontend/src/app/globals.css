@@ -15,3 +15,13 @@
     --background-end-rgb: 0, 0, 0;
   }
 }
+
+.invoice-page {
+  -webkit-print-color-adjust: exact;
+}
+
+@media print {
+  .headerp {
+    display: none;
+  }
+}

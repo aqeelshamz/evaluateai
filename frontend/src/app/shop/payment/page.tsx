@@ -8,6 +8,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import React, { useEffect, useState } from "react";
 import { appName, serverURL } from "@/utils/utils";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { FiChevronLeft, FiCreditCard } from "react-icons/fi";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!);
 
@@ -16,22 +17,63 @@ export default function Page() {
     const [clientSecret, setClientSecret] = useState("");
     const [orderId, setOrderId] = useState("");
 
-    useEffect(() => {
-        if (params.get("method") === "razorpay" || params.get("method") === "paypal") return;
-        // Create PaymentIntent as soon as the page loads (STRIPE)
-        fetch(`${serverURL}/shop/create-order-stripe`, {
+    function createOrder() {
+        return fetch(`${serverURL}/shop/create-order-paypal`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({ itemId: params.get("item") }),
         })
-            .then((res) => res.json())
-            .then((data) => {
-                setClientSecret(data.clientSecret);
-                setOrderId(data.orderId);
+            .then((response) => response.json())
+            .then((order) => order.id);
+    }
+
+    function onApprove(data: any) {
+        return fetch(`${serverURL}/shop/verify-paypal-payment`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                orderId: data.orderID
+            })
+        })
+            .then((response) => response.json())
+            .then((orderData) => {
+                window.location.href = "/invoice/" + orderData?.purchaseId;
             });
+
+    }
+
+
+    useEffect(() => {
+        switch (params.get("method")) {
+            case "razorpay":
+                break;
+            case "stripe":
+                fetch(`${serverURL}/shop/create-order-stripe`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ itemId: params.get("item") }),
+                })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        setClientSecret(data.clientSecret);
+                        setOrderId(data.orderId);
+                    });
+                break;
+            case "paypal":
+                break;
+            default:
+                break;
+        }
+
     }, []);
 
     const appearance = {
@@ -47,8 +89,8 @@ export default function Page() {
     };
 
     return <main className="flex flex-col w-screen h-screen bg-base-100 p-4 overflow-hidden">
-        <p className="mb-5 font-semibold text-2xl max-sm:mb-3"><Link href="/"><span>📝 {appName} ✨</span></Link> | Payment</p>
-        <div className="w-full h-full flex items-center justify-center">
+        <div className='flex items-center text-lg'><button className='btn btn-sm btn-square text-lg mr-2' onClick={() => { window.history.back() }}><FiChevronLeft /></button> <p className="flex items-center"><FiCreditCard className="mr-2" /> Payment</p></div>
+        <div className="w-full h-full flex items-center justify-center overflow-y-auto">
             {params.get("method") === "stripe" ? clientSecret && orderId && (
                 <Elements options={options} stripe={stripePromise}>
                     <CheckoutForm orderId={orderId} />
@@ -57,11 +99,10 @@ export default function Page() {
                 <RazorpayIntegration item={params.get("item")} />
                 : <PayPalScriptProvider options={{ clientId: `${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}` }}>
                     <PayPalButtons
-                        style={{"layout":"vertical"}}
-                        disabled={false}
-                        forceReRender={[{"layout":"vertical"}]}
-                        // createOrder={(x)=>{}}
-                        // onApprove={(x,y)=>{}}
+                        // style={{ "layout": "vertical" }}
+                        // forceReRender={[{ "layout": "vertical" }]}
+                        createOrder={createOrder}
+                        onApprove={onApprove}
                     />
                 </PayPalScriptProvider>}
         </div>

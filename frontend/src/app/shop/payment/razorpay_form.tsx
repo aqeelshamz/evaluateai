@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import React, { useEffect } from 'react';
+import { serverURL } from '@/utils/utils';
 
 export default function RazorpayIntegration(item: any | string) {
     useEffect(() => {
@@ -15,7 +16,7 @@ export default function RazorpayIntegration(item: any | string) {
     const openPayModal = async () => {
         const config = {
             method: 'POST',
-            url: 'http://localhost:8080/shop/create-order-razorpay',
+            url: `${serverURL}/shop/create-order-razorpay`,
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json',
@@ -51,7 +52,7 @@ export default function RazorpayIntegration(item: any | string) {
                 try {
                     const config = {
                         method: 'POST',
-                        url: 'http://localhost:8080/shop/verify-razorpay-payment',
+                        url: `${serverURL}/shop/verify-razorpay-payment`,
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('token')}`,
                             'Content-Type': 'application/json',

@@ -6,6 +6,7 @@ import {
     useElements
 } from "@stripe/react-stripe-js";
 import React, { useEffect, useState } from "react";
+import { serverURL } from "@/utils/utils";
 
 export default function CheckoutForm({ orderId }: { orderId: string }) {
     const stripe = useStripe();
@@ -59,7 +60,7 @@ export default function CheckoutForm({ orderId }: { orderId: string }) {
 
         const config = {
             method: 'POST',
-            url: 'http://localhost:8080/shop/verify-stripe-payment',
+            url: `${serverURL}/shop/verify-stripe-payment`,
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json',
@@ -73,7 +74,7 @@ export default function CheckoutForm({ orderId }: { orderId: string }) {
             elements,
             confirmParams: {
                 // Make sure to change this to your payment completion page
-                return_url: "http://localhost:3000/invoice/" + response.data?.purchaseId,
+                return_url: "/invoice/" + response.data?.purchaseId,
             },
         });
 
