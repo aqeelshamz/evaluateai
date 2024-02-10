@@ -54,6 +54,20 @@ function Context({ children }: { children: React.ReactNode }) {
 
     const [imgPreviewURL, setImgPreviewURL] = useState<string>("");
 
+    const getLimits = () => {
+        const config = {
+            method: "GET",
+            url: `${serverURL}/evaluate/evaluators`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+        };
+
+        axios(config).then((response) => {
+            setLimits(response.data.limits);
+        });
+    }
+
     const getEvaluators = () => {
         const config = {
             method: "GET",
@@ -414,8 +428,7 @@ function Context({ children }: { children: React.ReactNode }) {
         };
 
         var response = await axios(config);
-        console.log(`RESULT OF ${rollNo}: `);
-        console.log(response.data);
+        getLimits();
         return response.data;
     }
 
