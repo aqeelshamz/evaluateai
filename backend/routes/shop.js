@@ -78,7 +78,7 @@ router.post("/invoice", validate, async (req, res) => {
 
         const purchase = await Purchase.findById(data.purchaseId);
 
-        if (req.user.type != "admin" && req.user._id.toString() != purchase.userId.toString()) {
+        if (req.user.type != 0 && req.user._id.toString() != purchase.userId.toString()) {
             return res.status(403).send("Forbidden");
         }
 

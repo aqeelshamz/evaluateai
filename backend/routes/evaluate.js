@@ -245,6 +245,8 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
 
         const resp = completion.choices[0].message.content;
 
+        console.log(resp)
+
         const respData = JSON.parse(resp.split("```json")[1].split("```")[0]);
 
         await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + (data.rollNo)]: respData } });
@@ -254,6 +256,7 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
         return res.send(respData);
     }
     catch (err) {
+        console.log(err)
         return res.status(500).send(err);
     }
 });
