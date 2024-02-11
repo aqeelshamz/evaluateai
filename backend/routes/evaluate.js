@@ -149,6 +149,12 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
 
         const evaluator = await Evaluator.findById(data.evaluatorId);
 
+        const limit = await Limits.findOne({ userId: req.user._id });
+
+        if (limit.evaluationLimit <= 0) {
+            return res.status(400).send("Evaluation limit exceeded");
+        }
+
         if (!evaluator) {
             return res.status(400).send("Evaluator not found");
         }
