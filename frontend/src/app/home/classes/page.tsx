@@ -2,6 +2,7 @@
 import { useContext } from "react";
 import { FiUser, FiEdit, FiTrash, FiType, FiPlusCircle, FiUsers, FiBook, FiHash, FiPrinter } from "react-icons/fi";
 import { MainContext } from "@/context/context";
+import { appName } from "@/utils/utils";
 
 export default function Classes() {
   const {
@@ -39,7 +40,26 @@ export default function Classes() {
   } = useContext(MainContext);
 
   return (
-    <div className="animate-fade-in-bottom flex flex-col w-full max-w-[50vw] max-sm:max-w-none">
+    classes.length === 0 ? <div className="animate-fade-in-bottom flex flex-col w-full max-sm:max-w-none">
+      <div className='select-none flex flex-col justify-center items-center w-full h-full'>
+        <p className='text-5xl font-semibold mb-2'>🤖 {appName} 📝</p>
+        <p className='text-center'>Create a new evaluator or select an existing evaluator to get started.</p>
+        <div className='flex flex-wrap justify-center mt-7'>
+          <div className='bg-base-300 rounded-lg p-4 hover:bg-base-200 max-w-xs m-2'>
+            <p className='font-semibold text-md mb-2'>🤖 AI-Powered Evaluation</p>
+            <p className='text-sm opacity-70'>Leverage cutting-edge AI for accurate and efficient grading.</p>
+          </div>
+          <div className='bg-base-300 rounded-lg p-4 hover:bg-base-200 max-w-xs m-2'>
+            <p className='font-semibold text-md mb-2'>📊 Detailed Result Insights</p>
+            <p className='text-sm opacity-70'>Explore detailed insights for a holistic view of student performance.</p>
+          </div>
+          <div className='bg-base-300 rounded-lg p-4 hover:bg-base-200 max-w-xs m-2'>
+            <p className='font-semibold text-md mb-2'>👥 Effortless Class Management</p>
+            <p className='text-sm opacity-70'>Create, organize, and add students with ease.</p>
+          </div>
+        </div>
+      </div>
+    </div> : <div className="animate-fade-in-bottom flex flex-col w-full max-w-[50vw] max-sm:max-w-none">
       <div className="hidden max-sm:flex justify-end mb-3">
         <button className="btn btn-square" onClick={() => setSelectedEvaluator(-1)}>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -81,55 +101,6 @@ export default function Classes() {
             }
           </tbody>
         </table>
-      </div>
-      {/* New Class Modal */}
-      <input type="checkbox" id="newclass_modal" className="modal-toggle" />
-      <div className="modal" role="dialog">
-        <div className="modal-box">
-          <h3 className="flex items-center font-bold text-lg"><FiPlusCircle className="mr-1" /> New Class</h3>
-          <p className="flex items-center py-4"><FiType className='mr-2' />Class Name</p>
-          <input className="input input-bordered w-full" placeholder="Class Name" type="text" onChange={(x) => setNewClassName(x.target.value)} value={newClassName} />
-          <p className="flex items-center py-4"><FiUsers className='mr-2' />Section</p>
-          <input className="input input-bordered w-full" placeholder="Section" type="text" onChange={(x) => setNewClassSection(x.target.value)} value={newClassSection} />
-          <p className="flex items-center py-4"><FiBook className='mr-2' />Subject</p>
-          <input className="input input-bordered w-full" placeholder="Subject" type="text" onChange={(x) => setNewClassSubject(x.target.value)} value={newClassSubject} />
-          <div className="modal-action">
-            <label htmlFor="newclass_modal" className="btn">Cancel</label>
-            <label htmlFor="newclass_modal" className="btn btn-primary" onClick={() => createClass()}>Create Class</label>
-          </div>
-        </div>
-        <label className="modal-backdrop" htmlFor="newclass_modal">Cancel</label>
-      </div>
-      {/* Delete Class Modal */}
-      <input type="checkbox" id="deleteclass_modal" className="modal-toggle" />
-      <div className="modal">
-        <div className="modal-box">
-          <h3 className="flex items-center font-bold text-lg"><FiTrash className="mr-1" /> Delete Class</h3>
-          <p className="py-4">Are you sure want to delete this class?</p>
-          <div className="modal-action">
-            <label htmlFor="deleteclass_modal" className="btn">Cancel</label>
-            <label htmlFor="deleteclass_modal" className="btn btn-error" onClick={() => deleteClass()}>Delete</label>
-          </div>
-        </div>
-        <label className="modal-backdrop" htmlFor="deleteclass_modal">Cancel</label>
-      </div>
-      {/* Edit Class Modal */}
-      <input type="checkbox" id="editclass_modal" className="modal-toggle" />
-      <div className="modal">
-        <div className="modal-box">
-          <h3 className="flex items-center font-bold text-lg"><FiEdit className="mr-1" /> Edit Class</h3>
-          <p className="flex items-center py-4"><FiType className='mr-2' />Class Name</p>
-          <input className="input input-bordered w-full" placeholder="Class Name" type="text" onChange={(x) => setEditClassName(x.target.value)} value={editClassName} />
-          <p className="flex items-center py-4"><FiUsers className='mr-2' />Section</p>
-          <input className="input input-bordered w-full" placeholder="Section" type="text" onChange={(x) => setEditClassSection(x.target.value)} value={editClassSection} />
-          <p className="flex items-center py-4"><FiBook className='mr-2' />Subject</p>
-          <input className="input input-bordered w-full" placeholder="Subject" type="text" onChange={(x) => setEditClassSubject(x.target.value)} value={editClassSubject} />
-          <div className="modal-action">
-            <label htmlFor="editclass_modal" className="btn">Cancel</label>
-            <label htmlFor="editclass_modal" className="btn btn-primary" onClick={() => editClass()}>Save</label>
-          </div>
-        </div>
-        <label className="modal-backdrop" htmlFor="editclass_modal">Cancel</label>
       </div>
       {/* New Student Modal */}
       <input type="checkbox" id="newstudent_modal" className="modal-toggle" />

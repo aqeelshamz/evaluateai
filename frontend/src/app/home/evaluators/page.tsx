@@ -6,6 +6,7 @@ import { UploadDropzone } from "@/utils/uploadthing";
 import { toast } from "react-toastify";
 import { FaTrophy } from "react-icons/fa";
 import Link from "next/link";
+import { appName } from "@/utils/utils";
 
 export default function Evaluators() {
   const {
@@ -51,7 +52,26 @@ export default function Evaluators() {
   };
 
   return (
-    <div className="animate-fade-in-bottom flex flex-col w-full max-sm:max-w-none">
+    evaluators.length === 0 ? <div className="animate-fade-in-bottom flex flex-col w-full max-sm:max-w-none">
+      <div className='select-none flex flex-col justify-center items-center w-full h-full'>
+        <p className='text-5xl font-semibold mb-2'>🤖 {appName} 📝</p>
+        <p className='text-center'>Create a new evaluator or select an existing evaluator to get started.</p>
+        <div className='flex flex-wrap justify-center mt-7'>
+          <div className='bg-base-300 rounded-lg p-4 hover:bg-base-200 max-w-xs m-2'>
+            <p className='font-semibold text-md mb-2'>🤖 AI-Powered Evaluation</p>
+            <p className='text-sm opacity-70'>Leverage cutting-edge AI for accurate and efficient grading.</p>
+          </div>
+          <div className='bg-base-300 rounded-lg p-4 hover:bg-base-200 max-w-xs m-2'>
+            <p className='font-semibold text-md mb-2'>📊 Detailed Result Insights</p>
+            <p className='text-sm opacity-70'>Explore detailed insights for a holistic view of student performance.</p>
+          </div>
+          <div className='bg-base-300 rounded-lg p-4 hover:bg-base-200 max-w-xs m-2'>
+            <p className='font-semibold text-md mb-2'>👥 Effortless Class Management</p>
+            <p className='text-sm opacity-70'>Create, organize, and add students with ease.</p>
+          </div>
+        </div>
+      </div>
+    </div> : <div className="animate-fade-in-bottom flex flex-col w-full max-sm:max-w-none">
       <div className="hidden max-sm:flex justify-end mb-3">
         <button className="btn btn-square" onClick={() => setSelectedEvaluator(-1)}>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -84,7 +104,14 @@ export default function Evaluators() {
         }</div>
         <p className="flex items-center mb-1 mt-4"><FiFileText className="mr-2" /> Upload answer sheets</p>
         <div className="max-h-full max-w-lg mt-4">
-          {
+          {students?.length === 0 ? <div role="alert" className="alert shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-info shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+              <h3 className="font-bold">No students in class {evaluators[selectedEvaluator]?.class?.name} {evaluators[selectedEvaluator]?.class?.section}!</h3>
+              <div className="text-xs">You need to add students to the class to evaluate their answer sheets.</div>
+            </div>
+            <label onClick={() => window.location.href = "/home/classes"} className="btn btn-primary btn-sm">Add Students</label>
+          </div> :
             students?.map((student: any, i: any) => (
               <div key={i} className="flex flex-col max-w-lg mb-4">
                 <p className="flex items-center mb-1">{student?.rollNo}. {student?.name} {evaluationData[student?.rollNo] && (answerSheets[i] && answerSheets[i]?.length >= 1) ? <span className="ml-2 flex items-center text-green-500 text-sm"><FiCheck className="mr-2" /> Evaluated</span> : ""}</p>

@@ -1,6 +1,6 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
-import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey, FiUsers } from "react-icons/fi";
+import { useContext, useEffect, useRef, useState } from "react";
+import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey, FiUsers, FiBook } from "react-icons/fi";
 import Link from "next/link";
 import { appName } from "@/utils/utils";
 import { UploadButton } from "@/utils/uploadthing";
@@ -42,9 +42,22 @@ export default function Home({
     setNewEvaluatorClassId,
     setEditClassName,
     setEditClassSection,
-    setEditClassSubject, } = useContext(MainContext);
+    setEditClassSubject,
+    editClassName,
+    editClassSection,
+    editClassSubject,
+    editClass,
+    createClass,
+    deleteClass,
+    newClassName,
+    setNewClassName,
+    newClassSection,
+    setNewClassSection,
+    newClassSubject,
+    setNewClassSubject, } = useContext(MainContext);
 
   const pathname = usePathname();
+  const newClassModalRef = useRef<any | null>(null);
 
   useEffect(() => {
     getEvaluators();
@@ -71,7 +84,7 @@ export default function Home({
       setInitial(false);
       setSelectedEvaluator(parseInt(localStorage.getItem("selectedEvaluator") || "-1"));
     }
-    else{
+    else {
       localStorage.setItem("selectedEvaluator", selectedEvaluator.toString());
     }
   }, [selectedEvaluator]);
@@ -94,7 +107,10 @@ export default function Home({
           <Link href={"/home/evaluators"} role="tab" className={"tab " + (selectedTab === 0 ? "tab-active" : "")} onClick={() => { setSelectedTab(0); setSelectedClass(-1); setSelectedEvaluator(0) }}>Evaluators</Link>
           <Link href={"/home/classes"} role="tab" className={"tab " + (selectedTab === 1 ? "tab-active" : "")} onClick={() => { setSelectedTab(1); setSelectedEvaluator(-1); setSelectedClass(0) }}>Classes</Link>
         </div>
-        <label className='btn btn-primary' htmlFor={["newevaluator_modal", "newclass_modal"][selectedTab]} onClick={() => { }}><FiPlus /> NEW {["EVALUATOR", "CLASS"][selectedTab]}</label>
+        <label ref={(x) => {
+          newClassModalRef.current = x;
+        }} htmlFor="newclass_modal" hidden></label>
+        <label className='btn btn-primary' htmlFor={["newevaluator_modal", "newclass_modal"][selectedTab]}><FiPlus /> NEW {["EVALUATOR", "CLASS"][selectedTab]}</label>
         <div className='p-0 my-2 h-full w-full overflow-hidden hover:overflow-y-auto'>
           {selectedTab === 0 ?
             evaluators?.map((evaluator: any, i: number) => {
@@ -187,14 +203,22 @@ export default function Home({
           <p className="flex items-center py-4"><FiType className='mr-2' />Title</p>
           <input className="input input-bordered w-full" placeholder="What's the name of the exam / evaluator?" type="text" onChange={(x) => setNewEvaluatorTitle(x.target.value)} value={newEvaluatorTitle} />
           <p className="flex items-center py-4"><FiUsers className='mr-2' />Class</p>
-          <select className="select select-bordered w-full" value={newEvaluatorClassId} onChange={(x) => setNewEvaluatorClassId(x.target.value)}>
+          {classes?.length === 0 ? <div role="alert" className="alert shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-info shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+              <h3 className="font-bold">No Classes!</h3>
+              <div className="text-xs">You need to create a class to proceed.</div>
+            </div>
+            <label htmlFor="newevaluator_modal" onClick={() => { newClassModalRef.current.click(); }} className="btn btn-primary btn-sm">Create Class</label>
+          </div> : <select className="select select-bordered w-full" value={newEvaluatorClassId} onChange={(x) => setNewEvaluatorClassId(x.target.value)}>
             <option disabled value={"-1"}>Select class</option>
             {
               classes?.map((class_: any, i: any) => (
                 <option key={i} value={class_._id}>{class_?.subject} | {class_?.name} {class_?.section}</option>
               ))
             }
-          </select><p className="flex items-center py-4"><FiFileText className='mr-2' />Upload question paper(s)</p>
+          </select>}
+          <p className="flex items-center py-4"><FiFileText className='mr-2' />Upload question paper(s)</p>
           {newEvaluatorQuestionPapers.length > 0 ?
             <div className="flex flex-wrap">{
               newEvaluatorQuestionPapers.map((file: string, i: number) => {
@@ -258,6 +282,55 @@ export default function Home({
           </div>
         </div>
         <label className="modal-backdrop" htmlFor="deleteevaluator_modal">Cancel</label>
+      </div>
+      {/* New Class Modal */}
+      <input type="checkbox" id="newclass_modal" className="modal-toggle" />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiPlusCircle className="mr-1" /> New Class</h3>
+          <p className="flex items-center py-4"><FiType className='mr-2' />Class Name</p>
+          <input className="input input-bordered w-full" placeholder="Class Name" type="text" onChange={(x) => setNewClassName(x.target.value)} value={newClassName} />
+          <p className="flex items-center py-4"><FiUsers className='mr-2' />Section</p>
+          <input className="input input-bordered w-full" placeholder="Section" type="text" onChange={(x) => setNewClassSection(x.target.value)} value={newClassSection} />
+          <p className="flex items-center py-4"><FiBook className='mr-2' />Subject</p>
+          <input className="input input-bordered w-full" placeholder="Subject" type="text" onChange={(x) => setNewClassSubject(x.target.value)} value={newClassSubject} />
+          <div className="modal-action">
+            <label htmlFor="newclass_modal" className="btn">Cancel</label>
+            <label htmlFor="newclass_modal" className="btn btn-primary" onClick={() => createClass()}>Create Class</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="newclass_modal">Cancel</label>
+      </div>
+      {/* Delete Class Modal */}
+      <input type="checkbox" id="deleteclass_modal" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiTrash className="mr-1" /> Delete Class</h3>
+          <p className="py-4">Are you sure want to delete this class?</p>
+          <div className="modal-action">
+            <label htmlFor="deleteclass_modal" className="btn">Cancel</label>
+            <label htmlFor="deleteclass_modal" className="btn btn-error" onClick={() => deleteClass()}>Delete</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="deleteclass_modal">Cancel</label>
+      </div>
+      {/* Edit Class Modal */}
+      <input type="checkbox" id="editclass_modal" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiEdit className="mr-1" /> Edit Class</h3>
+          <p className="flex items-center py-4"><FiType className='mr-2' />Class Name</p>
+          <input className="input input-bordered w-full" placeholder="Class Name" type="text" onChange={(x) => setEditClassName(x.target.value)} value={editClassName} />
+          <p className="flex items-center py-4"><FiUsers className='mr-2' />Section</p>
+          <input className="input input-bordered w-full" placeholder="Section" type="text" onChange={(x) => setEditClassSection(x.target.value)} value={editClassSection} />
+          <p className="flex items-center py-4"><FiBook className='mr-2' />Subject</p>
+          <input className="input input-bordered w-full" placeholder="Subject" type="text" onChange={(x) => setEditClassSubject(x.target.value)} value={editClassSubject} />
+          <div className="modal-action">
+            <label htmlFor="editclass_modal" className="btn">Cancel</label>
+            <label htmlFor="editclass_modal" className="btn btn-primary" onClick={() => editClass()}>Save</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="editclass_modal">Cancel</label>
       </div>
     </main >
   );

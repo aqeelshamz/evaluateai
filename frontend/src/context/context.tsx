@@ -90,7 +90,7 @@ function Context({ children }: { children: React.ReactNode }) {
                 setSelectedEvaluator(-1);
                 window.location.href = "/home";
             }
-            else if (response.data.evaluators.length > 0 && !pathname.includes("evaluators")) {
+            else if (response.data.evaluators.length > 0 && !pathname.includes("evaluators") && !pathname.includes("classes")) {
                 localStorage.setItem("selectedEvaluator", "0");
                 setSelectedEvaluator(0);
                 window.location.href = "/home/evaluators";
