@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey, FiUsers } from "react-icons/fi";
 import Link from "next/link";
 import { appName } from "@/utils/utils";
@@ -51,7 +51,6 @@ export default function Home({
     getClasses();
 
     pathname === "/home/classes" ? setSelectedTab(1) : setSelectedTab(0);
-    setSelectedEvaluator(-1);
 
     if (typeof window !== 'undefined') {
       if (!localStorage.getItem("token")) {
@@ -65,6 +64,17 @@ export default function Home({
       getStudents(classes[selectedClass]?._id);
     }
   }, [selectedClass]);
+
+  const [initial, setInitial] = useState(true);
+  useEffect(() => {
+    if (initial) {
+      setInitial(false);
+      setSelectedEvaluator(parseInt(localStorage.getItem("selectedEvaluator") || "-1"));
+    }
+    else{
+      localStorage.setItem("selectedEvaluator", selectedEvaluator.toString());
+    }
+  }, [selectedEvaluator]);
 
   return (
     <main className="flex bg-base-100 h-screen w-screen p-2 max-sm:p-0" onClick={() => {
@@ -88,8 +98,8 @@ export default function Home({
         <div className='p-0 my-2 h-full w-full overflow-hidden hover:overflow-y-auto'>
           {selectedTab === 0 ?
             evaluators?.map((evaluator: any, i: number) => {
-              return <Link key={i} href={"/home/evaluators"}><div className={(selectedEvaluator === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => {
-                setSelectedEvaluator(i); setShowMenu(false);
+              return <div key={i} className={(selectedEvaluator === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => {
+                setSelectedEvaluator(i); setShowMenu(false); if (window.location.pathname !== "/home/evaluators") window.location.href = "/home/evaluators";
               }}>
                 <div className='flex justify-start items-center'>
                   <div className='w-fit mr-2'>
@@ -108,7 +118,7 @@ export default function Home({
                       <FiTrash /><p className='ml-2 text-xs'>Delete</p>
                     </label>
                   </div> : ""}
-              </div></Link>
+              </div>
             }) :
             classes?.map((_class: any, i: number) => {
               return <div key={i} className={(selectedClass === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => { setSelectedClass(i); setShowMenu(false) }}>
@@ -136,7 +146,6 @@ export default function Home({
                   </div> : ""}
               </div>
             })
-
           }
         </div>
         <hr />
@@ -179,7 +188,7 @@ export default function Home({
           <input className="input input-bordered w-full" placeholder="What's the name of the exam / evaluator?" type="text" onChange={(x) => setNewEvaluatorTitle(x.target.value)} value={newEvaluatorTitle} />
           <p className="flex items-center py-4"><FiUsers className='mr-2' />Class</p>
           <select className="select select-bordered w-full" value={newEvaluatorClassId} onChange={(x) => setNewEvaluatorClassId(x.target.value)}>
-            <option disabled selected value={"-1"}>Select class</option>
+            <option disabled value={"-1"}>Select class</option>
             {
               classes?.map((class_: any, i: any) => (
                 <option key={i} value={class_._id}>{class_?.subject} | {class_?.name} {class_?.section}</option>

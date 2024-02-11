@@ -87,7 +87,7 @@ export default function Evaluators() {
           {
             students?.map((student: any, i: any) => (
               <div key={i} className="flex flex-col max-w-lg mb-4">
-                <p className="flex items-center mb-1">{student?.rollNo}. {student?.name} {evaluationData[student?.rollNo] && (answerSheets[i] && answerSheets[i]?.length >= 1) ? <div className="ml-2 flex items-center text-green-500 text-sm"><FiCheck className="mr-2" /> Evaluated</div> : ""}</p>
+                <p className="flex items-center mb-1">{student?.rollNo}. {student?.name} {evaluationData[student?.rollNo] && (answerSheets[i] && answerSheets[i]?.length >= 1) ? <span className="ml-2 flex items-center text-green-500 text-sm"><FiCheck className="mr-2" /> Evaluated</span> : ""}</p>
                 {answerSheets[i] && answerSheets[i]?.length >= 1 ? <div className="flex flex-wrap">{
                   answerSheets[i]?.map((file: string, j: number) => {
                     return <div key={j} className="relative flex items-center justify-center">

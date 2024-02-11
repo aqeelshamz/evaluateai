@@ -3,7 +3,7 @@ import { MainContext } from '@/context/context';
 import { useParams } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 import { FaRobot, FaTrophy } from 'react-icons/fa';
-import { FiChevronLeft, FiEdit3, FiFileText, FiHelpCircle, FiInfo, FiKey, FiPrinter, FiRotateCw, FiUser, FiUsers, FiZoomIn, FiZoomOut } from 'react-icons/fi';
+import { FiBook, FiChevronLeft, FiEdit3, FiFileText, FiHelpCircle, FiInfo, FiKey, FiPrinter, FiRotateCw, FiUser, FiUsers, FiZoomIn, FiZoomOut } from 'react-icons/fi';
 import 'react-toastify/dist/ReactToastify.css';
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
 
@@ -14,7 +14,7 @@ export default function Results() {
         getResults,
         getResultsTable,
         resultDataTable,
-        resultData
+        resultData,
     } = useContext(MainContext);
 
     const [selectedTab, setSelectedTab] = useState(0);
@@ -45,7 +45,14 @@ export default function Results() {
                 </div>
             </div>
             {selectedTab === 0 ? <div className="overflow-x-auto flex flex-col items-center justify-center">
-                <div className='print flex w-full items-center max-w-7xl p-5'>
+                <div className="flex items-center justify-between mb-1 mt-4 w-full max-w-7xl">
+                    <p className="flex items-center font-semibold text-xl"><FiFileText className="mr-2" /> {resultDataTable?.exam}</p>
+                </div>
+                <div className="flex items-center max-w-7xl w-full mb-5">
+                    <p className="flex items-center text-sm mr-5"><FiBook className="mr-2" /> {resultDataTable?.class?.subject}</p>
+                    <p className="flex items-center text-sm"><FiUsers className="mr-2" /> {resultDataTable?.class?.name} {resultDataTable?.class?.section}</p>
+                </div>
+                <div className='print flex w-full items-center max-w-7xl mb-5'>
                     <button className='btn btn-primary' onClick={() => window.print()}><FiPrinter />Print Marksheet</button>
                 </div>
                 <table className="table max-w-7xl">
@@ -59,7 +66,7 @@ export default function Results() {
                     </thead>
                     <tbody>
                         {
-                            resultDataTable?.map((student: any, i: number) => {
+                            resultDataTable?.results?.map((student: any, i: number) => {
                                 return <tr key={i}>
                                     <th>{student?.roll_no}</th>
                                     <td>{student?.student_name}</td>
@@ -80,7 +87,7 @@ export default function Results() {
                         <select className="select select-sm select-bordered w-full max-w-xs" onChange={(x) => setSelectedRollNo(parseInt(x.target.value))} value={selectedRollNo}>
                             <option disabled selected>Select Student</option>
                             {
-                                resultDataTable?.map((student: any, i: number) => {
+                                resultDataTable?.results?.map((student: any, i: number) => {
                                     return <option key={i} value={student?.roll_no}>{student?.roll_no}. {student?.student_name}</option>
                                 })
                             }

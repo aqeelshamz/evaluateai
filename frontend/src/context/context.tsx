@@ -81,14 +81,22 @@ function Context({ children }: { children: React.ReactNode }) {
             setEvaluators(response.data.evaluators);
             setUser(response.data.user);
             setLimits(response.data.limits);
-            if (selectedEvaluator === -1 && response.data.evaluators.length > 0 && pathname.includes("evaluators")) {
+
+            const selectedEvaluatorLocalData = parseInt(localStorage.getItem("selectedEvaluator") || "-1");
+            setSelectedEvaluator(selectedEvaluatorLocalData);
+
+            if (response.data.evaluators.length === 0 && (pathname.includes("evaluators"))) {
+                localStorage.setItem("selectedEvaluator", "-1");
+                setSelectedEvaluator(-1);
+                window.location.href = "/home";
+            }
+            else if (response.data.evaluators.length > 0 && !pathname.includes("evaluators")) {
+                localStorage.setItem("selectedEvaluator", "0");
                 setSelectedEvaluator(0);
+                window.location.href = "/home/evaluators";
             }
-            else {
-                if (window.location.href.includes("/evaluators")) {
-                    window.location.href = "/home";
-                }
-            }
+
+            getStudents(response.data.evaluators[selectedEvaluatorLocalData]?.classId);
         });
     }
 
@@ -139,6 +147,7 @@ function Context({ children }: { children: React.ReactNode }) {
             setSelectedEvaluator(0);
             getEvaluators();
             setCreatingEvaluator(false);
+            window.location.href = "/home/evaluators";
         }).catch((error) => {
             toast.error("Something went wrong!");
             setCreatingEvaluator(false);
@@ -161,8 +170,8 @@ function Context({ children }: { children: React.ReactNode }) {
         axios(config)
             .then((response) => {
                 getEvaluators();
-                setSelectedEvaluator(-1);
                 toast.success("Evaluator deleted!");
+                window.location.href = "/home";
             })
             .catch((error) => {
                 toast.error("Failed to delete evaluator");
