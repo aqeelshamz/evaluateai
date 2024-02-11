@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useEffect } from "react";
-import { FiBook, FiCheck, FiExternalLink, FiFileText, FiImage, FiKey, FiShoppingCart, FiUsers, FiX } from "react-icons/fi";
+import { FiBook, FiCheck, FiExternalLink, FiFileText, FiImage, FiKey, FiShoppingCart, FiUsers } from "react-icons/fi";
 import { MainContext } from "@/context/context";
 import { UploadDropzone } from "@/utils/uploadthing";
 import { toast } from "react-toastify";
