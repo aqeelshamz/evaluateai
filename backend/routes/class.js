@@ -32,7 +32,6 @@ router.post("/create", validate, async (req, res) => {
         return res.send(newClass);
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -56,7 +55,6 @@ router.post("/delete", validate, async (req, res) => {
         return res.send("Class deleted successfully");
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -87,7 +85,6 @@ router.post("/update", validate, async (req, res) => {
         return res.send(_class);
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -113,7 +110,6 @@ router.post("/students", validate, async (req, res) => {
         return res.send(students);
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 })
@@ -205,7 +201,6 @@ router.post("/add-student", validate, async (req, res) => {
         return res.send(_class);
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });

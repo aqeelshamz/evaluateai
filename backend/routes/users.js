@@ -55,7 +55,6 @@ router.post("/signup", async (req, res) => {
 
         return res.send(savedUser);
     } catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -121,7 +120,6 @@ async function sendEmail(email, res) {
 
     transporter.sendMail(options, async (err, info) => {
         if (err) {
-            console.log(err);
             return res.status(500).send(err);
         }
 
@@ -164,7 +162,6 @@ router.post("/send-verification-code", async (req, res) => {
 
         await sendEmail(data.email, res, false);
     } catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -193,7 +190,6 @@ router.post("/verify-email", async (req, res) => {
             return res.status(400).send("Invalid code");
         }
     } catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });

@@ -67,7 +67,6 @@ router.post("/evaluators/create", validate, async (req, res) => {
         return res.send(evaluator);
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -232,24 +231,15 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
             },
         ];
 
-        console.log(messages);
-
         const completion = await openai.chat.completions.create({
             model: "gpt-4-vision-preview",
             messages: messages,
             max_tokens: 1000,
         });
 
-        console.log("RESPONSE:");
-
-        console.log(completion.choices[0].message.content);
-
         const resp = completion.choices[0].message.content;
 
         const respData = JSON.parse(resp.split("```json")[1].split("```")[0]);
-
-        console.log("RESPONSE DATA:");
-        console.log(respData);
 
         await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + (data.rollNo)]: respData } });
 
@@ -258,7 +248,6 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
         return res.send(respData);
     }
     catch (err) {
-        console.log(err);
         return res.status(500).send(err);
     }
 });
@@ -423,7 +412,6 @@ router.post("/evaluations/results", validate, async (req, res) => {
         return res.send(resultsData);
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -482,7 +470,6 @@ router.post("/evaluations/results/all", validate, async (req, res) => {
         return res.send({ class: { name: classData.name, section: classData.section, subject: classData.subject }, exam: evaluator.title, results: resultsData });
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -500,7 +487,6 @@ router.post("/evaluations/delete", validate, async (req, res) => {
         return res.send("Evaluation deleted");
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });
