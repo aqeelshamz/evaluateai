@@ -49,7 +49,7 @@ router.get("/", validate, async (req, res) => {
 });
 
 router.get("/purchases", validate, async (req, res) => {
-    const purchases = (await Purchase.find()).reverse();
+    const purchases = (await Purchase.find({userId: req.user._id})).reverse();
 
     var purchasesData = [];
 
