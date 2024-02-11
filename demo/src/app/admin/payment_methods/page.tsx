@@ -1,8 +1,7 @@
 "use client";
-import axios from 'axios';
-import { serverURL } from "@/utils/utils";
 import { FiCreditCard } from 'react-icons/fi';
 import React, { useEffect, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 
 export default function Page() {
     type PaymentMethodData = {
@@ -14,34 +13,11 @@ export default function Page() {
     const [data, setData] = useState<PaymentMethodData | null>();
 
     const getData = async () => {
-        const config = {
-            method: "GET",
-            url: `${serverURL}/admin/payment-methods`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-        };
-
-        axios(config)
-            .then((response) => {
-                setData(response.data);
-            })
+        setData({ "razorpay": true, "stripe": true, "paypal": true });
     }
 
     const saveData = async (data: PaymentMethodData) => {
-        const config = {
-            method: "POST",
-            url: `${serverURL}/admin/payment-methods`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": "application/json"
-            },
-            data: data
-        };
-
-        axios(config).then((response) => {
-            setData(response.data);
-        });
+        return toast.error("This feature is not available in the demo version!");
     }
 
     useEffect(() => {
@@ -98,5 +74,6 @@ export default function Page() {
                 </tbody>
             </table>
         </div>
+        <ToastContainer/>
     </div>
 }

@@ -1,26 +1,24 @@
 "use client";
-import axios from 'axios';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { FiDollarSign, FiDownload } from 'react-icons/fi';
 import { currencySymbol, serverURL } from '@/utils/utils';
 
 export default function Page() {
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<any>([]);
 
     const getData = async () => {
-        const config = {
-            method: "GET",
-            url: `${serverURL}/admin/purchases`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-        };
-
-        axios(config)
-            .then((response) => {
-                setData(response.data);
-            })
+        setData([
+            {
+                "_id": "65c890ef93afbe3c9638eb6d",
+                "user": "Aqeel",
+                "email": "aqeelten@gmail.com",
+                "item": "Value Pack 99",
+                "amount": 99,
+                "paymentMethod": "paypal",
+                "date": "2/11/2024"
+            }
+        ]);
     }
 
     useEffect(() => {

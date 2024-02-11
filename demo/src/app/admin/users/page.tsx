@@ -1,30 +1,46 @@
 "use client";
-import axios from "axios";
 import Link from 'next/link';
-import { toast } from 'react-toastify';
-import { serverURL } from '../../../utils/utils';
 import { FiUser, FiUsers } from 'react-icons/fi';
 import React, { useEffect, useState } from 'react';
 
 export default function Page() {
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState<any>([]);
 
     const getUsers = async () => {
-        const config = {
-            method: "GET",
-            url: `${serverURL}/admin/users`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
+        setUsers([
+            {
+                "_id": "65c88f328ad115825aa80fdb",
+                "name": "User",
+                "email": "user@evaluateai.com",
+                "type": 1,
+                "limits": {
+                    "_id": "65c88f328ad115825aa80fdd",
+                    "userId": "65c88f328ad115825aa80fdb",
+                    "evaluatorLimit": 4,
+                    "evaluationLimit": 100,
+                    "createdAt": "2024-02-11T09:11:14.886Z",
+                    "updatedAt": "2024-02-11T09:18:39.539Z",
+                    "__v": 0
+                },
+                "purchases": 1
             },
-        };
-
-        axios(config)
-            .then((response) => {
-                setUsers(response.data);
-            })
-            .catch((error) => {
-                toast.error("Something went wrong!");
-            });
+            {
+                "_id": "65c88c79da46d0601e26bebc",
+                "name": "Admin",
+                "email": "admin@evaluateai.com",
+                "type": 0,
+                "limits": {
+                    "_id": "65c88c79da46d0601e26bebe",
+                    "userId": "65c88c79da46d0601e26bebc",
+                    "evaluatorLimit": 2,
+                    "evaluationLimit": 5,
+                    "createdAt": "2024-02-11T08:59:37.049Z",
+                    "updatedAt": "2024-02-11T08:59:37.049Z",
+                    "__v": 0
+                },
+                "purchases": 0
+            }
+        ]);
     }
 
     useEffect(() => {

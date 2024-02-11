@@ -36,7 +36,7 @@ export default function Home() {
             .then((response) => {
                 toast.success("Logged In!");
                 localStorage.setItem("token", response.data.token);
-                window.location.href = response.data.user.type === "admin" ? "/admin" : "/home";
+                window.location.href = response.data.user.type === 0 ? "/admin" : "/home";
             })
             .catch((error) => {
                 toast.error("Something went wrong!");

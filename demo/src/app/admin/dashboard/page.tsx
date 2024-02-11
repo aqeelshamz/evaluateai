@@ -1,5 +1,4 @@
 "use client";
-import axios from 'axios';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { currencySymbol, serverURL } from "@/utils/utils";
@@ -17,18 +16,7 @@ export default function Page() {
     const [data, setData] = useState<DashboardData | null>();
 
     const getData = async () => {
-        const config = {
-            method: "GET",
-            url: `${serverURL}/admin/dashboard`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-        };
-
-        axios(config)
-            .then((response) => {
-                setData(response.data);
-            })
+        setData({ "users": 2, "items": 3, "purchases": 1, "earnings": 99 });
     }
 
     useEffect(() => {

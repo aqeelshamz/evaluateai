@@ -1,5 +1,4 @@
 "use client";
-import axios from 'axios';
 import Link from 'next/link'
 import { useEffect, useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
@@ -25,34 +24,12 @@ export default function Home() {
     const [loading, setLoading] = useState<boolean>(false);
 
     const sendVerificationCode = async () => {
-        setLoading(true);
         if (email == "" || name == "" || password == "") {
             toast.error("Please fill out all fields!");
             return;
         }
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/users/send-verification-code`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                "email": email
-            }
-        };
-
-        axios(config)
-            .then((response) => {
-                toast.success("Verification Code Sent!");
-                setVerificationCodeSent(true);
-                setLoading(false);
-            })
-            .catch((error) => {
-                toast.error("Something went wrong! Please try again later.");
-                setLoading(false);
-            });
+        return toast.error("This feature is not available in the demo version!");
     }
 
     const verifyEmail = async () => {
@@ -66,27 +43,7 @@ export default function Home() {
             return;
         }
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/users/verify-email`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                "email": email,
-                "code": verificationCode,
-            }
-        };
-
-        axios(config)
-            .then((response) => {
-                toast.success("Email verified!");
-                signup();
-            })
-            .catch((error) => {
-                toast.error("Something went wrong! Please try again later.");
-            });
+        return toast.error("This feature is not available in the demo version!");
     }
 
     const signup = async () => {
@@ -95,30 +52,7 @@ export default function Home() {
             return;
         }
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/users/signup`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                "name": name,
-                "email": email,
-                "password": password,
-            }
-        };
-
-        axios(config)
-            .then((response) => {
-                toast.success("Account created!");
-                setTimeout(() => {
-                    window.location.href = "/login";
-                }, 1000);
-            })
-            .catch((error) => {
-                toast.error("Something went wrong!");
-            });
+        return toast.error("This feature is not available in the demo version!");
     }
 
     return (

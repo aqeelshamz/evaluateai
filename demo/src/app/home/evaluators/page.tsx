@@ -127,8 +127,6 @@ export default function Evaluators() {
                     return <div key={j} className="relative flex items-center justify-center">
                       {evaluating === student?.rollNo ? <div className="bg-white p-1 rounded-full absolute flex items-center text-sm"><span className="mr-1 loading loading-spinner loading-sm"></span><p>Evaluating...</p></div> : ""}
                       <button className="btn btn-xs btn-circle absolute right-3 top-1" onClick={() => {
-                        answerSheets[i].splice(j, 1);
-                        setAnswerSheets([...answerSheets]);
                         updateEvaluation(evaluators[selectedEvaluator]?._id, answerSheets);
                       }}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -181,7 +179,7 @@ export default function Evaluators() {
       <div className="modal">
         <div className="modal-box">
           <h3 className="flex items-center font-bold text-lg"><FiInfo className="mr-1" /> Evaluation limit exceeded</h3>
-          <p className="py-4">You have reached the maximum limit of evaluations.<br/>You can purchase more evaluations from the shop.</p>
+          <p className="py-4">You have reached the maximum limit of evaluations.<br />You can purchase more evaluations from the shop.</p>
           <div className="modal-action">
             <label ref={(x) => limitExceedModalRef.current = x} htmlFor="evaluationlimitexceed_modal" className="btn">Cancel</label>
             <label htmlFor="evaluationlimitexceed_modal" className="btn btn-primary" onClick={() => window.location.href = "/shop"}><FiShoppingCart /> Shop</label>

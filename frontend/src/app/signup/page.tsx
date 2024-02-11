@@ -27,6 +27,7 @@ export default function Home() {
     const sendVerificationCode = async () => {
         setLoading(true);
         if (email == "" || name == "" || password == "") {
+            setLoading(false);
             toast.error("Please fill out all fields!");
             return;
         }

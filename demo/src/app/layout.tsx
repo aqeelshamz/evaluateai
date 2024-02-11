@@ -11,7 +11,7 @@ const golos = Golos_Text({
 })
 
 export const metadata: Metadata = {
-  title: appName,
+  title: appName + " Demo",
   description: "AI powered exam sheet evaluation",
   keywords: ["AI", "exam", "evaluation", "ai exam", "ai evaluation", "quiz", "grading", "Exam evaluation software",
     "Automated grading system",

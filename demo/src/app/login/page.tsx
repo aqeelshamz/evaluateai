@@ -19,28 +19,44 @@ export default function Home() {
     const [password, setPassword] = useState<string>("");
 
     const login = async () => {
-        const config = {
-            method: "POST",
-            url: `${serverURL}/users/login`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                "email": email,
-                "password": password,
-            }
-        };
+        var loginData = null;
+        if (email === "admin@evaluateai.com" && password === "password") {
+            loginData = {
+                "user": {
+                    "_id": "65c88c79da46d0601e26bebc",
+                    "name": "Admin",
+                    "email": "admin@evaluateai.com",
+                    "password": "$2b$10$GpPfREACojipNzazcgrr7efAngsDoIRqybMF0rW.jpHE5qnm/dr2G",
+                    "type": 0,
+                    "createdAt": "2024-02-11T08:59:37.024Z",
+                    "updatedAt": "2024-02-11T08:59:37.024Z",
+                    "__v": 0
+                },
+                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWM4OGM3OWRhNDZkMDYwMWUyNmJlYmMiLCJpYXQiOjE3MDc2NDc5MjV9.G-1EiOolipCz92u4fjIERGB0LDZ-16CsJnWfefIzOMU"
+            };
+        }
+        else if (email === "user@evaluateai.com" && password === "password") {
+            loginData = {
+                "user": {
+                    "_id": "65c88f328ad115825aa80fdb",
+                    "name": "User",
+                    "email": "user@evaluateai.com",
+                    "password": "$2b$10$KPYTKDVmj4MJjXOhA431u.bOjMdS/8WzNPxeK1LcZnez0UU7L5G16",
+                    "type": 1,
+                    "createdAt": "2024-02-11T09:11:14.884Z",
+                    "updatedAt": "2024-02-11T09:11:14.884Z",
+                    "__v": 0
+                },
+                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWM4OGYzMjhhZDExNTgyNWFhODBmZGIiLCJpYXQiOjE3MDc2NDc3OTR9.hOlfGUcwzuxSa97e6vOLyKYFz0iyKDpF6NSm_nRV7cQ"
+            };
+        }
+        else {
+            return toast.error("Incorrect Email or Password");
+        }
 
-        axios(config)
-            .then((response) => {
-                toast.success("Logged In!");
-                localStorage.setItem("token", response.data.token);
-                window.location.href = response.data.user.type === "admin" ? "/admin" : "/home";
-            })
-            .catch((error) => {
-                toast.error("Something went wrong!");
-            });
+        toast.success("Logged In!");
+        localStorage.setItem("token", loginData.token);
+        window.location.href = loginData.user.type === 0 ? "/admin" : "/home";
     }
 
     return (

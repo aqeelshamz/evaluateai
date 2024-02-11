@@ -1,6 +1,5 @@
 "use client";
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import React, { useEffect, useState } from 'react';
 import { currencySymbol, serverURL } from "@/utils/utils";
 import { FiCheckCircle, FiDollarSign, FiEdit, FiFileText, FiPlus, FiSettings, FiShoppingCart, FiTrash, FiType } from 'react-icons/fi';
@@ -17,109 +16,57 @@ export default function Page() {
     const [deleteItemId, setDeleteItemId] = useState("");
 
     const getItems = async () => {
-        const config = {
-            method: "GET",
-            url: `${serverURL}/admin/shop`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
+        setItems([
+            {
+                "_id": "65c8913593afbe3c9638ec2c",
+                "enable": true,
+                "title": "Sample item",
+                "evaluatorLimit": 50,
+                "evaluationLimit": 100,
+                "price": 1999,
+                "createdAt": "2024-02-11T09:19:49.147Z",
+                "updatedAt": "2024-02-11T09:19:49.147Z",
+                "__v": 0
             },
-        };
-
-        axios(config)
-            .then((response) => {
-                setItems(response.data);
-            })
+            {
+                "_id": "65c88ce7da46d0601e26bee3",
+                "enable": true,
+                "title": "Value Pack 99",
+                "evaluatorLimit": 3,
+                "evaluationLimit": 100,
+                "price": 99,
+                "createdAt": "2024-02-11T09:01:27.361Z",
+                "updatedAt": "2024-02-11T09:01:27.361Z",
+                "__v": 0
+            },
+            {
+                "_id": "65c88ccfda46d0601e26bede",
+                "enable": true,
+                "title": "Evaluation Power-up",
+                "evaluatorLimit": 0,
+                "evaluationLimit": 15,
+                "price": 25,
+                "createdAt": "2024-02-11T09:01:03.700Z",
+                "updatedAt": "2024-02-11T09:01:03.700Z",
+                "__v": 0
+            }
+        ]);
     }
 
     const createItem = async () => {
         if (!title) return toast.error("Please enter a title!");
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/admin/shop/create`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                title: title,
-                evaluatorLimit: evaluatorLimit,
-                evaluationLimit: evaluationLimit,
-                price: price,
-            }
-        };
-
-        axios(config)
-            .then((response) => {
-                toast.success("Item created!");
-                setTitle("");
-                setEvaluatorLimit(0);
-                setEvaluationLimit(0);
-                setPrice(0);
-                getItems();
-            })
-            .catch((error) => {
-                toast.error("Something went wrong!");
-            });
+        return toast.error("This feature is not available in the demo version!");
     }
 
     const editItem = async () => {
         if (!title) return toast.error("Please enter a title!");
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/admin/shop/edit`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                itemId: editItemId,
-                enable: enable,
-                title: title,
-                evaluatorLimit: evaluatorLimit,
-                evaluationLimit: evaluationLimit,
-                price: price,
-            }
-        };
-
-        axios(config)
-            .then((response) => {
-                toast.success("Item updated!");
-                setTitle("");
-                setEvaluatorLimit(0);
-                setEvaluationLimit(0);
-                setPrice(0);
-                setEnable(false);
-                setEditItemId("");
-                getItems();
-            })
-            .catch((error) => {
-                toast.error("Something went wrong!");
-            });
+        return toast.error("This feature is not available in the demo version!");
     }
 
     const deleteItem = async () => {
-        const config = {
-            method: "POST",
-            url: `${serverURL}/admin/shop/delete`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                itemId: deleteItemId
-            }
-        };
-
-        axios(config)
-            .then((response) => {
-                toast.success("Item deleted!");
-                getItems();
-            })
-            .catch((error) => {
-                toast.error("Something went wrong!");
-            });
+        return toast.error("This feature is not available in the demo version!");
     }
 
     useEffect(() => {
@@ -219,5 +166,6 @@ export default function Page() {
             </div>
             <label className="modal-backdrop" htmlFor="deleteitem_modal">Cancel</label>
         </div>
+        <ToastContainer />
     </div>
 }
