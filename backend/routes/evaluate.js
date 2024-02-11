@@ -111,8 +111,7 @@ router.post("/evaluators/update", validate, async (req, res) => {
     const schema = joi.object({
         evaluatorId: joi.string().required(),
         title: joi.string().required(),
-        questionPapers: joi.array().required(),
-        answerKeys: joi.array().required(),
+        classId: joi.string().required(),
     });
 
     try {
@@ -129,8 +128,7 @@ router.post("/evaluators/update", validate, async (req, res) => {
         }
 
         evaluator.title = data.title;
-        evaluator.questionPapers = data.questionPaper;
-        evaluator.answerKeys = data.answerKey;
+        evaluator.classId = data.classId;
 
         await evaluator.save();
 
@@ -456,7 +454,8 @@ router.post("/evaluations/results/all", validate, async (req, res) => {
 
         var resultsData = [];
 
-        const students = (await Class.findById(evaluator.classId)).students;
+        const classData = await Class.findById(evaluator.classId);
+        const students = classData.students;
 
         for (const student of students) {
             var studentData = {};
@@ -480,7 +479,7 @@ router.post("/evaluations/results/all", validate, async (req, res) => {
             resultsData.push(studentData);
         }
 
-        return res.send(resultsData);
+        return res.send({ class: { name: classData.name, section: classData.section, subject: classData.subject }, exam: evaluator.title, results: resultsData });
     }
     catch (err) {
         console.log(err)
