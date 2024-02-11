@@ -54,7 +54,12 @@ export default function Home({
     newClassSection,
     setNewClassSection,
     newClassSubject,
-    setNewClassSubject, } = useContext(MainContext);
+    setNewClassSubject,
+    editEvaluatorTitle,
+    setEditEvaluatorTitle,
+    editEvaluatorClassId,
+    setEditEvaluatorClassId,
+    editEvaluator } = useContext(MainContext);
 
   const pathname = usePathname();
   const newClassModalRef = useRef<any | null>(null);
@@ -127,7 +132,10 @@ export default function Home({
                 </div>
                 {selectedEvaluator === i ?
                   <div className='flex mt-2'>
-                    <label htmlFor='editevaluator_modal' className='cursor-pointer flex justify-center items-center w-full p-2 bg-base-300 rounded-md mr-1 hover:bg-gray-500 hover:text-white' onClick={() => setNewEvaluatorTitle(evaluators[i].title)}>
+                    <label htmlFor='editevaluator_modal' className='cursor-pointer flex justify-center items-center w-full p-2 bg-base-300 rounded-md mr-1 hover:bg-gray-500 hover:text-white' onClick={() => {
+                      setEditEvaluatorTitle(evaluators[i].title);
+                      setEditEvaluatorClassId(evaluators[i].classId);
+                    }}>
                       <FiEdit /><p className='ml-2 text-xs'>Edit</p>
                     </label>
                     <label htmlFor='deleteevaluator_modal' className='cursor-pointer flex justify-center items-center w-full p-2 bg-base-300 rounded-md hover:bg-red-500 hover:text-white'>
@@ -268,7 +276,29 @@ export default function Home({
           </div>
         </div>
         <label className="modal-backdrop" htmlFor="newevaluator_modal">Cancel</label>
-        {/* <label ref={newDocumentModalRef} htmlFor="newevaluator_modal" hidden></label> */}
+      </div>
+      {/* New Evaluator Modal */}
+      <input type="checkbox" id="editevaluator_modal" className="modal-toggle" />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiPlusCircle className="mr-1" /> Edit Evaluator</h3>
+          <p className="flex items-center py-4"><FiType className='mr-2' />Title</p>
+          <input className="input input-bordered w-full" placeholder="What's the name of the exam / evaluator?" type="text" onChange={(x) => setEditEvaluatorTitle(x.target.value)} value={editEvaluatorTitle} />
+          <p className="flex items-center py-4"><FiUsers className='mr-2' />Class</p>
+          <select className="select select-bordered w-full" value={editEvaluatorClassId} onChange={(x) => setEditEvaluatorClassId(x.target.value)}>
+            <option disabled value={"-1"}>Select class</option>
+            {
+              classes?.map((class_: any, i: any) => (
+                <option key={i} value={class_._id}>{class_?.subject} | {class_?.name} {class_?.section}</option>
+              ))
+            }
+          </select>
+          <div className="modal-action">
+            <label htmlFor="editevaluator_modal" className="btn">Cancel</label>
+            <label htmlFor="editevaluator_modal" className="btn btn-primary" onClick={() => editEvaluator()}>Save</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="editevaluator_modal">Cancel</label>
       </div>
       {/* Delete Evaluator Modal */}
       <input type="checkbox" id="deleteevaluator_modal" className="modal-toggle" />

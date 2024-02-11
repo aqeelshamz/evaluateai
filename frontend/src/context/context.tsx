@@ -24,6 +24,8 @@ function Context({ children }: { children: React.ReactNode }) {
     const [newEvaluatorClassId, setNewEvaluatorClassId] = useState<string>("-1");
     const [newEvaluatorQuestionPapers, setNewEvaluatorQuestionPapers] = useState<string[]>([]);
     const [newEvaluatorAnswerKeys, setNewEvaluatorAnswerKeys] = useState<string[]>([]);
+    const [editEvaluatorTitle, setEditEvaluatorTitle] = useState<string>("");
+    const [editEvaluatorClassId, setEditEvaluatorClassId] = useState<string>("-1");
 
     const [classes, setClasses] = useState<any[]>([]);
     const [selectedClass, setSelectedClass] = useState<number>(-1);
@@ -90,13 +92,14 @@ function Context({ children }: { children: React.ReactNode }) {
                 setSelectedEvaluator(-1);
                 window.location.href = "/home";
             }
-            else if (response.data.evaluators.length > 0 && !pathname.includes("evaluators") && !pathname.includes("classes")) {
+            else if (response.data.evaluators.length > 0 && !pathname.includes("evaluators") && !pathname.includes("classes") && !pathname.includes("admin")) {
                 localStorage.setItem("selectedEvaluator", "0");
                 setSelectedEvaluator(0);
                 window.location.href = "/home/evaluators";
             }
 
             getStudents(response.data.evaluators[selectedEvaluatorLocalData]?.classId);
+            getEvaluation(response.data.evaluators[selectedEvaluatorLocalData]?._id);
         });
     }
 
@@ -114,6 +117,39 @@ function Context({ children }: { children: React.ReactNode }) {
             if (response.data.length > 0 && pathname.includes("classes") && selectedClass === -1) {
                 setSelectedClass(0);
             }
+        });
+    }
+
+    const editEvaluator = () => {
+        if (editEvaluatorClassId === "-1" || editEvaluatorTitle === '') {
+            return toast.error("Please fill all the fields!");
+        }
+
+        setCreatingEvaluator(true);
+
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluators/update`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": `application/json`,
+            },
+            data: {
+                "evaluatorId": evaluators[selectedEvaluator]?._id,
+                "title": editEvaluatorTitle,
+                "classId": editEvaluatorClassId,
+            }
+        };
+
+        axios(config).then((response) => {
+            toast.success("Evaluator saved!");
+            setEditEvaluatorTitle("");
+            setEditEvaluatorClassId("-1");
+            getEvaluators();
+            setCreatingEvaluator(false);
+        }).catch((error) => {
+            toast.error("Something went wrong!");
+            setCreatingEvaluator(false);
         });
     }
 
@@ -385,8 +421,9 @@ function Context({ children }: { children: React.ReactNode }) {
         });
     }
 
-    const getEvaluation = () => {
-        if (!evaluators[selectedEvaluator]?._id) return;
+    const getEvaluation = (evaluatorId?: string) => {
+        if (!evaluators[selectedEvaluator]?._id && !evaluatorId) return;
+
         const config = {
             method: "POST",
             url: `${serverURL}/evaluate/evaluations/get`,
@@ -394,7 +431,7 @@ function Context({ children }: { children: React.ReactNode }) {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`,
             },
             data: {
-                evaluatorId: evaluators[selectedEvaluator]?._id
+                evaluatorId: evaluators[selectedEvaluator]?._id ?? evaluatorId
             }
         };
 
@@ -586,7 +623,12 @@ function Context({ children }: { children: React.ReactNode }) {
             setEditStudentName,
             editStudentRollNo,
             setEditStudentRollNo,
-            editStudent
+            editStudent,
+            editEvaluatorTitle,
+            setEditEvaluatorTitle,
+            editEvaluatorClassId,
+            setEditEvaluatorClassId,
+            editEvaluator
         }}>
             {children}
         </MainContext.Provider>
