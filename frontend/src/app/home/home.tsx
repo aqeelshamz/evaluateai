@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useEffect, useRef, useState } from "react";
-import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey, FiUsers, FiBook } from "react-icons/fi";
+import { FiPlus, FiMoreHorizontal, FiSettings, FiUser, FiLogOut, FiFileText, FiEdit, FiTrash, FiArrowRight, FiShoppingCart, FiShoppingBag, FiType, FiPlusCircle, FiKey, FiUsers, FiBook, FiInfo } from "react-icons/fi";
 import Link from "next/link";
 import { appName } from "@/utils/utils";
 import { UploadButton } from "@/utils/uploadthing";
@@ -115,7 +115,7 @@ export default function Home({
         <label ref={(x) => {
           newClassModalRef.current = x;
         }} htmlFor="newclass_modal" hidden></label>
-        <label className='btn btn-primary' htmlFor={["newevaluator_modal", "newclass_modal"][selectedTab]}><FiPlus /> NEW {["EVALUATOR", "CLASS"][selectedTab]}</label>
+        <label className='btn btn-primary' htmlFor={selectedTab === 0 && limits?.evaluatorLimit === 0 ? "limitexceed_modal" : ["newevaluator_modal", "newclass_modal"][selectedTab]}><FiPlus /> NEW {["EVALUATOR", "CLASS"][selectedTab]}</label>
         <div className='p-0 my-2 h-full w-full overflow-hidden hover:overflow-y-auto'>
           {selectedTab === 0 ?
             evaluators?.map((evaluator: any, i: number) => {
@@ -277,7 +277,7 @@ export default function Home({
         </div>
         <label className="modal-backdrop" htmlFor="newevaluator_modal">Cancel</label>
       </div>
-      {/* New Evaluator Modal */}
+      {/* Edit Evaluator Modal */}
       <input type="checkbox" id="editevaluator_modal" className="modal-toggle" />
       <div className="modal" role="dialog">
         <div className="modal-box">
@@ -312,6 +312,19 @@ export default function Home({
           </div>
         </div>
         <label className="modal-backdrop" htmlFor="deleteevaluator_modal">Cancel</label>
+      </div>
+      {/* Evaluator Limit Exceed Modal */}
+      <input type="checkbox" id="limitexceed_modal" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiInfo className="mr-1" /> Evaluator limit exceeded</h3>
+          <p className="py-4">You have reached the maximum limit of evaluators.<br />You can shop for more evaluators or delete existing ones to create new ones.</p>
+          <div className="modal-action">
+            <label htmlFor="limitexceed_modal" className="btn">Cancel</label>
+            <label htmlFor="limitexceed_modal" className="btn btn-primary" onClick={() => window.location.href = "/shop"}><FiShoppingCart /> Shop</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="limitexceed_modal">Cancel</label>
       </div>
       {/* New Class Modal */}
       <input type="checkbox" id="newclass_modal" className="modal-toggle" />

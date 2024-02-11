@@ -1,6 +1,6 @@
 "use client";
-import { useContext, useEffect } from "react";
-import { FiBook, FiCheck, FiExternalLink, FiFileText, FiImage, FiKey, FiShoppingCart, FiUsers } from "react-icons/fi";
+import { useContext, useEffect, useRef } from "react";
+import { FiBook, FiCheck, FiExternalLink, FiFileText, FiImage, FiInfo, FiKey, FiShoppingCart, FiUsers } from "react-icons/fi";
 import { MainContext } from "@/context/context";
 import { UploadDropzone } from "@/utils/uploadthing";
 import { toast } from "react-toastify";
@@ -28,6 +28,8 @@ export default function Evaluators() {
     limits
   } = useContext(MainContext);
 
+  const limitExceedModalRef = useRef<any | null>(null);
+
   useEffect(() => {
     getStudents(evaluators[selectedEvaluator]?.classId);
     getEvaluation();
@@ -42,7 +44,12 @@ export default function Evaluators() {
       if (!answerSheets[i] || answerSheets[i].length < 1) {
         continue;
       }
-      await evaluate(i + 1);
+      var val = await evaluate(i + 1);
+      if (val === -1) {
+        setEvaluating(-1);
+        limitExceedModalRef.current?.click();
+        return;
+      }
     }
 
     setEvaluating(-1);
@@ -168,6 +175,19 @@ export default function Evaluators() {
           <img src={imgPreviewURL} className="w-full h-full object-contain" />
         </div>
         <label className="modal-backdrop" htmlFor="preview_modal">Close</label>
+      </div>
+      {/* Evaluation Limit Exceed Modal */}
+      <input type="checkbox" id="evaluationlimitexceed_modal" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiInfo className="mr-1" /> Evaluation limit exceeded</h3>
+          <p className="py-4">You have reached the maximum limit of evaluations.<br/>You can purchase more evaluations from the shop.</p>
+          <div className="modal-action">
+            <label ref={(x) => limitExceedModalRef.current = x} htmlFor="evaluationlimitexceed_modal" className="btn">Cancel</label>
+            <label htmlFor="evaluationlimitexceed_modal" className="btn btn-primary" onClick={() => window.location.href = "/shop"}><FiShoppingCart /> Shop</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="evaluationlimitexceed_modal">Cancel</label>
       </div>
     </div>
   );

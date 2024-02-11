@@ -473,9 +473,14 @@ function Context({ children }: { children: React.ReactNode }) {
             }
         };
 
-        var response = await axios(config);
-        getLimits();
-        return response.data;
+        try {
+            var response = await axios(config);
+            getLimits();
+            return response.data;
+        }
+        catch (err) {
+            return -1;
+        }
     }
 
     const getResults = (evaluatorId?: string, rollNo?: number) => {
