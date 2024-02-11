@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useEffect, useState } from 'react'
 import { FaRobot } from 'react-icons/fa';
-import { FiArrowRight, FiCloud, FiCreditCard, FiFacebook, FiFileText, FiHome, FiInstagram, FiLogIn, FiPlayCircle, FiShoppingCart, FiTwitter, FiUsers, FiZap } from 'react-icons/fi';
+import { FiArrowRight, FiCloud, FiCreditCard, FiFacebook, FiFileText, FiHome, FiInstagram, FiLogIn, FiPlayCircle, FiShoppingCart, FiTwitter, FiUsers, FiX, FiZap } from 'react-icons/fi';
 export default function Main() {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
@@ -83,7 +83,13 @@ export default function Main() {
     }
   ];
 
+  const [videoPreview, setVideoPreview] = useState(false);
+
   return <main className="flex flex-col realtive">
+    {videoPreview && <div className='fixed z-[999] video-preview w-full h-full bg-black p-20' onClick={() => setVideoPreview(false)}>
+      <FiX className='text-4xl absolute top-5 right-5 text-white cursor-pointer' onClick={() => setVideoPreview(false)} />
+      <iframe allowFullScreen className='w-full h-full' src="https://www.youtube.com/embed/hVurBDPrPOQ" title="EvaluateAI | AI-Powered Answer Sheet Evaluator | SaaS Platform | Envato Codecanyon | Full Demo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+    </div>}
     <div id="home" className='min-h-screen w-screen bg-gradient-to-b from-purple-400 via-violet-500 to-indigo-600 flex flex-col justify-center items-center'>
       <div className={"flex z-50 items-center justify-between fixed top-0 w-full p-3 md:px-10 duration-200 backdrop-blur-md border-b border-[rgba(255,255,255,0.1)] " + (color ? "bg-white" : "text-white")}>
         <Link href="/"><div className="text-lg">🤖 {appName} 📝</div></Link>
@@ -107,7 +113,7 @@ export default function Main() {
         className='duration-200 text-center mt-5 font-normal text-md md:text-xl text-white w-full'>A powerful AI tool to evaluate answer sheets<br />with ease and precision.</motion.p>
       <motion.button initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: -30 }}
-        transition={{ type: "spring", stiffness: 100, duration: 0.1, ease: "easeInOut", delay: 0.4 }} className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary"><FiPlayCircle /> See how it works</motion.button>
+        transition={{ type: "spring", stiffness: 100, duration: 0.1, ease: "easeInOut", delay: 0.4 }} className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary" onClick={() => setVideoPreview(true)}><FiPlayCircle /> See how it works</motion.button>
       <Link href={loggedIn ? "/home" : "/login"}><motion.button initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 0.7, y: -30 }}
         transition={{ type: "spring", stiffness: 100, duration: 0.1, ease: "easeInOut", delay: 0.6 }} className="mt-5 btn btn-sm md:btn-md text-white btn-ghost">{loggedIn ? "Go to home" : "Sign in"}<FiArrowRight /></motion.button></Link>
@@ -139,11 +145,11 @@ export default function Main() {
           </div>
         })}
       </div>
-      <button className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary"><FiPlayCircle /> See how it works</button>
+      <button className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary" onClick={() => setVideoPreview(true)}><FiPlayCircle /> See how it works</button>
     </div>
     <div id="get-started" className='text-white w-screen flex flex-col items-center py-20 md:p-20 bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-blue-700 via-blue-800 to-gray-900'>
       <h1 className='text-4xl md:text-7xl font-bold mb-5'>Get Started Now.</h1>
-      <Link href={"#home"}><button className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary"><FiZap /> Unlock the Future of Grading</button></Link>
+      <Link href={"#home"}><button className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary"><FiZap /> Unlock the Future of Exam Evaluation</button></Link>
       <p className='opacity-75 duration-200 text-center mt-10 font-normal text-md md:text-xl text-white w-full'>Experience the power of {appName} in revolutionizing your evaluation process.</p>
     </div>
     <div className='text-white w-screen flex flex-col items-center py-20 md:px-32 bg-black'>
