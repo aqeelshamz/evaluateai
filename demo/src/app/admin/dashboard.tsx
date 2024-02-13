@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import { appName } from '@/utils/utils';
 import React, { useContext, useEffect, useState } from 'react';
-import { FiArrowLeft, FiCreditCard, FiDollarSign, FiHome, FiLogOut, FiMoreHorizontal, FiShoppingCart, FiUser, FiUsers } from "react-icons/fi";
+import { FiArrowLeft, FiCreditCard, FiDollarSign, FiHome, FiLogOut, FiMoreHorizontal, FiPlayCircle, FiShoppingCart, FiUser, FiUsers } from "react-icons/fi";
 import { Context, MainContext } from '@/context/context';
 
 export default function Home({
@@ -30,6 +30,8 @@ export default function Home({
       }
     }
   }, []);
+
+  const [hideDemoMessage, setHideDemoMessage] = useState(false);
 
   return (
     <main className="flex bg-base-100 h-screen w-screen p-2 max-sm:p-0" onClick={() => {
@@ -77,6 +79,19 @@ export default function Home({
       <div className='w-full h-full overflow-y-auto'>
         <Context>{children}</Context>
       </div>
+      {hideDemoMessage ? "" : <div className="flex fixed z-[100] bottom-10 right-10 ">
+        <div role="alert" className="alert shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-info shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div>
+            <h3 className="font-bold">This is a demo version</h3>
+            <div className="text-xs">Some features are disabled in the demo version.</div>
+            <button className="btn btn-md btn-primary mt-4" onClick={() => window.open("https://www.youtube.com/watch?v=hVurBDPrPOQ&t=17s")}><FiPlayCircle /> See Full Demo Video</button>
+          </div>
+          <button className="btn btn-sm btn-square" onClick={() => setHideDemoMessage(true)}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+      </div>}
       <ToastContainer />
     </main>
   )

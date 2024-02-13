@@ -421,7 +421,7 @@ function Context({ children }: { children: React.ReactNode }) {
     }
 
     const evaluate = async (rollNo: number) => {
-        return toast.error("This feature is not available in the demo version!");
+        return;
     }
 
     const getResults = (evaluatorId?: string, rollNo?: number) => {
