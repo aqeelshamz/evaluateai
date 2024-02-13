@@ -29,7 +29,7 @@ export default function Home() {
             return;
         }
 
-        return toast.error("This feature is not available in the demo version!");
+        return toast.error("Login using the demo account!");
     }
 
     const verifyEmail = async () => {
