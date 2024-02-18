@@ -483,6 +483,43 @@ router.post("/evaluations/results/all", validate, async (req, res) => {
     }
 });
 
+router.post("/evaluations/results/save", validate, async (req, res) => {
+    const schema = joi.object({
+        evaluatorId: joi.string().required(),
+        rollNo: joi.number().required(),
+        results: joi.array().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+
+        const evaluator = await Evaluator.findById(data.evaluatorId);
+
+        if (!evaluator) {
+            return res.status(400).send("Evaluator not found");
+        }
+
+        if (evaluator.userId.toString() != req.user._id.toString()) {
+            return res.status(400).send("Unauthorized");
+        }
+
+        const evaluation = await Evaluation.findOne({ evaluatorId: data.evaluatorId });
+
+        if (!evaluation) {
+            return res.send(null);
+        }
+
+        //update the results
+        await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + data.rollNo + ".answers"]: data.results } });
+
+        return res.send(evaluation);
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).send(err);
+    }
+});
+
 router.post("/evaluations/delete", validate, async (req, res) => {
     const schema = joi.object({
         evaluatorId: joi.string().required(),
