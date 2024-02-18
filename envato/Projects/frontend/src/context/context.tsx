@@ -50,6 +50,7 @@ function Context({ children }: { children: React.ReactNode }) {
 
     const [evaluating, setEvaluating] = useState<number>(-1);
     const [evaluationData, setEvaluationData] = useState<any>({});
+    const [revaluating, setRevaluating] = useState<boolean>(false);
 
     const [resultData, setResultData] = useState<any>({});
     const [resultDataTable, setResultDataTable] = useState<any>([]);
@@ -483,6 +484,35 @@ function Context({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const revaluate = async (evaluatorId: string, rollNo: number, prompt: string) => {
+        setEvaluating(rollNo);
+        setRevaluating(true);
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluators/revaluate`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            data: {
+                evaluatorId: evaluatorId,
+                rollNo: rollNo,
+                prompt: !prompt ? "null" : prompt,
+            }
+        };
+
+        try {
+            var response = await axios(config);
+            getLimits();
+            getResults(evaluatorId, rollNo);
+            setEvaluating(-1);
+            setRevaluating(false);
+            return response.data;
+        }
+        catch (err) {
+            return -1;
+        }
+    }
+
     const getResults = (evaluatorId?: string, rollNo?: number) => {
         if (!evaluatorId) return;
         const config = {
@@ -536,6 +566,25 @@ function Context({ children }: { children: React.ReactNode }) {
 
         await axios(config);
         getEvaluation();
+    }
+
+    const saveResult = async (evaluatorId: string, rollNo: number, resultData: any) => {
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluations/results/save`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            data: {
+                evaluatorId: evaluatorId,
+                rollNo: rollNo,
+                results: resultData,
+            }
+        };
+
+        await axios(config);
+        toast.success("Result saved!");
+        getResults(evaluatorId, rollNo);
     }
 
 
@@ -633,7 +682,10 @@ function Context({ children }: { children: React.ReactNode }) {
             setEditEvaluatorTitle,
             editEvaluatorClassId,
             setEditEvaluatorClassId,
-            editEvaluator
+            editEvaluator,
+            saveResult,
+            revaluate,
+            revaluating
         }}>
             {children}
         </MainContext.Provider>

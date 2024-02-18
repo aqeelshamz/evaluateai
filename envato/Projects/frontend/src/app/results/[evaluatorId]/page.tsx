@@ -3,7 +3,8 @@ import { MainContext } from '@/context/context';
 import { useParams } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 import { FaRobot, FaTrophy } from 'react-icons/fa';
-import { FiBook, FiChevronLeft, FiEdit3, FiFileText, FiHelpCircle, FiInfo, FiKey, FiPrinter, FiRotateCw, FiUser, FiUsers, FiZoomIn, FiZoomOut } from 'react-icons/fi';
+import { FiBook, FiChevronLeft, FiEdit3, FiFileText, FiHelpCircle, FiInfo, FiKey, FiPrinter, FiRefreshCw, FiRotateCw, FiSave, FiUser, FiUsers, FiZoomIn, FiZoomOut } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
 
@@ -15,6 +16,9 @@ export default function Results() {
         getResultsTable,
         resultDataTable,
         resultData,
+        setResultData,
+        saveResult,
+        revaluate
     } = useContext(MainContext);
 
     const [selectedTab, setSelectedTab] = useState(0);
@@ -22,6 +26,8 @@ export default function Results() {
 
     const [selectedPreviewTab, setSelectedPreviewTab] = useState(2);
     const [mounted, setMounted] = useState(false);
+
+    const [revaluationPrompt, setRevaluationPrompt] = useState("");
 
     useEffect(() => {
         if (selectedTab === 0) {
@@ -37,12 +43,17 @@ export default function Results() {
 
     return (
         <main className="w-screen h-screen bg-base-100 flex flex-col p-2 overflow-auto box-border">
-            <div className='print flex items-center text-lg'><button className='btn btn-sm btn-square text-lg mr-2' onClick={() => { window.history.back() }}><FiChevronLeft /></button> <p>Results</p></div>
-            <div className='print flex my-4 justify-center'>
-                <div role="tablist" className="tabs-md tabs tabs-boxed">
-                    <a role="tab" className={"tab " + (selectedTab === 0 ? "tab-active" : "")} onClick={() => setSelectedTab(0)}><FiFileText className='mr-2' /> Marksheet</a>
-                    <a role="tab" className={"tab " + (selectedTab === 1 ? "tab-active" : "")} onClick={() => setSelectedTab(1)}><FiUser className='mr-2' /> Detailed View</a>
+            <div className='print flex items-center justify-between text-lg mb-4'>
+                <div className='flex items-center text-lg'>
+                    <button className='btn btn-sm btn-square text-lg mr-2' onClick={() => { window.history.back() }}><FiChevronLeft /></button> <p>Results</p>
                 </div>
+                <div className='flex justify-center'>
+                    <div role="tablist" className="tabs-md tabs tabs-boxed">
+                        <a role="tab" className={"tab " + (selectedTab === 0 ? "tab-active" : "")} onClick={() => setSelectedTab(0)}><FiFileText className='mr-2' /> Marksheet</a>
+                        <a role="tab" className={"tab " + (selectedTab === 1 ? "tab-active" : "")} onClick={() => setSelectedTab(1)}><FiUser className='mr-2' /> Detailed View</a>
+                    </div>
+                </div>
+                <div></div>
             </div>
             {selectedTab === 0 ? <div className="overflow-x-auto flex flex-col items-center justify-center">
                 <div className="flex items-center justify-between mb-1 mt-4 w-full max-w-7xl">
@@ -101,7 +112,19 @@ export default function Results() {
                                     return <div key={i} className='border p-2 rounded mb-2'>
                                         <div className='flex flex-col text-lg font-semibold mb-6'><div className="mb-3 badge badge-md badge-neutral"><FiHelpCircle className='mr-1' />Question {result?.question_no}</div><p>{typeof result?.question === "object" ? JSON.stringify(result?.question) : result?.question}</p></div>
                                         <div className='flex flex-col mb-6'><div className="mb-3 badge badge-md badge-ghost"><FiEdit3 className='mr-1' />Answer</div><p>{typeof result?.answer === "object" ? JSON.stringify(result?.answer) : result?.answer}</p></div>
-                                        <div className='flex flex-col mb-6'><div className="mb-3 badge badge-md badge-ghost"><FaTrophy className='mr-1' />Score</div><p>{result?.score[0]} / {result?.score[1]}</p></div>
+                                        <div className='flex flex-col mb-6'><div className="mb-3 badge badge-md badge-ghost"><FaTrophy className='mr-1' />Score</div><p><input type="text" className="input input-bordered w-20" value={result?.score[0]} onChange={(x) => {
+                                            // set new score, accept decimals too, also accept empty string
+                                            if (x.target.value === "" || !isNaN(parseFloat(x.target.value))) {
+                                                result.score[0] = x.target.value;
+                                                setResultData({ ...resultData });
+                                            }
+
+                                            //if new score is more than total marks, set it to total marks
+                                            if (parseFloat(x.target.value) > result?.score[1]) {
+                                                result.score[0] = result?.score[1];
+                                                setResultData({ ...resultData });
+                                            }
+                                        }} /> / {result?.score[1]}</p></div>
                                         <div className='flex flex-col mb-6'><div className="mb-3 badge badge-md badge-ghost"><FiInfo className='mr-1' />Remarks</div><p>{result?.remarks}</p></div>
                                         <div className='flex flex-col mb-6'><div className="mb-3 badge badge-md badge-ghost"><FaRobot className='mr-1' />AI Confidence</div><progress className={"mb-1 progress w-56 " + (result?.confidence === 1 ? "progress-success" : result?.confidence === 0 ? "progress-error" : "progress-warning")} value={result?.confidence === 1 ? "100" : result?.confidence === 0 ? "0" : "50"} max="100"></progress><span className={"text-sm font-semibold " + (result?.confidence === 1 ? "text-green-500" : result?.confidence === 0 ? "text-red-500" : "text-orange-500")}>{(result?.confidence === 1 ? "High" : result?.confidence === 0 ? "Low" : "Medium")}</span></div>
                                     </div>
@@ -135,9 +158,56 @@ export default function Results() {
                             </div>
                         </div>
                     </div>
+                    <div className='my-2 flex items-center'>
+                        <label htmlFor='revaluate_modal' className='btn mr-4'><FiRefreshCw /> Revaluate</label>
+                        <button className='btn btn-primary' onClick={() => {
+                            for (var result of resultData?.results) {
+                                if (result?.score[0] === "") {
+                                    toast.error("Please fill all the scores");
+                                    return;
+                                }
+
+                                if (result?.score[0].toString()?.charAt(result?.score[0].length - 1) === ".") {
+                                    result.score[0] = result.score[0].slice(0, -1);
+                                }
+                            }
+
+                            for (var result of resultData?.results) {
+                                if (result?.score[0] !== "") {
+                                    result.score[0] = parseFloat(result?.score[0]);
+                                    if (result?.score[0] % 1 === 0) {
+                                        result.score[0] = parseInt(result?.score[0]);
+                                    }
+                                }
+                            }
+
+                            setResultData({ ...resultData });
+                            saveResult(evaluatorId, selectedRollNo, resultData?.results);
+                        }}><FiSave /> Save Changes</button>
+                    </div>
                 </div>
             </div>
             }
+            {/* Edit Class Modal */}
+            <input type="checkbox" id="revaluate_modal" className="modal-toggle" />
+            <div className="modal">
+                <div className="modal-box">
+                    <h3 className="flex items-center font-bold text-lg"><FiRefreshCw className="mr-1" /> Revaluate</h3>
+                    <p className="flex items-center py-4">Prompt / Conditions (optional)</p>
+                    <textarea className="textarea textarea-bordered h-32 mb-4 w-full" placeholder="Enter the prompt / conditions for revaluation. For example: 'Give full marks if student has attempted the question'. Leave blank if none." onChange={(x) => setRevaluationPrompt(x.target.value)} value={revaluationPrompt} />
+                    <div className="modal-action">
+                        <label htmlFor="revaluate_modal" className="btn">Cancel</label>
+                        <label htmlFor="revaluate_modal" className="btn btn-primary" onClick={() => {
+                            toast.promise(revaluate(evaluatorId, selectedRollNo, revaluationPrompt), {
+                                pending: "Revaluating...",
+                                success: "Revaluation complete",
+                                error: "Failed to revaluate"
+                            });
+                        }}>Revaluate</label>
+                    </div>
+                </div>
+                <label className="modal-backdrop" htmlFor="revaluate_modal">Cancel</label>
+            </div>
         </main >
     )
 }
