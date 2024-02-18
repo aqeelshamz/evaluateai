@@ -538,6 +538,25 @@ function Context({ children }: { children: React.ReactNode }) {
         getEvaluation();
     }
 
+    const saveResult = async (evaluatorId: string, rollNo: number, resultData: any) => {
+        const config = {
+            method: "POST",
+            url: `${serverURL}/evaluate/evaluations/results/save`,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            },
+            data: {
+                evaluatorId: evaluatorId,
+                rollNo: rollNo,
+                results: resultData,
+            }
+        };
+
+        await axios(config);
+        toast.success("Result saved!");
+        getResults(evaluatorId, rollNo);
+    }
+
 
     return (
         <MainContext.Provider value={{
@@ -633,7 +652,8 @@ function Context({ children }: { children: React.ReactNode }) {
             setEditEvaluatorTitle,
             editEvaluatorClassId,
             setEditEvaluatorClassId,
-            editEvaluator
+            editEvaluator,
+            saveResult
         }}>
             {children}
         </MainContext.Provider>
