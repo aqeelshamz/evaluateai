@@ -245,7 +245,126 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
 
         const resp = completion.choices[0].message.content;
 
-        console.log(resp)
+        const respData = JSON.parse(resp.split("```json")[1].split("```")[0]);
+
+        await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + (data.rollNo)]: respData } });
+
+        await Limits.updateOne({ userId: req.user._id }, { $inc: { evaluationLimit: -1 } });
+
+        return res.send(respData);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
+router.post("/evaluators/revaluate", validate, async (req, res) => {
+    const schema = joi.object({
+        evaluatorId: joi.string().required(),
+        rollNo: joi.number().required(),
+        prompt: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+
+        const evaluator = await Evaluator.findById(data.evaluatorId);
+
+        const limit = await Limits.findOne({ userId: req.user._id });
+
+        if (limit.evaluationLimit <= 0) {
+            return res.status(400).send("Evaluation limit exceeded");
+        }
+
+        if (!evaluator) {
+            return res.status(400).send("Evaluator not found");
+        }
+
+        if (evaluator.userId.toString() != req.user._id.toString()) {
+            return res.status(400).send("Unauthorized");
+        }
+
+        const evaluation = await Evaluation.findOne({ evaluatorId: data.evaluatorId });
+
+        if (!evaluation) {
+            return res.status(400).send("Evaluation not found");
+        }
+
+        const answerSheets = evaluation.answerSheets[data.rollNo - 1];
+
+        if (!answerSheets) {
+            return res.send(null);
+        }
+
+        const classData = await Class.findById(evaluator.classId);
+
+        for (const answerSheet of evaluation.answerSheets) {
+            if (answerSheet == null) {
+                await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + (evaluation.answerSheets.indexOf(answerSheet) + 1)]: null } });
+            }
+        }
+
+        var questionPapersPrompt = [];
+        var answerKeysPrompt = [];
+        var answerSheetsPrompt = [];
+
+        questionPapersPrompt.push({ type: "text", text: "Question Paper(s):" });
+        for (const questionPaper of evaluator.questionPapers) {
+            questionPapersPrompt.push({ type: "image_url", image_url: questionPaper });
+        }
+
+        answerKeysPrompt.push({ type: "text", text: "Answer Key(s):" });
+        for (const answerKey of evaluator.answerKeys) {
+            answerKeysPrompt.push({ type: "image_url", image_url: answerKey });
+        }
+
+        answerSheetsPrompt.push({ type: "text", text: "Answer Sheet(s):" });
+        for (const answerSheet of answerSheets) {
+            answerSheetsPrompt.push({ type: "image_url", image_url: answerSheet });
+        }
+
+        var messages = [
+            {
+                role: "system",
+                content: data.prompt && data.prompt !== "null" ? (aiPrompt + "\n\nTHIS IS REVALUATION. PROMPT: " + data.prompt + "\nGive remarks as 'Revaluated' for all questions extra remarks applied to.") : aiPrompt,
+            },
+            {
+                role: "user",
+                content: questionPapersPrompt,
+            },
+            {
+                role: "user",
+                content: answerKeysPrompt,
+            },
+            {
+                role: "user",
+                content: "student_name: " + classData.students[data.rollNo - 1].name,
+            },
+            {
+                role: "user",
+                content: "roll_no: " + classData.students[data.rollNo - 1].rollNo,
+            },
+            {
+                role: "user",
+                content: "class: " + classData.name + " " + classData.section,
+            },
+            {
+                role: "user",
+                content: "subject: " + classData.subject,
+            },
+            {
+                role: "user",
+                content: answerSheetsPrompt,
+            },
+        ];
+
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4-vision-preview",
+            messages: messages,
+            max_tokens: 1000,
+        });
+
+        const resp = completion.choices[0].message.content;
 
         const respData = JSON.parse(resp.split("```json")[1].split("```")[0]);
 
@@ -256,7 +375,6 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
         return res.send(respData);
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -515,7 +633,6 @@ router.post("/evaluations/results/save", validate, async (req, res) => {
         return res.send(evaluation);
     }
     catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });

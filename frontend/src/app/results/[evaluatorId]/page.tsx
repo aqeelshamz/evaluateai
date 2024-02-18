@@ -3,7 +3,7 @@ import { MainContext } from '@/context/context';
 import { useParams } from 'next/navigation';
 import React, { useContext, useEffect, useState } from 'react';
 import { FaRobot, FaTrophy } from 'react-icons/fa';
-import { FiBook, FiChevronLeft, FiEdit3, FiFileText, FiHelpCircle, FiInfo, FiKey, FiPrinter, FiRotateCw, FiSave, FiUser, FiUsers, FiZoomIn, FiZoomOut } from 'react-icons/fi';
+import { FiBook, FiChevronLeft, FiEdit3, FiFileText, FiHelpCircle, FiInfo, FiKey, FiPrinter, FiRefreshCw, FiRotateCw, FiSave, FiUser, FiUsers, FiZoomIn, FiZoomOut } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch';
@@ -17,7 +17,8 @@ export default function Results() {
         resultDataTable,
         resultData,
         setResultData,
-        saveResult
+        saveResult,
+        revaluate
     } = useContext(MainContext);
 
     const [selectedTab, setSelectedTab] = useState(0);
@@ -25,6 +26,8 @@ export default function Results() {
 
     const [selectedPreviewTab, setSelectedPreviewTab] = useState(2);
     const [mounted, setMounted] = useState(false);
+
+    const [revaluationPrompt, setRevaluationPrompt] = useState("");
 
     useEffect(() => {
         if (selectedTab === 0) {
@@ -155,33 +158,56 @@ export default function Results() {
                             </div>
                         </div>
                     </div>
-                    <div className='my-2'><button className='btn btn-primary' onClick={() => {
-                        for (var result of resultData?.results) {
-                            if (result?.score[0] === "") {
-                                toast.error("Please fill all the scores");
-                                return;
-                            }
+                    <div className='my-2 flex items-center'>
+                        <label htmlFor='revaluate_modal' className='btn mr-4'><FiRefreshCw /> Revaluate</label>
+                        <button className='btn btn-primary' onClick={() => {
+                            for (var result of resultData?.results) {
+                                if (result?.score[0] === "") {
+                                    toast.error("Please fill all the scores");
+                                    return;
+                                }
 
-                            if (result?.score[0].toString()?.charAt(result?.score[0].length - 1) === ".") {
-                                result.score[0] = result.score[0].slice(0, -1);
-                            }
-                        }
-
-                        for (var result of resultData?.results) {
-                            if (result?.score[0] !== "") {
-                                result.score[0] = parseFloat(result?.score[0]);
-                                if (result?.score[0] % 1 === 0) {
-                                    result.score[0] = parseInt(result?.score[0]);
+                                if (result?.score[0].toString()?.charAt(result?.score[0].length - 1) === ".") {
+                                    result.score[0] = result.score[0].slice(0, -1);
                                 }
                             }
-                        }
 
-                        setResultData({ ...resultData });
-                        saveResult(evaluatorId, selectedRollNo, resultData?.results);
-                    }}><FiSave /> Save Changes</button></div>
+                            for (var result of resultData?.results) {
+                                if (result?.score[0] !== "") {
+                                    result.score[0] = parseFloat(result?.score[0]);
+                                    if (result?.score[0] % 1 === 0) {
+                                        result.score[0] = parseInt(result?.score[0]);
+                                    }
+                                }
+                            }
+
+                            setResultData({ ...resultData });
+                            saveResult(evaluatorId, selectedRollNo, resultData?.results);
+                        }}><FiSave /> Save Changes</button>
+                    </div>
                 </div>
             </div>
             }
+            {/* Edit Class Modal */}
+            <input type="checkbox" id="revaluate_modal" className="modal-toggle" />
+            <div className="modal">
+                <div className="modal-box">
+                    <h3 className="flex items-center font-bold text-lg"><FiRefreshCw className="mr-1" /> Revaluate</h3>
+                    <p className="flex items-center py-4">Prompt / Conditions (optional)</p>
+                    <textarea className="textarea textarea-bordered h-32 mb-4 w-full" placeholder="Enter the prompt / conditions for revaluation. For example: 'Give full marks if student has attempted the question'. Leave blank if none." onChange={(x) => setRevaluationPrompt(x.target.value)} value={revaluationPrompt} />
+                    <div className="modal-action">
+                        <label htmlFor="revaluate_modal" className="btn">Cancel</label>
+                        <label htmlFor="revaluate_modal" className="btn btn-primary" onClick={() => {
+                            toast.promise(revaluate(evaluatorId, selectedRollNo, revaluationPrompt), {
+                                pending: "Revaluating...",
+                                success: "Revaluation complete",
+                                error: "Failed to revaluate"
+                            });
+                        }}>Revaluate</label>
+                    </div>
+                </div>
+                <label className="modal-backdrop" htmlFor="revaluate_modal">Cancel</label>
+            </div>
         </main >
     )
 }

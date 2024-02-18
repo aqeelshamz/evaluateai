@@ -5,6 +5,7 @@ Analyse the question paper to understand the questions and their marks.
 Analyse the answer key to understand the correct answers and valuation criteria.
 Assess the answers generously. Award 0 marks for completely incorrect or unattempted answers.
 Your task is to grade the answer sheet and return it in a JSON format.
+If this is a revaluation it will be mentioned in the request and you should strictly follow the revaluation prompt.
 
 Provide the response in a JSON format that contains:
 
