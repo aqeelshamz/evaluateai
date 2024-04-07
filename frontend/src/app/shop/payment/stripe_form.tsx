@@ -6,7 +6,7 @@ import {
     useElements
 } from "@stripe/react-stripe-js";
 import React, { useEffect, useState } from "react";
-import { serverURL } from "@/utils/utils";
+import { hostname, serverURL } from "@/utils/utils";
 
 export default function CheckoutForm({ orderId }: { orderId: string }) {
     const stripe = useStripe();
@@ -74,7 +74,7 @@ export default function CheckoutForm({ orderId }: { orderId: string }) {
             elements,
             confirmParams: {
                 // Make sure to change this to your payment completion page
-                return_url: "/invoice/" + response.data?.purchaseId,
+                return_url: hostname + "/invoice/" + response.data?.purchaseId,
             },
         });
 
