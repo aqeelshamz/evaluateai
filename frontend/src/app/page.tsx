@@ -205,7 +205,7 @@ export default function Main() {
         </div>
       </div>
     </div>
-    <div id="flexible-pricing" className='min-h-screen w-screen flex flex-col items-center py-20 md:p-20 bg-white '>
+    <div id="have-a-question" className='min-h-screen w-screen flex flex-col items-center py-20 md:p-20 bg-white '>
       <h1 className='text-4xl md:text-5xl font-bold mb-4'>Have a question?</h1>
       <p className='text-xl md:text-2xl text-center w-full mb-20'>We're here to help. Check out our FAQ section or reach out to us directly.</p>
       <div className='flex flex-col md:flex-row flex-wrap justify-evenly items-center w-full md:w-3/4'>
@@ -223,7 +223,6 @@ export default function Main() {
           })
         }
       </div>
-      <button className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary" onClick={() => setVideoPreview(true)}><FiPlayCircle /> See how it works</button>
     </div>
     <div id="get-started" className='text-white w-screen flex flex-col items-center py-20 md:p-20 bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-blue-700 via-blue-800 to-gray-900'>
       <h1 className='text-4xl md:text-7xl font-bold mb-5'>Get Started Now.</h1>
