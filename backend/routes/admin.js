@@ -6,6 +6,7 @@ import Purchase from "../models/Purchase.js";
 import PaymentMethod from "../models/PaymentMethod.js";
 import { validateAdmin } from "../middlewares/validate.js";
 import Limits from "../models/Limits.js";
+import Faq from "../models/Faq.js";
 
 const router = express.Router();
 
@@ -217,5 +218,46 @@ router.get("/purchases", validateAdmin, async (req, res) => {
     return res.send(purchasesData);
 });
 //PURCHASES END
+
+//FAQ START
+router.get("/faq", validateAdmin, async (req, res) => {
+    return res.send(await Faq.find());
+});
+
+router.post("/faq/create", validateAdmin, async (req, res) => {
+    const schema = joi.object({
+        question: joi.string().required(),
+        answer: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+        const newFaq = new Faq({
+            question: data.question,
+            answer: data.answer,
+        });
+
+        await newFaq.save();
+        return res.send(newFaq);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
+router.post("/faq/delete", validateAdmin, async (req, res) => {
+    const schema = joi.object({
+        faqId: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+        await Faq.findByIdAndDelete(data.faqId);
+        return res.send("Deleted!");
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
 
 export default router;

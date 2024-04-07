@@ -7,6 +7,7 @@ import evaluateRouter from "./routes/evaluate.js";
 import shopRouter from "./routes/shop.js";
 import classRouter from "./routes/class.js";
 import adminRouter from "./routes/admin.js";
+import Faq from "./models/Faq.js";
 
 dotenv.config();
 
@@ -25,6 +26,10 @@ app.get("/", (req, res) => {
     res.send("EvaluateAI API");
 });
 
+app.get("/faq", async (req, res) => {
+    res.send(await Faq.find());
+})
+
 async function connectDB() {
     await mongoose.connect(process.env.DB_URL);
     console.log("Connected to MongoDB");
@@ -34,6 +39,6 @@ connectDB();
 
 const port = process.env.PORT || 8080;
 
-app.listen(8080, () => {
+app.listen(port, () => {
     console.log(`Server at http://localhost:${port}`);
 });

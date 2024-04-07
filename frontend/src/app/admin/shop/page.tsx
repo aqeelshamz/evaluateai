@@ -127,7 +127,7 @@ export default function Page() {
     }, []);
 
     return <div className='animate-fade-in-bottom w-full h-full p-4'>
-        <p className='font-semibold text-xl flex items-center mb-4'><FiShoppingCart className='mr-2' /> Shop</p>
+        <p className='font-semibold text-xl flex items-center mb-5'><FiShoppingCart className='mr-2' /> Shop</p>
         <div className='w-full flex flex-wrap'>
             {
                 items.map((item, i) => {

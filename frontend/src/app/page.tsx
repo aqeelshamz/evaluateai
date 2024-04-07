@@ -1,10 +1,12 @@
 "use client";
-import { appName } from '@/utils/utils';
+import { appName, currencySymbol, serverURL } from '@/utils/utils';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useEffect, useState } from 'react'
 import { FaRobot } from 'react-icons/fa';
-import { FiArrowRight, FiCloud, FiCreditCard, FiFacebook, FiFileText, FiHome, FiInstagram, FiLogIn, FiPlayCircle, FiShoppingCart, FiTwitter, FiUsers, FiX, FiZap } from 'react-icons/fi';
+import { FiArrowRight, FiCloud, FiCreditCard, FiFacebook, FiFileText, FiHome, FiInstagram, FiLock, FiLogIn, FiPlayCircle, FiSettings, FiShoppingCart, FiTwitter, FiUsers, FiX, FiZap } from 'react-icons/fi';
+
 export default function Main() {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
@@ -85,6 +87,38 @@ export default function Main() {
 
   const [videoPreview, setVideoPreview] = useState(false);
 
+  const [shopItems, setShopItems] = useState<any>({});
+  const [faq, setFAQ] = useState<any>([]);
+
+  const getShopItems = async () => {
+    const config = {
+      method: "GET",
+      url: `${serverURL}/shop`,
+    };
+
+    axios(config)
+      .then((response) => {
+        setShopItems(response.data);
+      })
+  }
+
+  const getFAQ = async () => {
+    const config = {
+      method: "GET",
+      url: `${serverURL}/faq`,
+    };
+
+    axios(config)
+      .then((response) => {
+        setFAQ(response.data);
+      })
+  }
+
+  useEffect(() => {
+    getShopItems();
+    getFAQ();
+  }, []);
+
   return <main className="flex flex-col realtive">
     {videoPreview && <div className='fixed z-[999] video-preview w-full h-full bg-black p-20' onClick={() => setVideoPreview(false)}>
       <FiX className='text-4xl absolute top-5 right-5 text-white cursor-pointer' onClick={() => setVideoPreview(false)} />
@@ -144,6 +178,50 @@ export default function Main() {
             <p className='text-center mt-5 duration-200 text-xl opacity-65'>{step?.subtitle}</p>
           </div>
         })}
+      </div>
+      <button className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary" onClick={() => setVideoPreview(true)}><FiPlayCircle /> See how it works</button>
+    </div>
+    <div id="flexible-pricing" className='min-h-screen w-screen flex flex-col items-center py-20 md:p-20 bg-white '>
+      <div className='flex flex-col items-center w-full border rounded-2xl p-10'>
+        <h1 className='text-4xl md:text-5xl font-bold mb-10'>Flexible Pricing</h1>
+        <div className='flex flex-col md:flex-row flex-wrap justify-evenly items-center w-full md:w-3/4 mb-14'>
+          {shopItems?.items?.map((item: any, i: number) => {
+            return <div key={i} className='min-w-[250px] shadow-lg p-10 rounded-xl flex flex-col group m-5 max-w-xs items-center hover:scale-105 duration-100'>
+              <p className='text-center mt-10 duration-200 text-xl'>{item?.title}</p>
+              <p className='flex items-start text-center mt-10 duration-200 text-4xl mb-7'>{currencySymbol}<span className='text-6xl font-bold'>{item?.price}</span></p>
+              <p className='flex text-xl duration-200 items-center my-2'><FiSettings className='mr-2' />{item?.evaluatorLimit} Evaluators</p>
+              <p className='flex text-xl duration-200 items-center my-2'><FiFileText className='mr-2' />{item?.evaluationLimit} Evaluations</p>
+            </div>
+          })}
+        </div>
+        <div className='flex items-center'>
+          <div className='mr-6'>
+            <FiLock className='text-2xl' />
+          </div>
+          <div>
+            <p className='font-semibold'>Secure Payment Gateways:</p>
+            <p>{shopItems?.paymentMethods?.stripe && "Stripe,"} {shopItems?.paymentMethods?.paypal && "PayPal,"} {shopItems?.paymentMethods?.razorpay && "Razorpay"}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="flexible-pricing" className='min-h-screen w-screen flex flex-col items-center py-20 md:p-20 bg-white '>
+      <h1 className='text-4xl md:text-5xl font-bold mb-4'>Have a question?</h1>
+      <p className='text-xl md:text-2xl text-center w-full mb-20'>We're here to help. Check out our FAQ section or reach out to us directly.</p>
+      <div className='flex flex-col md:flex-row flex-wrap justify-evenly items-center w-full md:w-3/4'>
+        {
+          faq.map((item: any, index: number) => {
+            return <div className="collapse collapse-plus bg-base-200 mb-2">
+              <input type="radio" name="my-accordion-3" defaultChecked />
+              <div className="collapse-title text-xl font-medium">
+                {item.question}
+              </div>
+              <div className="collapse-content">
+                <p>{item.answer}</p>
+              </div>
+            </div>
+          })
+        }
       </div>
       <button className="mt-10 btn btn-md md:btn-lg glass text-white btn-primary" onClick={() => setVideoPreview(true)}><FiPlayCircle /> See how it works</button>
     </div>

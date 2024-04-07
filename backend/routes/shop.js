@@ -27,7 +27,7 @@ const stripeObj = stripe(process.env.STRIPE_SECRET_KEY);
 const base = "https://api-m.sandbox.paypal.com"; //sandbox
 //const base = "https://api-m.paypal.com"; //live
 
-router.get("/", validate, async (req, res) => {
+router.get("/", async (req, res) => {
     const paymentMethod = await PaymentMethod.findOne();
     const items = await ShopItem.find();
     const paymentMethods = paymentMethod ? {

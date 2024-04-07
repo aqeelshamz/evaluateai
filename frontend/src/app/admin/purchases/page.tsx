@@ -28,7 +28,7 @@ export default function Page() {
     }, []);
 
     return <div className='animate-fade-in-bottom w-full h-full p-4'>
-        <p className='font-semibold text-xl flex items-center'><FiDollarSign className='mr-2' /> Purchases</p>
+        <p className='font-semibold text-xl flex items-center mb-5'><FiDollarSign className='mr-2' /> Purchases</p>
         <div className="overflow-x-auto">
             <table className="table">
                 <thead>
