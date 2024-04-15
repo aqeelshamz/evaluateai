@@ -38,7 +38,6 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="light" className="scroll-smooth">
       <Head>
-        <title>My Page | Next.js SEO</title>
         <meta
           name="description"
           content="This is the meta description for My Page"
