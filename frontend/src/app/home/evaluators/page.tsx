@@ -45,9 +45,19 @@ export default function Evaluators() {
         continue;
       }
       var val = await evaluate(i + 1);
-      if (val === -1) {
+      if (val === -3){
+        setEvaluating(-1);
+        toast.error("Evaluation failed! Please try again later.");
+        return;
+      }
+      else if (val === -2) {
         setEvaluating(-1);
         limitExceedModalRef.current?.click();
+        return;
+      }
+      else if (val === -1) {
+        setEvaluating(-1);
+        toast.error("Evaluation failed! Please try again later.");
         return;
       }
     }
@@ -181,7 +191,7 @@ export default function Evaluators() {
       <div className="modal">
         <div className="modal-box">
           <h3 className="flex items-center font-bold text-lg"><FiInfo className="mr-1" /> Evaluation limit exceeded</h3>
-          <p className="py-4">You have reached the maximum limit of evaluations.<br/>You can purchase more evaluations from the shop.</p>
+          <p className="py-4">You have reached the maximum limit of evaluations.<br />You can purchase more evaluations from the shop.</p>
           <div className="modal-action">
             <label ref={(x) => limitExceedModalRef.current = x} htmlFor="evaluationlimitexceed_modal" className="btn">Cancel</label>
             <label htmlFor="evaluationlimitexceed_modal" className="btn btn-primary" onClick={() => window.location.href = "/shop"}><FiShoppingCart /> Shop</label>

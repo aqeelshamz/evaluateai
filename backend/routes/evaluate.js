@@ -151,6 +151,7 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
 
         const limit = await Limits.findOne({ userId: req.user._id });
 
+
         if (limit.evaluationLimit <= 0) {
             return res.status(400).send("Evaluation limit exceeded");
         }
@@ -245,7 +246,7 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
 
         const resp = completion.choices[0].message.content;
 
-        const respData = JSON.parse(resp.split("```json")[1].split("```")[0]);
+        const respData = JSON.parse(resp);
 
         await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + (data.rollNo)]: respData } });
 
@@ -366,7 +367,7 @@ router.post("/evaluators/revaluate", validate, async (req, res) => {
 
         const resp = completion.choices[0].message.content;
 
-        const respData = JSON.parse(resp.split("```json")[1].split("```")[0]);
+        const respData = JSON.parse(resp);
 
         await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + (data.rollNo)]: respData } });
 

@@ -479,7 +479,13 @@ function Context({ children }: { children: React.ReactNode }) {
             getLimits();
             return response.data;
         }
-        catch (err) {
+        catch (err: any) {
+            if(err.response.status === 500){
+                return -3;
+            }
+            if(err.response.data === "Evaluation limit exceeded"){
+                return -2;
+            }
             return -1;
         }
     }
