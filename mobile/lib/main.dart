@@ -1,8 +1,11 @@
-import 'package:evaluateai/screens/auth/login.dart';
+import 'package:evaluateai/providers/classes.dart';
+import 'package:evaluateai/providers/evaluators.dart';
+import 'package:evaluateai/screens/splash.dart';
 import 'package:evaluateai/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,14 +16,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'EvaluateAI',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
-        useMaterial3: true,
-        textTheme: GoogleFonts.golosTextTextTheme(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => EvaluatorsProvider()),
+        ChangeNotifierProvider(create: (context) => ClassesProvider()),
+      ],
+      child: GetMaterialApp(
+        title: 'EvaluateAI',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: primaryColor,
+          ),
+          useMaterial3: true,
+          textTheme: GoogleFonts.golosTextTextTheme(),
+        ),
+        home: const SplashScreen(),
       ),
-      home: const LoginScreen(),
     );
   }
 }
