@@ -73,13 +73,22 @@ class ShopProvider extends ChangeNotifier {
     var response =
         await Server.post("/shop/create-order-razorpay", {"itemId": itemId});
 
-    var data = jsonDecode(response.body);
+    var orderData = jsonDecode(response.body);
+
+    print("Order data");
+    print(orderData);
 
     Razorpay razorpay = Razorpay();
 
-    razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, (data) {
-      print("Payment success");
-      print(data);
+    razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, (data) async {
+      PaymentSuccessResponse response = data;
+      await Server.post("/shop/verify-razorpay-payment", {
+        "razorpay_order_id": response.orderId,
+        "transactionid": response.paymentId,
+        "razorpay_signature": response.signature,
+        "transactionamount": orderData["amount"],
+      });
+
       ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
         content: Text("Payment successful!"),
         backgroundColor: Colors.green,
@@ -87,14 +96,12 @@ class ShopProvider extends ChangeNotifier {
     });
 
     razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, (data) {
-      print("Payment error");
-      print(data);
       ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
         content: Text("Payment failed!"),
         backgroundColor: Colors.red,
       ));
     });
 
-    razorpay.open(data);
+    razorpay.open(orderData);
   }
 }
