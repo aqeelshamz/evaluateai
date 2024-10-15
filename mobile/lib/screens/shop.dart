@@ -172,6 +172,9 @@ class _ShopScreenState extends State<ShopScreen> {
             } else if (paymentMethod == "razorpay") {
               Get.back();
               provider.initRazorpayPayment(itemId);
+            } else if (paymentMethod == "paypal") {
+              Get.back();
+              provider.initPaypalPayment(itemId);
             }
           },
         ),

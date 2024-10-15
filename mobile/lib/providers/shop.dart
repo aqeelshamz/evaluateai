@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:evaluateai/utils/api.dart';
 import 'package:evaluateai/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -103,5 +104,59 @@ class ShopProvider extends ChangeNotifier {
     });
 
     razorpay.open(orderData);
+  }
+
+  Future<void> initPaypalPayment(String itemId) async {
+    var response =
+        await Server.post("/shop/create-order-paypal", {"itemId": itemId});
+
+    var orderData = jsonDecode(response.body);
+
+    Navigator.of(Get.context!).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) => UsePaypal(
+            sandboxMode: paypalSandboxMode,
+            clientId: paypalClientId,
+            secretKey: paypalClientSecret,
+            returnURL: "https://samplesite.com/return",
+            cancelURL: "https://samplesite.com/cancel",
+            transactions: [
+              {
+                "amount": {
+                  "total": orderData["newOrder"]["amount"],
+                  "currency": paypalCurrency,
+                  "details": {
+                    "subtotal": orderData["newOrder"]["amount"],
+                    "shipping": '0',
+                    "shipping_discount": 0
+                  }
+                },
+              }
+            ],
+            note: "Contact us for any questions on your order.",
+            onSuccess: (Map params) async {
+              print("onSuccess: $params");
+              await Server.post("/shop/verify-paypal-payment", {
+                "orderId": orderData["id"],
+              });
+
+              ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
+                content: Text("Payment successful!"),
+                backgroundColor: Colors.green,
+              ));
+            },
+            onError: (error) {
+              print("onError: $error");
+
+              ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
+                content: Text("Payment failed!"),
+                backgroundColor: Colors.red,
+              ));
+            },
+            onCancel: (params) {
+              print('cancelled: $params');
+            }),
+      ),
+    );
   }
 }

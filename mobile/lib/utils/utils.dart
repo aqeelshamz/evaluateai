@@ -4,7 +4,12 @@ String uploadThingAPIKey =
 String stripePublishableKey =
     "pk_test_51QA7raSFonvMGrfR3BjZvJm1VMUqtjRfVpODNI6qSwlmm7hsIOnPRbZS9snnCDHs6BGMM0y5tilv1QEhV86mmbkN002aUPmaOZ";
 String razorpayKey = "rzp_test_VvCXnFgWdy3i3B";
+String paypalClientId =
+    "AUc2LMZeWivOAs2vFk5a2n5onXVCJ1UJL_p2eGJbQ5cwRbW_ZUUNKSlaBo9204QZgFPu7YOIC8NuClaC";
+String paypalClientSecret =
+    "EL5XOFZWKBi4dDW5siAk0gTPlWZscEUvjDP9DLhJPqrgrbENtZBP-q4oaM_7gsz1XonOC9pgNPbhr3xe";
 String currencySymbol = "₹";
 String countryCode = "IN";
 String currency = "inr";
+String paypalCurrency = "USD";
 String appName = "🤖 EvaluateAI 📝";

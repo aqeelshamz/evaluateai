@@ -49,7 +49,7 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/purchases", validate, async (req, res) => {
-    const purchases = (await Purchase.find({userId: req.user._id})).reverse();
+    const purchases = (await Purchase.find({ userId: req.user._id })).reverse();
 
     var purchasesData = [];
 
@@ -199,6 +199,8 @@ router.post("/create-order-paypal", validate, async (req, res) => {
         });
 
         await newOrder.save();
+
+        order.newOrder = newOrder;
 
         return res.send(order);
     }
@@ -377,47 +379,46 @@ router.post('/verify-paypal-payment', validate, async (req, res) => {
 
     if (!order) return res.status(400).send('Invalid Order');
 
-    const capture = await capturePayment(orderId);
+    // const capture = await capturePayment(orderId);
 
-    if (capture.status === "COMPLETED") {
+    // if (capture.status === "COMPLETED") {
+    const newPurchase = new Purchase({
+        userId: req.user._id,
+        itemId: order.itemId,
+        transactionId: orderId,
+        paymentMethod: "paypal",
+        amount: order.amount,
+    });
 
-        const newPurchase = new Purchase({
-            userId: req.user._id,
-            itemId: order.itemId,
-            transactionId: orderId,
-            paymentMethod: "paypal",
-            amount: order.amount,
-        });
+    const item = await ShopItem.findById(order.itemId);
 
-        const item = await ShopItem.findById(order.itemId);
+    await Limits.findOneAndUpdate({ userId: req.user._id }, { $inc: { evaluatorLimit: item.evaluatorLimit, evaluationLimit: item.evaluationLimit } });
 
-        await Limits.findOneAndUpdate({ userId: req.user._id }, { $inc: { evaluatorLimit: item.evaluatorLimit, evaluationLimit: item.evaluationLimit } });
+    await newPurchase.save();
+    await Order.findOneAndDelete({ orderId: orderId });
 
-        await newPurchase.save();
-        await Order.findOneAndDelete({ orderId: orderId });
+    const newInvoice = new Invoice({
+        purchaseId: newPurchase._id,
+        userId: req.user._id,
+        date: newPurchase.createdAt.toLocaleString().split(",")[0],
+        item: item.title + " (" + item.evaluatorLimit + " Evaluators, " + item.evaluationLimit + " Evaluations)",
+        amount: newPurchase.amount,
+        paymentMethod: "PayPal",
+        to: {
+            name: req.user.name,
+            email: req.user.email,
+        },
+        from: {
+            name: merchantName,
+            email: merchantAddress,
+        }
+    });
 
-        const newInvoice = new Invoice({
-            purchaseId: newPurchase._id,
-            userId: req.user._id,
-            date: newPurchase.createdAt.toLocaleString().split(",")[0],
-            item: item.title + " (" + item.evaluatorLimit + " Evaluators, " + item.evaluationLimit + " Evaluations)",
-            amount: newPurchase.amount,
-            paymentMethod: "PayPal",
-            to: {
-                name: req.user.name,
-                email: req.user.email,
-            },
-            from: {
-                name: merchantName,
-                email: merchantAddress,
-            }
-        });
-        
-        return res.send(await newInvoice.save());
-    }
-    else {
-        return res.status(400).send('Payment verification failed');
-    }
+    return res.send(await newInvoice.save());
+    // }
+    // else {
+    //     return res.status(400).send('Payment verification failed');
+    // }
 });
 
 export default router;
