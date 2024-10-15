@@ -5,6 +5,7 @@ import 'package:evaluateai/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class ShopProvider extends ChangeNotifier {
   List<dynamic> purchases = [];
@@ -32,7 +33,7 @@ class ShopProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> initStripePaymentSheet(String itemId) async {
+  Future<void> initStripePayment(String itemId) async {
     var response =
         await Server.post("/shop/create-order-stripe", {"itemId": itemId});
 
@@ -66,5 +67,34 @@ class ShopProvider extends ChangeNotifier {
         backgroundColor: Colors.red,
       ));
     }
+  }
+
+  Future<void> initRazorpayPayment(String itemId) async {
+    var response =
+        await Server.post("/shop/create-order-razorpay", {"itemId": itemId});
+
+    var data = jsonDecode(response.body);
+
+    Razorpay razorpay = Razorpay();
+
+    razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, (data) {
+      print("Payment success");
+      print(data);
+      ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
+        content: Text("Payment successful!"),
+        backgroundColor: Colors.green,
+      ));
+    });
+
+    razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, (data) {
+      print("Payment error");
+      print(data);
+      ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
+        content: Text("Payment failed!"),
+        backgroundColor: Colors.red,
+      ));
+    });
+
+    razorpay.open(data);
   }
 }

@@ -168,7 +168,10 @@ class _ShopScreenState extends State<ShopScreen> {
           onTap: () {
             if (paymentMethod == "stripe") {
               Get.back();
-              provider.initStripePaymentSheet(itemId);
+              provider.initStripePayment(itemId);
+            } else if (paymentMethod == "razorpay") {
+              Get.back();
+              provider.initRazorpayPayment(itemId);
             }
           },
         ),
