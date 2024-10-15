@@ -1,4 +1,6 @@
 import 'package:evaluateai/providers/evaluators.dart';
+import 'package:evaluateai/screens/purchases.dart';
+import 'package:evaluateai/screens/shop.dart';
 import 'package:evaluateai/screens/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -42,14 +44,18 @@ class _UserPageState extends State<UserPage> {
               child: Column(
                 children: [
                   ListTile(
-                    leading: Icon(FeatherIcons.shoppingBag),
+                    leading: Icon(FeatherIcons.shoppingCart),
                     title: const Text('Shop'),
-                    onTap: () {},
+                    onTap: () {
+                      Get.to(() => const ShopScreen());
+                    },
                   ),
                   ListTile(
-                    leading: Icon(FeatherIcons.shoppingCart),
+                    leading: Icon(FeatherIcons.shoppingBag),
                     title: const Text('My Purchases'),
-                    onTap: () {},
+                    onTap: () {
+                      Get.to(() => const PurchasesScreen());
+                    },
                   ),
                   ListTile(
                     textColor: Colors.red,

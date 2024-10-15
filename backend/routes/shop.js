@@ -104,9 +104,7 @@ router.post("/create-order-stripe", validate, async (req, res) => {
         const paymentIntent = await stripeObj.paymentIntents.create({
             amount: item.price * 100,
             currency: currency,
-            automatic_payment_methods: {
-                enabled: true,
-            },
+            description: item.title,
         });
 
         await Order.findOneAndDelete({ userId: req.user._id });

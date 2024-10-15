@@ -3,6 +3,7 @@ import 'package:evaluateai/screens/new_evaluator.dart';
 import 'package:evaluateai/screens/pages/classes.dart';
 import 'package:evaluateai/screens/pages/evaluators.dart';
 import 'package:evaluateai/screens/pages/user.dart';
+import 'package:evaluateai/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
@@ -21,6 +22,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(appName),
+      ),
       body: SafeArea(
         child: PageView(
           controller: _pageController,

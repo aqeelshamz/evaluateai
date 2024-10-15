@@ -43,6 +43,7 @@ dependencies:
   flutter_feather_icons: ^2.0.0+1
   image_picker: ^1.0.0
   uploadthing: ^1.0.2
+  flutter_stripe: ^11.2.0
 
 dev_dependencies:
   flutter_test:
