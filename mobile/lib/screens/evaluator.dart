@@ -151,31 +151,45 @@ class _EvaluatorScreenState extends State<EvaluatorScreen> {
               const SizedBox(height: 20),
               Row(
                 children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Get.to(() => ResultScreen(
-                              evaluator: widget.evaluator,
-                            ));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.all(15),
-                        backgroundColor: Colors.white,
-                        foregroundColor: primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  provider.evaluations.isEmpty
+                      ? const SizedBox.shrink()
+                      : Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (provider.evaluatingRollNo != -1) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Evaluation in progress...'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              Get.to(() => ResultScreen(
+                                    evaluator: widget.evaluator,
+                                  ));
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.all(15),
+                              backgroundColor: Colors.white,
+                              foregroundColor: primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'View Results',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        'View Results',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
+                  provider.evaluations.isEmpty
+                      ? const SizedBox.shrink()
+                      : const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
@@ -203,6 +217,10 @@ class _EvaluatorScreenState extends State<EvaluatorScreen> {
                             backgroundColor: Colors.green,
                           ),
                         );
+
+                        Get.to(() => ResultScreen(
+                              evaluator: widget.evaluator,
+                            ));
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.all(15),
@@ -315,6 +333,10 @@ class _EvaluatorScreenState extends State<EvaluatorScreen> {
     List<Widget> widgets = [];
     var provider = Provider.of<EvaluatorsProvider>(context, listen: true);
 
+    if (provider.evaluations.isEmpty) {
+      return widgets;
+    }
+
     for (var answerSheet in provider.evaluations["answerSheets"]
         [studentIndex]) {
       widgets.add(
@@ -346,6 +368,16 @@ class _EvaluatorScreenState extends State<EvaluatorScreen> {
                   top: 5,
                   child: GestureDetector(
                     onTap: () {
+                      if (provider.evaluatingRollNo != -1) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Evaluation in progress...'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
                       showDialog(
                         context: context,
                         builder: (context) {

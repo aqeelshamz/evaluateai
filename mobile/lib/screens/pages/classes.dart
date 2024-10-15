@@ -46,19 +46,24 @@ class _ClassesPageState extends State<ClassesPage> {
           Consumer<ClassesProvider>(
             builder: (context, provider, child) {
               return Expanded(
-                child: ListView.builder(
-                  itemCount: provider.classes.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(provider.classes[index]['subject']),
-                      subtitle: Text(provider.classes[index]['name'] +
-                          " " +
-                          provider.classes[index]['section']),
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(FeatherIcons.users),
-                      onTap: () {},
-                    );
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    await provider.getClasses();
                   },
+                  child: ListView.builder(
+                    itemCount: provider.classes.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(provider.classes[index]['subject']),
+                        subtitle: Text(provider.classes[index]['name'] +
+                            " " +
+                            provider.classes[index]['section']),
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(FeatherIcons.users),
+                        onTap: () {},
+                      );
+                    },
+                  ),
                 ),
               );
             },

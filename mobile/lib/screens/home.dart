@@ -1,8 +1,11 @@
+import 'package:evaluateai/screens/new_class.dart';
+import 'package:evaluateai/screens/new_evaluator.dart';
 import 'package:evaluateai/screens/pages/classes.dart';
 import 'package:evaluateai/screens/pages/evaluators.dart';
 import 'package:evaluateai/screens/pages/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:get/get.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -56,7 +59,10 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: _currentIndex == 2
           ? null
           : FloatingActionButton.extended(
-              onPressed: () {},
+              onPressed: () {
+                Get.to(() =>
+                    [NewEvaluatorScreen(), NewClassScreen()][_currentIndex]);
+              },
               label: Text(["New Evaluator", "New Class"][_currentIndex]),
               icon: const Icon(FeatherIcons.plus),
             ),

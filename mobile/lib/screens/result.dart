@@ -1,4 +1,5 @@
 import 'package:evaluateai/providers/evaluators.dart';
+import 'package:evaluateai/screens/result_detailed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
@@ -112,9 +113,9 @@ class _ResultScreenState extends State<ResultScreen> {
                           ),
                         ),
                         onTap: () {
-                          Get.to(() => ResultScreen(
-                                evaluator: widget.evaluator,
-                              ));
+                          Get.to(() => DetailedResultScreen(
+                              evaluator: widget.evaluator,
+                              studentIndex: index));
                         },
                       );
                     }),

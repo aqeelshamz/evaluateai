@@ -7,7 +7,7 @@ class ClassesProvider extends ChangeNotifier {
   List<dynamic> classes = [];
   List<dynamic> students = [];
 
-  void getClasses() async {
+  Future<void> getClasses() async {
     var response = await Server.get("/class");
     print(response.body);
 

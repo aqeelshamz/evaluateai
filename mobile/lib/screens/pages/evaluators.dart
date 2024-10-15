@@ -47,20 +47,25 @@ class _EvaluatorsPageState extends State<EvaluatorsPage> {
           Consumer<EvaluatorsProvider>(
             builder: (context, provider, child) {
               return Expanded(
-                child: ListView.builder(
-                  itemCount: provider.evaluators.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(provider.evaluators[index]['title']),
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(FeatherIcons.fileText),
-                      onTap: () {
-                        Get.to(() => EvaluatorScreen(
-                              evaluator: provider.evaluators[index],
-                            ));
-                      },
-                    );
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    await provider.getEvaluators();
                   },
+                  child: ListView.builder(
+                    itemCount: provider.evaluators.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(provider.evaluators[index]['title']),
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(FeatherIcons.fileText),
+                        onTap: () {
+                          Get.to(() => EvaluatorScreen(
+                                evaluator: provider.evaluators[index],
+                              ));
+                        },
+                      );
+                    },
+                  ),
                 ),
               );
             },
