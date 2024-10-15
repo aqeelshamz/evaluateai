@@ -8,6 +8,7 @@ String paypalClientId =
     "AUc2LMZeWivOAs2vFk5a2n5onXVCJ1UJL_p2eGJbQ5cwRbW_ZUUNKSlaBo9204QZgFPu7YOIC8NuClaC";
 String paypalClientSecret =
     "EL5XOFZWKBi4dDW5siAk0gTPlWZscEUvjDP9DLhJPqrgrbENtZBP-q4oaM_7gsz1XonOC9pgNPbhr3xe";
+bool paypalSandboxMode = true;
 String currencySymbol = "₹";
 String countryCode = "IN";
 String currency = "inr";

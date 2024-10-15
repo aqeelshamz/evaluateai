@@ -1,4 +1,5 @@
 import 'package:evaluateai/providers/classes.dart';
+import 'package:evaluateai/screens/class.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
@@ -60,7 +61,13 @@ class _ClassesPageState extends State<ClassesPage> {
                             provider.classes[index]['section']),
                         contentPadding: EdgeInsets.zero,
                         leading: Icon(FeatherIcons.users),
-                        onTap: () {},
+                        onTap: () {
+                          Get.to(
+                            () => ClassScreen(
+                              classData: provider.classes[index],
+                            ),
+                          );
+                        },
                       );
                     },
                   ),

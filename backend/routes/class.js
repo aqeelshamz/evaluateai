@@ -6,7 +6,7 @@ import { validate } from "../middlewares/validate.js";
 const router = express.Router();
 
 router.get("/", validate, async (req, res) => {
-    return res.send(await Class.find({ createdBy: req.user._id }));
+    return res.send((await Class.find({ createdBy: req.user._id })).reverse());
 });
 
 router.post("/create", validate, async (req, res) => {
