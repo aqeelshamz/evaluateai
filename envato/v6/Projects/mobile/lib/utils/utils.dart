@@ -1,0 +1,12 @@
+String serverUrl = "http://192.168.1.4:8080";
+String uploadThingAPIKey = "<UPLOAD_THING_API_KEY>";
+String stripePublishableKey = "<STRIPE_PUBLISHABLE_KEY>";
+String razorpayKey = "<RAZORPAY_KEY>";
+String paypalClientId = "<PAYPAL_CLIENT_ID>";
+String paypalClientSecret = "<PAYPAL_CLIENT_SECRET>";
+bool paypalSandboxMode = true;
+String currencySymbol = "₹";
+String countryCode = "IN";
+String currency = "inr";
+String paypalCurrency = "USD";
+String appName = "🤖 EvaluateAI 📝";

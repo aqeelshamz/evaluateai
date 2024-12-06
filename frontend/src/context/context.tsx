@@ -1,7 +1,9 @@
+// Context.tsx
+
 import { serverURL } from "@/utils/utils";
 import axios from "axios";
 import { usePathname } from "next/navigation";
-import { createContext, useState } from "react";
+import { createContext, useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 
 const MainContext = createContext<any>(null);
@@ -9,6 +11,7 @@ const MainContext = createContext<any>(null);
 function Context({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
+    // Main Home States
     const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
     const [showMenu, setShowMenu] = useState<boolean>(false);
     const [user, setUser] = useState<any>({});
@@ -16,6 +19,7 @@ function Context({ children }: { children: React.ReactNode }) {
     const [selectedTab, setSelectedTab] = useState<number>(0);
     const [limits, setLimits] = useState<any>({});
 
+    // Evaluators Page States
     const [evaluators, setEvaluators] = useState<any[]>([]);
     const [selectedEvaluator, setSelectedEvaluator] = useState<number>(-1);
     const [loadingEvaluator, setLoadingEvaluator] = useState<boolean>(false);
@@ -26,7 +30,14 @@ function Context({ children }: { children: React.ReactNode }) {
     const [newEvaluatorAnswerKeys, setNewEvaluatorAnswerKeys] = useState<string[]>([]);
     const [editEvaluatorTitle, setEditEvaluatorTitle] = useState<string>("");
     const [editEvaluatorClassId, setEditEvaluatorClassId] = useState<string>("-1");
+    const [answerSheets, setAnswerSheets] = useState<any>([]);
+    const [evaluationData, setEvaluationData] = useState<any>({});
+    const [evaluationProgress, setEvaluationProgress] = useState<any[]>([]);
+    const [ongoingEvaluation, setOngoingEvaluation] = useState<any>({
+        evaluatorId: "",
+    });
 
+    // Classes Page States
     const [classes, setClasses] = useState<any[]>([]);
     const [selectedClass, setSelectedClass] = useState<number>(-1);
     const [newClassName, setNewClassName] = useState<string>("");
@@ -37,7 +48,6 @@ function Context({ children }: { children: React.ReactNode }) {
     const [editClassSubject, setEditClassSubject] = useState<string>("");
     const [loadingClass, setLoadingClass] = useState<boolean>(false);
     const [creatingClass, setCreatingClass] = useState<boolean>(false);
-
     const [students, setStudents] = useState<any[]>([]);
     const [newStudentName, setNewStudentName] = useState<string>("");
     const [newStudentRollNo, setNewStudentRollNo] = useState<number>(0);
@@ -46,41 +56,45 @@ function Context({ children }: { children: React.ReactNode }) {
     const [addingStudent, setAddingStudent] = useState<boolean>(false);
     const [deleteStudentRollNo, setDeleteStudentRollNo] = useState<number>(-1);
 
-    const [answerSheets, setAnswerSheets] = useState<any>([]);
-
-    const [evaluating, setEvaluating] = useState<number>(-1);
-    const [evaluationData, setEvaluationData] = useState<any>({});
-    const [revaluating, setRevaluating] = useState<boolean>(false);
-
+    // Results Page States
     const [resultData, setResultData] = useState<any>({});
     const [resultDataTable, setResultDataTable] = useState<any>([]);
-
     const [imgPreviewURL, setImgPreviewURL] = useState<string>("");
 
-    const getLimits = () => {
-        const config = {
-            method: "GET",
-            url: `${serverURL}/evaluate/evaluators`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-        };
+    // Ref to hold the EventSource instance
+    const eventSourceRef = useRef<EventSource | null>(null);
 
-        axios(config).then((response) => {
+    // Function to fetch evaluation limits
+    const getLimits = async () => {
+        try {
+            const config = {
+                method: "GET",
+                url: `${serverURL}/evaluate/evaluators`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+            };
+
+            const response = await axios(config);
             setLimits(response.data.limits);
-        });
-    }
+        } catch (error) {
+            console.error("Error fetching limits:", error);
+            toast.error("Failed to fetch limits.");
+        }
+    };
 
-    const getEvaluators = () => {
-        const config = {
-            method: "GET",
-            url: `${serverURL}/evaluate/evaluators`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-        };
+    // Function to fetch evaluators
+    const getEvaluators = async () => {
+        try {
+            const config = {
+                method: "GET",
+                url: `${serverURL}/evaluate/evaluators`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+            };
 
-        axios(config).then((response) => {
+            const response = await axios(config);
             setEvaluators(response.data.evaluators);
             setUser(response.data.user);
             setLimits(response.data.limits);
@@ -88,380 +102,441 @@ function Context({ children }: { children: React.ReactNode }) {
             const selectedEvaluatorLocalData = parseInt(localStorage.getItem("selectedEvaluator") || "-1");
             setSelectedEvaluator(selectedEvaluatorLocalData);
 
-            if (response.data.evaluators.length === 0 && (pathname.includes("evaluators"))) {
+            if (response.data.evaluators.length === 0 && pathname.includes("evaluators")) {
                 localStorage.setItem("selectedEvaluator", "-1");
                 setSelectedEvaluator(-1);
                 window.location.href = "/home";
-            }
-            else if (response.data.evaluators.length > 0 && !pathname.includes("evaluators") && !pathname.includes("classes") && !pathname.includes("admin")) {
+            } else if (
+                response.data.evaluators.length > 0 &&
+                !pathname.includes("evaluators") &&
+                !pathname.includes("classes") &&
+                !pathname.includes("admin")
+            ) {
                 localStorage.setItem("selectedEvaluator", "0");
                 setSelectedEvaluator(0);
                 window.location.href = "/home/evaluators";
             }
 
-            getStudents(response.data.evaluators[selectedEvaluatorLocalData]?.classId);
-            getEvaluation(response.data.evaluators[selectedEvaluatorLocalData]?._id);
-        });
-    }
+            const currentEvaluator = response.data.evaluators[selectedEvaluatorLocalData];
+            if (currentEvaluator) {
+                await getStudents(currentEvaluator.classId);
+                await getEvaluation(currentEvaluator._id);
+            }
+        } catch (error) {
+            console.error("Error fetching evaluators:", error);
+            toast.error("Failed to fetch evaluators.");
+        }
+    };
 
-    const getClasses = () => {
-        const config = {
-            method: "GET",
-            url: `${serverURL}/class`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-        };
+    // Function to fetch classes
+    const getClasses = async () => {
+        try {
+            const config = {
+                method: "GET",
+                url: `${serverURL}/class`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+            };
 
-        axios(config).then((response) => {
+            const response = await axios(config);
             setClasses(response.data);
             if (response.data.length > 0 && pathname.includes("classes") && selectedClass === -1) {
                 setSelectedClass(0);
             }
-        });
-    }
+        } catch (error) {
+            console.error("Error fetching classes:", error);
+            toast.error("Failed to fetch classes.");
+        }
+    };
 
-    const editEvaluator = () => {
-        if (editEvaluatorClassId === "-1" || editEvaluatorTitle === '') {
+    // Function to edit an evaluator
+    const editEvaluator = async () => {
+        if (editEvaluatorClassId === "-1" || editEvaluatorTitle === "") {
             return toast.error("Please fill all the fields!");
         }
 
         setCreatingEvaluator(true);
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/evaluate/evaluators/update`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                "evaluatorId": evaluators[selectedEvaluator]?._id,
-                "title": editEvaluatorTitle,
-                "classId": editEvaluatorClassId,
-            }
-        };
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/evaluate/evaluators/update`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+                data: {
+                    evaluatorId: evaluators[selectedEvaluator]?._id,
+                    title: editEvaluatorTitle,
+                    classId: editEvaluatorClassId,
+                },
+            };
 
-        axios(config).then((response) => {
+            await axios(config);
             toast.success("Evaluator saved!");
             setEditEvaluatorTitle("");
             setEditEvaluatorClassId("-1");
-            getEvaluators();
-            setCreatingEvaluator(false);
-        }).catch((error) => {
+            await getEvaluators();
+        } catch (error) {
+            console.error("Error editing evaluator:", error);
             toast.error("Something went wrong!");
+        } finally {
             setCreatingEvaluator(false);
-        });
-    }
+        }
+    };
 
-    const createEvaluator = () => {
-        if (newEvaluatorClassId === "-1" || newEvaluatorTitle === '' || newEvaluatorQuestionPapers.length === 0 || newEvaluatorAnswerKeys.length === 0) {
+    // Function to create a new evaluator
+    const createEvaluator = async () => {
+        if (
+            newEvaluatorClassId === "-1" ||
+            newEvaluatorTitle === "" ||
+            newEvaluatorQuestionPapers.length === 0 ||
+            newEvaluatorAnswerKeys.length === 0
+        ) {
             return toast.error("Please fill all the fields!");
         }
 
         setCreatingEvaluator(true);
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/evaluate/evaluators/create`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                "title": newEvaluatorTitle,
-                "classId": newEvaluatorClassId,
-                "questionPapers": newEvaluatorQuestionPapers,
-                "answerKeys": newEvaluatorAnswerKeys,
-            }
-        };
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/evaluate/evaluators/create`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+                data: {
+                    title: newEvaluatorTitle,
+                    classId: newEvaluatorClassId,
+                    questionPapers: newEvaluatorQuestionPapers,
+                    answerKeys: newEvaluatorAnswerKeys,
+                },
+            };
 
-        axios(config).then((response) => {
+            await axios(config);
             toast.success("Evaluator Created!");
             setNewEvaluatorTitle("");
             setNewEvaluatorQuestionPapers([]);
             setNewEvaluatorAnswerKeys([]);
             setSelectedEvaluator(0);
-            getEvaluators();
-            setCreatingEvaluator(false);
+            await getEvaluators();
             window.location.href = "/home/evaluators";
-        }).catch((error) => {
+        } catch (error) {
+            console.error("Error creating evaluator:", error);
             toast.error("Something went wrong!");
+        } finally {
             setCreatingEvaluator(false);
-        });
-    }
+        }
+    };
 
+    // Function to delete an evaluator
     const deleteEvaluator = async () => {
-        const config = {
-            method: "POST",
-            url: `${serverURL}/evaluate/evaluators/delete`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                evaluatorId: evaluators[selectedEvaluator]?._id
-            }
-        };
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/evaluate/evaluators/delete`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+                data: {
+                    evaluatorId: evaluators[selectedEvaluator]?._id,
+                },
+            };
 
-        axios(config)
-            .then((response) => {
-                getEvaluators();
-                toast.success("Evaluator deleted!");
-                window.location.href = "/home";
-            })
-            .catch((error) => {
-                toast.error("Failed to delete evaluator");
-            });
-    }
+            await axios(config);
+            await getEvaluators();
+            toast.success("Evaluator deleted!");
+            window.location.href = "/home";
+        } catch (error) {
+            console.error("Error deleting evaluator:", error);
+            toast.error("Failed to delete evaluator");
+        }
+    };
 
-    const createClass = () => {
-        if (newClassName === '' || newClassSection === '' || newClassSubject === '') {
+    // Function to create a new class
+    const createClass = async () => {
+        if (newClassName === "" || newClassSection === "" || newClassSubject === "") {
             return toast.error("Please fill all the fields!");
         }
 
         setCreatingClass(true);
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/class/create`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                "name": newClassName,
-                "section": newClassSection,
-                "subject": newClassSubject,
-            }
-        };
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/class/create`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+                data: {
+                    name: newClassName,
+                    section: newClassSection,
+                    subject: newClassSubject,
+                },
+            };
 
-        axios(config).then((response) => {
+            await axios(config);
             toast.success("Class Created!");
             setNewClassName("");
             setNewClassSection("");
             setNewClassSubject("");
             setSelectedClass(0);
-            getClasses();
-            setCreatingClass(false);
-        }).catch((error) => {
+            await getClasses();
+        } catch (error) {
+            console.error("Error creating class:", error);
             toast.error("Something went wrong!");
+        } finally {
             setCreatingClass(false);
-        });
-    }
+        }
+    };
 
-    const editClass = () => {
-        if (editClassName === '' || editClassSection === '' || editClassSubject === '') {
+    // Function to edit an existing class
+    const editClass = async () => {
+        if (editClassName === "" || editClassSection === "" || editClassSubject === "") {
             return toast.error("Please fill all the fields!");
         }
 
         setCreatingClass(true);
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/class/update`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                "classId": classes[selectedClass]._id,
-                "name": editClassName,
-                "section": editClassSection,
-                "subject": editClassSubject,
-            }
-        };
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/class/update`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+                data: {
+                    classId: classes[selectedClass]._id,
+                    name: editClassName,
+                    section: editClassSection,
+                    subject: editClassSubject,
+                },
+            };
 
-        axios(config).then((response) => {
+            await axios(config);
             toast.success("Class Saved!");
             setEditClassName("");
             setEditClassSection("");
             setEditClassSubject("");
-            getClasses();
-            setCreatingClass(false);
-        }).catch((error) => {
+            await getClasses();
+        } catch (error) {
+            console.error("Error editing class:", error);
             toast.error("Failed to save class!");
+        } finally {
             setCreatingClass(false);
-        });
-    }
+        }
+    };
 
+    // Function to delete a class
     const deleteClass = async () => {
-        const config = {
-            method: "POST",
-            url: `${serverURL}/class/delete`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                classId: classes[selectedClass]?._id
-            }
-        };
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/class/delete`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+                data: {
+                    classId: classes[selectedClass]?._id,
+                },
+            };
 
-        axios(config)
-            .then((response) => {
-                getClasses();
-                setSelectedClass(-1);
-                toast.success("Class deleted!");
-            })
-            .catch((error) => {
-                toast.error("Failed to delete class");
-            });
-    }
+            await axios(config);
+            await getClasses();
+            setSelectedClass(-1);
+            toast.success("Class deleted!");
+        } catch (error) {
+            console.error("Error deleting class:", error);
+            toast.error("Failed to delete class");
+        }
+    };
 
-    const getStudents = (classId?: string) => {
-        if (!classId && !classes[selectedClass]?._id) return;
-        const config = {
-            method: "POST",
-            url: `${serverURL}/class/students`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-            data: {
-                classId: classId ?? classes[selectedClass]?._id
-            }
-        };
+    // Function to fetch students for a class
+    const getStudents = async (classId?: string) => {
+        try {
+            if (!classId && !classes[selectedClass]?._id) return;
 
-        axios(config).then((response) => {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/class/students`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+                data: {
+                    classId: classId ?? classes[selectedClass]?._id,
+                },
+            };
+
+            const response = await axios(config);
             setStudents(response.data);
-        });
-    }
+        } catch (error) {
+            console.error("Error fetching students:", error);
+            toast.error("Failed to fetch students.");
+        }
+    };
 
-    const addStudent = () => {
-        if (newStudentName === '') {
+    // Function to add a new student
+    const addStudent = async () => {
+        if (newStudentName === "") {
             return toast.error("Please fill all the fields!");
         }
 
         setAddingStudent(true);
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/class/add-student`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                "classId": classes[selectedClass]._id,
-                "name": newStudentName,
-                "rollNo": newStudentRollNo,
-            }
-        };
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/class/add-student`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+                data: {
+                    classId: classes[selectedClass]._id,
+                    name: newStudentName,
+                    rollNo: newStudentRollNo,
+                },
+            };
 
-        axios(config).then((response) => {
+            await axios(config);
             toast.success("Student added!");
             setNewStudentName("");
             setNewStudentRollNo(0);
-            getStudents();
+            await getStudents();
+        } catch (error: any) {
+            console.error("Error adding student:", error);
+            toast.error(error.response?.data || "Failed to add student.");
+        } finally {
             setAddingStudent(false);
-        }).catch((error) => {
-            toast.error(error.response.data);
-            setAddingStudent(false);
-        });
-    }
+        }
+    };
 
-    const editStudent = () => {
-        if (editStudentName === '') {
+    // Function to edit an existing student
+    const editStudent = async () => {
+        if (editStudentName === "") {
             return toast.error("Please fill all the fields!");
         }
 
         setAddingStudent(true);
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/class/students/update`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                "classId": classes[selectedClass]._id,
-                "rollNo": editStudentRollNo,
-                "name": editStudentName,
-            }
-        };
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/class/students/update`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+                data: {
+                    classId: classes[selectedClass]._id,
+                    rollNo: editStudentRollNo,
+                    name: editStudentName,
+                },
+            };
 
-        axios(config).then((response) => {
+            await axios(config);
             toast.success("Student saved!");
             setEditStudentName("");
             setEditStudentRollNo(-1);
-            getStudents();
+            await getStudents();
+        } catch (error: any) {
+            console.error("Error editing student:", error);
+            toast.error(error.response?.data || "Failed to save student.");
+        } finally {
             setAddingStudent(false);
-        }).catch((error) => {
-            toast.error(error.response.data);
-            setAddingStudent(false);
-        });
-    }
+        }
+    };
 
-    const deleteStudent = () => {
+    // Function to delete a student
+    const deleteStudent = async () => {
         setAddingStudent(true);
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/class/students/delete`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": `application/json`,
-            },
-            data: {
-                "classId": classes[selectedClass]._id,
-                "rollNo": deleteStudentRollNo,
-            }
-        };
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/class/students/delete`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+                data: {
+                    classId: classes[selectedClass]._id,
+                    rollNo: deleteStudentRollNo,
+                },
+            };
 
-        axios(config).then((response) => {
+            await axios(config);
             toast.success("Student deleted!");
             setNewStudentName("");
             setNewStudentRollNo(0);
             setDeleteStudentRollNo(-1);
-            getStudents();
+            await getStudents();
+        } catch (error: any) {
+            console.error("Error deleting student:", error);
+            toast.error(error.response?.data || "Failed to delete student.");
+        } finally {
             setAddingStudent(false);
-        }).catch((error) => {
-            toast.error(error.response.data);
-            setAddingStudent(false);
-        });
-    }
+        }
+    };
 
-    const getEvaluation = (evaluatorId?: string) => {
-        if (!evaluators[selectedEvaluator]?._id && !evaluatorId) return;
+    // Function to fetch evaluation data
+    const getEvaluation = async (evaluatorId?: string) => {
+        try {
+            if (!evaluators[selectedEvaluator]?._id && !evaluatorId) return;
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/evaluate/evaluations/get`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-            data: {
-                evaluatorId: evaluators[selectedEvaluator]?._id ?? evaluatorId
-            }
-        };
+            const config = {
+                method: "POST",
+                url: `${serverURL}/evaluate/evaluations/get`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+                data: {
+                    evaluatorId: evaluators[selectedEvaluator]?._id ?? evaluatorId,
+                },
+            };
 
-        axios(config).then((response) => {
+            const response = await axios(config);
             const data = response.data.answerSheets ?? [];
             setAnswerSheets([...data]);
             setEvaluationData(response.data.data ?? {});
-        });
-    }
+        } catch (error) {
+            console.error("Error fetching evaluation:", error);
+            toast.error("Failed to fetch evaluation data.");
+        }
+    };
 
-    const updateEvaluation = (evaluatorId: string, answerSheets: any) => {
+    // Function to update evaluation data
+    const updateEvaluation = async (evaluatorId: string, answerSheets: any) => {
         if (!evaluatorId) return;
-        const config = {
-            method: "POST",
-            url: `${serverURL}/evaluate/evaluations/update`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-            data: {
-                evaluatorId: evaluatorId,
-                answerSheets: answerSheets,
-            }
-        };
 
-        axios(config);
-    }
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/evaluate/evaluations/update`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+                data: {
+                    evaluatorId: evaluatorId,
+                    answerSheets: answerSheets,
+                },
+            };
 
-    const evaluate = async (rollNo: number) => {
-        setEvaluating(rollNo);
+            await axios(config);
+        } catch (error) {
+            console.error("Error updating evaluation:", error);
+            toast.error("Failed to update evaluation.");
+        }
+    };
+
+    // Function to evaluate a student
+    const evaluate = async (rollNo: number, prompt: string) => {
         const config = {
             method: "POST",
             url: `${serverURL}/evaluate/evaluators/evaluate`,
@@ -471,228 +546,320 @@ function Context({ children }: { children: React.ReactNode }) {
             data: {
                 evaluatorId: evaluators[selectedEvaluator]?._id,
                 rollNo: rollNo,
-            }
+                prompt: prompt,
+            },
         };
 
         try {
-            var response = await axios(config);
-            getLimits();
+            const response = await axios(config);
+            await getLimits();
             return response.data;
-        }
-        catch (err: any) {
-            if(err.response.status === 500){
+        } catch (err: any) {
+            console.error("Error evaluating student:", err);
+            if (err.response?.status === 500) {
                 return -3;
             }
-            if(err.response.data === "Evaluation limit exceeded"){
+            if (err.response?.data === "Evaluation limit exceeded") {
                 return -2;
             }
             return -1;
         }
-    }
+    };
 
-    const revaluate = async (evaluatorId: string, rollNo: number, prompt: string) => {
-        setEvaluating(rollNo);
-        setRevaluating(true);
-        const config = {
-            method: "POST",
-            url: `${serverURL}/evaluate/evaluators/revaluate`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-            data: {
-                evaluatorId: evaluatorId,
-                rollNo: rollNo,
-                prompt: !prompt ? "null" : prompt,
+    // Function to initialize and handle EventSource for evaluation progress
+    const getEvaluationProgressSSE = (evaluatorId: string) => {
+        if (!evaluatorId) {
+            console.error("Evaluator ID is required for real-time updates.");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            console.error("Authorization token is missing.");
+            return;
+        }
+
+        // Close any existing connection
+        if (eventSourceRef.current) {
+            eventSourceRef.current.close();
+            console.log("Existing EventSource connection closed.");
+        }
+
+        // Initialize new EventSource and assign it to the ref
+        eventSourceRef.current = new EventSource(
+            `${serverURL}/evaluate/evaluation-progress?evaluatorId=${evaluatorId}&token=${token}`
+        );
+
+        // Handle incoming messages
+        eventSourceRef.current.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+
+                if (Array.isArray(data)) {
+                    setEvaluationProgress((prevProgress) => [...data]);
+                }
+
+                for(const progress of data) {
+                    if(!progress.finished) {
+                        setOngoingEvaluation({
+                            evaluatorId: evaluatorId,
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Error parsing EventSource data:", error);
             }
         };
+
+        // Handle errors and connection closure
+        eventSourceRef.current.onerror = (error) => {
+            console.log("END HERE");
+
+            console.log(ongoingEvaluation);
+
+            if (ongoingEvaluation.evaluatorId !== "") {
+                setOngoingEvaluation({
+                    evaluatorId: "",
+                });
+                toast.success("Evaluation completed!");
+
+                if (!pathname.includes("results")) {
+                    window.location.href = "/results/" + evaluators[selectedEvaluator]?._id;
+                }
+            }
+
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+                eventSourceRef.current = null;
+            }
+        };
+    };
+
+    // Function to fetch results for a specific evaluator and roll number
+    const getResults = async (evaluatorId?: string, rollNo?: number) => {
+        if (!evaluatorId) return;
 
         try {
-            var response = await axios(config);
-            getLimits();
-            getResults(evaluatorId, rollNo);
-            setEvaluating(-1);
-            setRevaluating(false);
-            return response.data;
-        }
-        catch (err) {
-            return -1;
-        }
-    }
+            const config = {
+                method: "POST",
+                url: `${serverURL}/evaluate/evaluations/results`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+                data: {
+                    evaluatorId: evaluatorId,
+                    rollNo: rollNo,
+                },
+            };
 
-    const getResults = (evaluatorId?: string, rollNo?: number) => {
-        if (!evaluatorId) return;
-        const config = {
-            method: "POST",
-            url: `${serverURL}/evaluate/evaluations/results`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-            data: {
-                evaluatorId: evaluatorId,
-                rollNo: rollNo,
-            }
-        };
-
-        axios(config).then((response) => {
+            const response = await axios(config);
             setResultData(response.data);
-        });
-    }
+        } catch (error) {
+            console.error("Error fetching results:", error);
+            toast.error("Failed to fetch results.");
+        }
+    };
 
-    const getResultsTable = (evaluatorId?: string) => {
+    // Function to fetch results table for a specific evaluator
+    const getResultsTable = async (evaluatorId?: string) => {
         if (!evaluatorId) return;
-        const config = {
-            method: "POST",
-            url: `${serverURL}/evaluate/evaluations/results/all`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-            data: {
-                evaluatorId: evaluatorId,
-            }
-        };
 
-        axios(config).then((response) => {
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/evaluate/evaluations/results/all`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+                data: {
+                    evaluatorId: evaluatorId,
+                },
+            };
+
+            const response = await axios(config);
             setResultDataTable(response.data);
-        });
-    }
+        } catch (error) {
+            console.error("Error fetching results table:", error);
+            toast.error("Failed to fetch results table.");
+        }
+    };
 
+    // Function to delete an evaluation
     const deleteEvaluation = async (evaluatorId?: string) => {
         if (!evaluatorId) return;
 
-        const config = {
-            method: "POST",
-            url: `${serverURL}/evaluate/evaluations/delete`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-            data: {
-                evaluatorId: evaluatorId,
-            }
-        };
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/evaluate/evaluations/delete`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+                data: {
+                    evaluatorId: evaluatorId,
+                },
+            };
 
-        await axios(config);
-        getEvaluation();
-    }
+            await axios(config);
+            await getEvaluation();
+        } catch (error) {
+            console.error("Error deleting evaluation:", error);
+            toast.error("Failed to delete evaluation.");
+        }
+    };
 
+    // Function to save a result
     const saveResult = async (evaluatorId: string, rollNo: number, resultData: any) => {
-        const config = {
-            method: "POST",
-            url: `${serverURL}/evaluate/evaluations/results/save`,
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-            data: {
-                evaluatorId: evaluatorId,
-                rollNo: rollNo,
-                results: resultData,
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/evaluate/evaluations/results/save`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+                data: {
+                    evaluatorId: evaluatorId,
+                    rollNo: rollNo,
+                    results: resultData,
+                },
+            };
+
+            await axios(config);
+            toast.success("Result saved!");
+            await getResults(evaluatorId, rollNo);
+        } catch (error) {
+            console.error("Error saving result:", error);
+            toast.error("Failed to save result.");
+        }
+    };
+
+    // useEffect to log evaluationProgress updates
+    useEffect(() => {
+        console.log("Evaluation progress updated:", evaluationProgress.length);
+    }, [evaluationProgress]);
+
+    // useEffect for cleaning up EventSource on component unmount
+    useEffect(() => {
+        return () => {
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+                eventSourceRef.current = null;
+                console.log("EventSource connection closed on cleanup.");
             }
         };
-
-        await axios(config);
-        toast.success("Result saved!");
-        getResults(evaluatorId, rollNo);
-    }
-
+    }, []);
 
     return (
-        <MainContext.Provider value={{
-            moreMenuOpen,
-            setMoreMenuOpen,
-            showMenu,
-            setShowMenu,
-            user,
-            setUser,
-            loading,
-            setLoading,
-            selectedTab,
-            setSelectedTab,
-            limits,
-            evaluators,
-            setEvaluators,
-            selectedEvaluator,
-            setSelectedEvaluator,
-            newEvaluatorTitle,
-            setNewEvaluatorTitle,
-            loadingEvaluator,
-            setLoadingEvaluator,
-            creatingEvaluator,
-            setCreatingEvaluator,
-            newEvaluatorQuestionPapers,
-            setNewEvaluatorQuestionPapers,
-            newEvaluatorAnswerKeys,
-            setNewEvaluatorAnswerKeys,
-            classes,
-            setClasses,
-            selectedClass,
-            setSelectedClass,
-            newClassName,
-            setNewClassName,
-            newClassSection,
-            setNewClassSection,
-            newClassSubject,
-            setNewClassSubject,
-            loadingClass,
-            setLoadingClass,
-            creatingClass,
-            setCreatingClass,
-            students,
-            setStudents,
-            newStudentName,
-            setNewStudentName,
-            newStudentRollNo,
-            setNewStudentRollNo,
-            addingStudent,
-            setAddingStudent,
-            deleteStudentRollNo,
-            setDeleteStudentRollNo,
-            getEvaluators,
-            getClasses,
-            createEvaluator,
-            deleteEvaluator,
-            createClass,
-            deleteClass,
-            getStudents,
-            addStudent,
-            deleteStudent,
-            getEvaluation,
-            updateEvaluation,
-            answerSheets,
-            setAnswerSheets,
-            newEvaluatorClassId,
-            setNewEvaluatorClassId,
-            evaluate,
-            setEvaluating,
-            evaluating,
-            evaluationData,
-            getResults,
-            setResultData,
-            resultData,
-            deleteEvaluation,
-            setImgPreviewURL,
-            imgPreviewURL,
-            getResultsTable,
-            resultDataTable,
-            editClassName,
-            setEditClassName,
-            editClassSection,
-            setEditClassSection,
-            editClassSubject,
-            setEditClassSubject,
-            editClass,
-            editStudentName,
-            setEditStudentName,
-            editStudentRollNo,
-            setEditStudentRollNo,
-            editStudent,
-            editEvaluatorTitle,
-            setEditEvaluatorTitle,
-            editEvaluatorClassId,
-            setEditEvaluatorClassId,
-            editEvaluator,
-            saveResult,
-            revaluate,
-            revaluating
-        }}>
+        <MainContext.Provider
+            value={{
+                // Main Home
+                moreMenuOpen,
+                setMoreMenuOpen,
+                showMenu,
+                setShowMenu,
+                user,
+                setUser,
+                loading,
+                setLoading,
+                selectedTab,
+                setSelectedTab,
+                limits,
+
+                // Evaluators Page
+                evaluators,
+                setEvaluators,
+                selectedEvaluator,
+                setSelectedEvaluator,
+                newEvaluatorTitle,
+                setNewEvaluatorTitle,
+                loadingEvaluator,
+                setLoadingEvaluator,
+                creatingEvaluator,
+                setCreatingEvaluator,
+                newEvaluatorQuestionPapers,
+                setNewEvaluatorQuestionPapers,
+                newEvaluatorAnswerKeys,
+                setNewEvaluatorAnswerKeys,
+                editEvaluatorTitle,
+                setEditEvaluatorTitle,
+                editEvaluatorClassId,
+                setEditEvaluatorClassId,
+                answerSheets,
+                setAnswerSheets,
+                evaluationData,
+                setEvaluationData,
+                evaluationProgress,
+                setEvaluationProgress,
+                ongoingEvaluation,
+                setOngoingEvaluation,
+
+                // Classes Page
+                classes,
+                setClasses,
+                selectedClass,
+                setSelectedClass,
+                newClassName,
+                setNewClassName,
+                newClassSection,
+                setNewClassSection,
+                newClassSubject,
+                setNewClassSubject,
+                loadingClass,
+                setLoadingClass,
+                creatingClass,
+                setCreatingClass,
+                editClassName,
+                setEditClassName,
+                editClassSection,
+                setEditClassSection,
+                editClassSubject,
+                setEditClassSubject,
+                students,
+                setStudents,
+                newStudentName,
+                setNewStudentName,
+                newStudentRollNo,
+                setNewStudentRollNo,
+                addingStudent,
+                setAddingStudent,
+                deleteStudentRollNo,
+                setDeleteStudentRollNo,
+
+                // Results Page
+                resultData,
+                setResultData,
+                resultDataTable,
+                setResultDataTable,
+                imgPreviewURL,
+                setImgPreviewURL,
+
+                // Functions
+                getLimits,
+                getEvaluators,
+                getClasses,
+                editEvaluator,
+                createEvaluator,
+                deleteEvaluator,
+                createClass,
+                editClass,
+                deleteClass,
+                getStudents,
+                addStudent,
+                editStudent,
+                deleteStudent,
+                getEvaluation,
+                updateEvaluation,
+                evaluate,
+                getResults,
+                getResultsTable,
+                deleteEvaluation,
+                saveResult,
+
+                // EventSource
+                getEvaluationProgressSSE,
+            }}
+        >
             {children}
         </MainContext.Provider>
     );

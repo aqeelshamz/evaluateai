@@ -6,6 +6,7 @@ import { appName } from "@/utils/utils";
 import { UploadButton } from "@/utils/uploadthing";
 import { MainContext } from "@/context/context";
 import { usePathname } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function Home({
   children,
@@ -59,14 +60,17 @@ export default function Home({
     setEditEvaluatorTitle,
     editEvaluatorClassId,
     setEditEvaluatorClassId,
-    editEvaluator } = useContext(MainContext);
+    editEvaluator,
+    ongoingEvaluation,
+    getEvaluationProgressSSE
+  } = useContext(MainContext);
 
   const pathname = usePathname();
   const newClassModalRef = useRef<any | null>(null);
 
   useEffect(() => {
-    getEvaluators();
     getClasses();
+    getEvaluators();
 
     pathname === "/home/classes" ? setSelectedTab(1) : setSelectedTab(0);
 
@@ -92,7 +96,11 @@ export default function Home({
     else {
       localStorage.setItem("selectedEvaluator", selectedEvaluator.toString());
     }
-  }, [selectedEvaluator]);
+
+    if(selectedEvaluator !== -1 && evaluators[selectedEvaluator]?._id) {
+      getEvaluationProgressSSE(evaluators[selectedEvaluator]._id);
+    }
+  }, [selectedEvaluator, evaluators]);
 
   return (
     <main className="flex bg-base-100 h-screen w-screen p-2 max-sm:p-0" onClick={() => {
@@ -120,6 +128,9 @@ export default function Home({
           {selectedTab === 0 ?
             evaluators?.map((evaluator: any, i: number) => {
               return <div key={i} className={(selectedEvaluator === i ? ' bg-base-200 ' : ' bg-transparent hover:bg-base-200 ') + 'cursor-pointer flex flex-col px-3 py-2 rounded-md w-full mb-1'} onClick={() => {
+                if (ongoingEvaluation.evaluatorId !== "" && ongoingEvaluation.evaluatorId !== evaluator._id) {
+                  return toast.info("You can't switch evaluators while an evaluation is in progress.");
+                }
                 setSelectedEvaluator(i); setShowMenu(false); if (window.location.pathname !== "/home/evaluators") window.location.href = "/home/evaluators";
               }}>
                 <div className='flex justify-start items-center'>

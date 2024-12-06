@@ -7,7 +7,11 @@ import Evaluation from "../models/Evaluation.js";
 import Class from "../models/Class.js";
 import OpenAI from "openai";
 import dotenv from "dotenv";
-import { aiModel, aiPrompt, maxTokens } from "../utils/utils.js";
+import { aiModel, aiPrompt, markAnalysisPrompt, maxTokens } from "../utils/utils.js";
+import MarkDistribution from "../models/MarkDistribution.js";
+import EvaluationProgress from "../models/EvaluationProgress.js";
+import User from "../models/User.js";
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 
@@ -27,6 +31,71 @@ router.get("/evaluators", validate, async (req, res) => {
 
     return res.send({ evaluators: evaluators.reverse(), user: { name: req.user.name, email: req.user.email, type: req.user.type }, limits: await Limits.findOne({ userId: req.user._id }).select("evaluatorLimit evaluationLimit") });
 });
+
+const createMarkDistribution = async (evaluatorId) => {
+    const data = await Evaluator.findById(evaluatorId);
+
+    const prompt = [];
+    prompt.push({ type: "text", text: markAnalysisPrompt });
+    prompt.push({ type: "text", text: "Question Paper(s):" });
+    for (const questionPaper of data.questionPapers) {
+        prompt.push({
+            type: "image_url",
+            image_url: { url: questionPaper },
+        });
+    }
+
+    prompt.push({ type: "text", text: "Answer Key(s):" });
+    for (const answerKey of data.answerKeys) {
+        prompt.push({
+            type: "image_url",
+            image_url: { url: answerKey },
+        });
+    }
+
+    var messages = [
+        {
+            role: "system",
+            content: markAnalysisPrompt,
+        },
+        {
+            role: "user",
+            content: prompt,
+        },
+    ];
+
+    const completion = await openai.chat.completions.create({
+        model: aiModel,
+        messages: messages,
+        max_tokens: maxTokens,
+    });
+
+    var resp = completion.choices[0].message.content;
+
+    resp = resp.replace(/```json\n|\n```/g, "");
+
+    const respData = JSON.parse(resp);
+
+    const existingMarkDistribution = await MarkDistribution.findOne({
+        evaluatorId: evaluatorId,
+    });
+
+    if (existingMarkDistribution) {
+        existingMarkDistribution.max_marks = respData.max_marks;
+        existingMarkDistribution.questions = respData.questions;
+        existingMarkDistribution.or_questions = respData.or_questions;
+        await existingMarkDistribution.save();
+    }
+    else {
+        const markDistribution = new MarkDistribution({
+            evaluatorId: evaluatorId,
+            max_marks: respData.max_marks,
+            questions: respData.questions,
+            or_questions: respData.or_questions,
+        });
+        await markDistribution.save();
+    }
+}
 
 router.post("/evaluators/create", validate, async (req, res) => {
     const schema = joi.object({
@@ -63,6 +132,8 @@ router.post("/evaluators/create", validate, async (req, res) => {
         });
 
         await evaluator.save();
+
+        createMarkDistribution(evaluator._id);
 
         return res.send(evaluator);
     }
@@ -142,6 +213,7 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
     const schema = joi.object({
         evaluatorId: joi.string().required(),
         rollNo: joi.number().required(),
+        prompt: joi.string().required().allow(""),
     });
 
     try {
@@ -150,7 +222,6 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
         const evaluator = await Evaluator.findById(data.evaluatorId);
 
         const limit = await Limits.findOne({ userId: req.user._id });
-
 
         if (limit.evaluationLimit <= 0) {
             return res.status(400).send("Evaluation limit exceeded");
@@ -187,6 +258,7 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
         var questionPapersPrompt = [];
         var answerKeysPrompt = [];
         var answerSheetsPrompt = [];
+        var markDistributionPrompt = [];
 
         questionPapersPrompt.push({ type: "text", text: "Question Paper(s):" });
         for (const questionPaper of evaluator.questionPapers) {
@@ -201,6 +273,36 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
         answerSheetsPrompt.push({ type: "text", text: "Answer Sheet(s):" });
         for (const answerSheet of answerSheets) {
             answerSheetsPrompt.push({ type: "image_url", image_url: { url: answerSheet } });
+        }
+
+        const checkMarkDistribution = await MarkDistribution.findOne({
+            evaluatorId: data.evaluatorId,
+        });
+
+        if (!checkMarkDistribution) {
+            await createMarkDistribution(data.evaluatorId);
+        }
+
+        const markDistributionData = await MarkDistribution.findOne({
+            evaluatorId: data.evaluatorId,
+        });
+
+        markDistributionPrompt.push({ type: "text", text: "Mark Distribution:" });
+        markDistributionPrompt.push({
+            type: "text",
+            text: `MAX MARKS: ${markDistributionData.max_marks}`,
+        });
+        for (const question of markDistributionData.questions) {
+            markDistributionPrompt.push({
+                type: "text",
+                text: `Question ${question.question_no}: ${question.marks} marks`,
+            });
+        }
+        if (markDistributionData.or_questions) {
+            markDistributionPrompt.push({
+                type: "text",
+                text: `OR Questions: ${markDistributionData.or_questions}`,
+            });
         }
 
         var messages = [
@@ -238,6 +340,25 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
             },
         ];
 
+        const progress = await EvaluationProgress.findOne({
+            evaluatorId: data.evaluatorId,
+            rollNo: data.rollNo,
+        });
+
+        if (progress) {
+            await EvaluationProgress.updateOne({ evaluatorId: data.evaluatorId, rollNo: data.rollNo }, { $set: { prompt: data.prompt, status: "pending", finished: false } });
+        }
+        else {
+            const newProgress = new EvaluationProgress({
+                evaluatorId: data.evaluatorId,
+                rollNo: data.rollNo,
+                prompt: data.prompt,
+                status: "pending",
+                finished: false,
+            });
+            await newProgress.save();
+        }
+
         const completion = await openai.chat.completions.create({
             model: aiModel,
             messages: messages,
@@ -254,134 +375,97 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
 
         await Limits.updateOne({ userId: req.user._id }, { $inc: { evaluationLimit: -1 } });
 
+        await EvaluationProgress.updateOne({ evaluatorId: data.evaluatorId, rollNo: data.rollNo }, { $set: { status: "success", finished: true } });
+
         return res.send(respData);
     }
     catch (err) {
+        console.log(err);
+        const data = await schema.validateAsync(req.body);
+        await EvaluationProgress.updateOne({ evaluatorId: data.evaluatorId, rollNo: data.rollNo }, { $set: { status: "error", finished: true } });
         return res.status(500).send(err);
     }
 });
 
-router.post("/evaluators/revaluate", validate, async (req, res) => {
-    const schema = joi.object({
-        evaluatorId: joi.string().required(),
-        rollNo: joi.number().required(),
-        prompt: joi.string().required(),
+//Evaluation progress SSE
+const sseMiddleware = (req, res, next) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders(); // Ensure headers are sent immediately
+
+    req.sse = (data) => {
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    req.on('close', () => {
+        console.log('SSE connection closed');
+        res.end();
     });
 
-    try {
-        const data = await schema.validateAsync(req.body);
+    next();
+};
 
-        const evaluator = await Evaluator.findById(data.evaluatorId);
+router.get("/evaluation-progress", async (req, res) => {
+    const { evaluatorId, token } = req.query;
 
-        const limit = await Limits.findOne({ userId: req.user._id });
+    if (token == null) return res.status(401).send("Unauthorized");
 
-        if (limit.evaluationLimit <= 0) {
-            return res.status(400).send("Evaluation limit exceeded");
+    jwt.verify(token, process.env.TOKEN_SECRET, async (err, user) => {
+        if (err) return res.status(401).send("Unauthorized");
+        const userData = await User.findOne({ _id: user }).lean();
+        if (!userData) {
+            return res.status(401).send("Unauthorized");
         }
 
-        if (!evaluator) {
-            return res.status(400).send("Evaluator not found");
-        }
+        req.user = userData;
+    });
 
-        if (evaluator.userId.toString() != req.user._id.toString()) {
-            return res.status(400).send("Unauthorized");
-        }
+    if (!evaluatorId) {
+        return res.status(400).json({ error: "Evaluator ID is required." });
+    }
+    // Set up SSE headers
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders(); // Flush headers to establish SSE
 
-        const evaluation = await Evaluation.findOne({ evaluatorId: data.evaluatorId });
+    console.log(`Client connected for evaluatorId: ${evaluatorId}`);
 
-        if (!evaluation) {
-            return res.status(400).send("Evaluation not found");
-        }
+    const interval = setInterval(async () => {
+        try {
+            const updates = await EvaluationProgress.find({ evaluatorId })
+                .sort({ updatedAt: -1 });
 
-        const answerSheets = evaluation.answerSheets[data.rollNo - 1];
-
-        if (!answerSheets) {
-            return res.send(null);
-        }
-
-        const classData = await Class.findById(evaluator.classId);
-
-        for (const answerSheet of evaluation.answerSheets) {
-            if (answerSheet == null) {
-                await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + (evaluation.answerSheets.indexOf(answerSheet) + 1)]: null } });
+            let finished = true;
+            for (const update of updates) {
+                if (!update.finished) {
+                    finished = false;
+                    break;
+                }
             }
+
+            if (finished) {
+                clearInterval(interval);
+                res.write(`data: ${JSON.stringify(updates)}\n\n`);
+                res.end();
+                console.log(`Evaluation completed for evaluatorId: ${evaluatorId}`);
+                return;
+            }
+
+            console.log("Sending updates:", updates); // Log updates to confirm data is being sent
+            res.write(`data: ${JSON.stringify(updates)}\n\n`); // Proper SSE format
+        } catch (error) {
+            console.error("Error querying evaluation progress:", error);
+            res.write(`data: ${JSON.stringify({ error: "Failed to fetch data." })}\n\n`);
         }
+    }, 1000);
 
-        var questionPapersPrompt = [];
-        var answerKeysPrompt = [];
-        var answerSheetsPrompt = [];
-
-        questionPapersPrompt.push({ type: "text", text: "Question Paper(s):" });
-        for (const questionPaper of evaluator.questionPapers) {
-            questionPapersPrompt.push({ type: "image_url", image_url: { url: questionPaper } });
-        }
-
-        answerKeysPrompt.push({ type: "text", text: "Answer Key(s):" });
-        for (const answerKey of evaluator.answerKeys) {
-            answerKeysPrompt.push({ type: "image_url", image_url: { url: answerKey } });
-        }
-
-        answerSheetsPrompt.push({ type: "text", text: "Answer Sheet(s):" });
-        for (const answerSheet of answerSheets) {
-            answerSheetsPrompt.push({ type: "image_url", image_url: { url: answerSheet } });
-        }
-
-        var messages = [
-            {
-                role: "system",
-                content: data.prompt && data.prompt !== "null" ? (aiPrompt + "\n\nTHIS IS REVALUATION. PROMPT: " + data.prompt + "\nGive remarks as 'Revaluated' for all questions extra remarks applied to.") : aiPrompt,
-            },
-            {
-                role: "user",
-                content: questionPapersPrompt,
-            },
-            {
-                role: "user",
-                content: answerKeysPrompt,
-            },
-            {
-                role: "user",
-                content: "student_name: " + classData.students[data.rollNo - 1].name,
-            },
-            {
-                role: "user",
-                content: "roll_no: " + classData.students[data.rollNo - 1].rollNo,
-            },
-            {
-                role: "user",
-                content: "class: " + classData.name + " " + classData.section,
-            },
-            {
-                role: "user",
-                content: "subject: " + classData.subject,
-            },
-            {
-                role: "user",
-                content: answerSheetsPrompt,
-            },
-        ];
-
-        const completion = await openai.chat.completions.create({
-            model: aiModel,
-            messages: messages,
-            max_tokens: maxTokens,
-        });
-
-        var resp = completion.choices[0].message.content;
-
-        resp = resp.replace(/```json\n|\n```/g, '')
-
-        const respData = JSON.parse(resp);
-
-        await Evaluation.updateOne({ evaluatorId: data.evaluatorId }, { $set: { ["data." + (data.rollNo)]: respData } });
-
-        await Limits.updateOne({ userId: req.user._id }, { $inc: { evaluationLimit: -1 } });
-
-        return res.send(respData);
-    }
-    catch (err) {
-        return res.status(500).send(err);
-    }
+    // Cleanup on client disconnect
+    req.on("close", () => {
+        clearInterval(interval);
+        console.log(`SSE connection closed for evaluatorId: ${evaluatorId}`);
+    });
 });
 
 //EVALUATIONS
@@ -504,6 +588,10 @@ router.post("/evaluations/results", validate, async (req, res) => {
             return res.send(null);
         }
 
+        const marksDistribution = await MarkDistribution.findOne({
+            evaluatorId: data.evaluatorId,
+        });
+
         var resultsData = {};
         const students = (await Class.findById(evaluator.classId)).students;
         var studentData = {};
@@ -523,12 +611,11 @@ router.post("/evaluations/results", validate, async (req, res) => {
             return res.send({});
         }
 
-        var totalScore = 0;
+        var totalScore = marksDistribution.max_marks;
         var scored = 0;
 
         for (const answer of evaluation.data[studentData.rollNo].answers) {
             scored += answer.score[0];
-            totalScore += answer.score[1];
         }
 
         resultsData["student_name"] = studentData.name;
@@ -572,6 +659,10 @@ router.post("/evaluations/results/all", validate, async (req, res) => {
             return res.send(null);
         }
 
+        const marksDistribution = await MarkDistribution.findOne({
+            evaluatorId: data.evaluatorId,
+        });
+
         var resultsData = [];
 
         const classData = await Class.findById(evaluator.classId);
@@ -587,11 +678,10 @@ router.post("/evaluations/results/all", validate, async (req, res) => {
             studentData["student_name"] = student.name;
             studentData["roll_no"] = student.rollNo;
             var scored = 0;
-            var totalScore = 0;
+            var totalScore = marksDistribution.max_marks;
 
             for (const answer of evaluation.data[student.rollNo].answers) {
                 scored += answer.score[0];
-                totalScore += answer.score[1];
             }
 
             studentData["score"] = scored + " / " + totalScore;

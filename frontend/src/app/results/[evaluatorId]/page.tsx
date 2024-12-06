@@ -18,7 +18,9 @@ export default function Results() {
         resultData,
         setResultData,
         saveResult,
-        revaluate
+        revaluate,
+        getEvaluationProgressSSE,
+        evaluationProgress
     } = useContext(MainContext);
 
     const [selectedTab, setSelectedTab] = useState(0);
@@ -30,14 +32,12 @@ export default function Results() {
     const [revaluationPrompt, setRevaluationPrompt] = useState("");
 
     useEffect(() => {
+        getEvaluationProgressSSE(evaluatorId);
         if (selectedTab === 0) {
             getResultsTable(evaluatorId);
         }
         else {
             getResults(evaluatorId, selectedRollNo);
-            setInterval(() => {
-                setMounted(true);
-            }, 500);
         }
     }, [selectedTab, selectedRollNo]);
 
@@ -72,6 +72,7 @@ export default function Results() {
                             <th>Roll No</th>
                             <th>Name</th>
                             <th>Score</th>
+                            <th>Evaluation Status</th>
                             <th className='print'>View Detailed Result</th>
                         </tr>
                     </thead>
@@ -82,6 +83,7 @@ export default function Results() {
                                     <th>{student?.roll_no}</th>
                                     <td>{student?.student_name}</td>
                                     <td>{student?.score}</td>
+                                    <td>{evaluationProgress.find((x: any) => x.rollNo === student?.roll_no)?.status === "pending" ? <div className="badge badge-warning">Evaluating</div> : evaluationProgress.find((x: any) => x.rollNo === student?.roll_no)?.status === "success" ? <div className="badge badge-success text-white">Evaluated</div> : <div className="badge badge-error white">Not Evaluated</div>}</td>
                                     <td className='print'><button className='btn btn-primary btn-square' onClick={() => {
                                         setSelectedRollNo(student?.roll_no);
                                         setSelectedTab(1);

@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useRef } from "react";
+import { use, useContext, useEffect, useRef, useState } from "react";
 import { FiBook, FiCheck, FiExternalLink, FiFileText, FiImage, FiInfo, FiKey, FiShoppingCart, FiUsers } from "react-icons/fi";
 import { MainContext } from "@/context/context";
 import { UploadDropzone } from "@/utils/uploadthing";
@@ -20,13 +20,17 @@ export default function Evaluators() {
     answerSheets,
     setAnswerSheets,
     evaluate,
-    evaluating,
-    setEvaluating,
     evaluationData,
     setImgPreviewURL,
     imgPreviewURL,
-    limits
+    limits,
+    getEvaluationProgressSSE,
+    evaluationProgress,
+    ongoingEvaluation,
+    setOngoingEvaluation
   } = useContext(MainContext);
+
+  const [prompt, setPrompt] = useState("");
 
   const limitExceedModalRef = useRef<any | null>(null);
 
@@ -35,37 +39,39 @@ export default function Evaluators() {
     getEvaluation();
   }, [selectedEvaluator]);
 
+  const evaluateAnswerSheet = async (i: number) => {
+    var val = await evaluate(i, prompt);
+    if (val === -3) {
+      toast.error("Evaluation failed for " + students[i - 1]?.name + ", Roll No. " + students[i - 1]?.rollNo + "! Please try again later.");
+      return;
+    }
+    else if (val === -2) {
+      limitExceedModalRef.current?.click();
+      return;
+    }
+    else if (val === -1) {
+      toast.error("Evaluation failed for " + students[i - 1]?.name + ", Roll No. " + students[i - 1]?.rollNo + "! Please try again later.");
+      return;
+    }
+  }
+
   const evaluateAnswerSheets = async () => {
     if (students.length < 1) {
       return;
     }
 
+    setOngoingEvaluation({
+      evaluatorId: evaluators[selectedEvaluator]?._id,
+    });
+
     for (let i = 0; i < students.length; i++) {
       if (!answerSheets[i] || answerSheets[i].length < 1) {
         continue;
       }
-      var val = await evaluate(i + 1);
-      if (val === -3){
-        setEvaluating(-1);
-        toast.error("Evaluation failed! Please try again later.");
-        return;
-      }
-      else if (val === -2) {
-        setEvaluating(-1);
-        limitExceedModalRef.current?.click();
-        return;
-      }
-      else if (val === -1) {
-        setEvaluating(-1);
-        toast.error("Evaluation failed! Please try again later.");
-        return;
-      }
+      evaluateAnswerSheet(i + 1);
     }
 
-    setEvaluating(-1);
-    toast.success("Evaluation completed!");
-    getEvaluation();
-    window.location.href = "/results/" + evaluators[selectedEvaluator]?._id;
+    getEvaluationProgressSSE(evaluators[selectedEvaluator]?._id);
   };
 
   return (
@@ -135,7 +141,7 @@ export default function Evaluators() {
                 {answerSheets[i] && answerSheets[i]?.length >= 1 ? <div className="flex flex-wrap">{
                   answerSheets[i]?.map((file: string, j: number) => {
                     return <div key={j} className="relative flex items-center justify-center">
-                      {evaluating === student?.rollNo ? <div className="bg-white p-1 rounded-full absolute flex items-center text-sm"><span className="mr-1 loading loading-spinner loading-sm"></span><p>Evaluating...</p></div> : ""}
+                      {evaluationProgress.find((x: any) => x.rollNo === student?.rollNo)?.status === "pending" ? <div className="bg-white p-1 rounded-full absolute flex items-center text-sm"><span className="mr-1 loading loading-spinner loading-sm"></span><p>Evaluating...</p></div> : ""}
                       <button className="btn btn-xs btn-circle absolute right-3 top-1" onClick={() => {
                         answerSheets[i].splice(j, 1);
                         setAnswerSheets([...answerSheets]);
@@ -167,10 +173,10 @@ export default function Evaluators() {
           }
         </div>
       </div>
-      {evaluating !== -1 ? <div className="flex flex-col mb-5">
-        <p className="mb-2">Evaluating Answer Sheets of {students[evaluating - 1]?.name}... (Student {evaluating} of {students.length})</p>
-        <progress className="progress max-w-lg" value={evaluating} max={students.length}></progress>
-      </div> : <button className="btn btn-primary w-full max-w-lg mt-5" onClick={() => evaluateAnswerSheets()}>🤖 Evaluate</button>}
+      <button className="btn btn-primary w-full max-w-lg mt-5" onClick={() => {
+        if (ongoingEvaluation["evaluatorId"] !== "") return;
+        evaluateAnswerSheets()
+      }}>{ongoingEvaluation["evaluatorId"] === "" ? "🤖 Evaluate" : "Evaluating..."}</button>
       <div className="flex justify-center my-2 max-w-lg">
         <p className="flex items-center text-xs opacity-70 mr-1"><FiFileText className="mr-1" /> {limits?.evaluationLimit} evaluations left</p>
         <Link href="/shop"><button className="btn btn-xs btn-ghost"><FiShoppingCart /> SHOP</button></Link>
