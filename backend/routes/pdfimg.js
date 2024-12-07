@@ -9,16 +9,10 @@ router.post("/convert-pdf", validate, async (req, res) => {
     try {
         const file = req.files.file;
 
-        console.log("File received:");
-        console.log(file);
-
         const arrayBuffer = file.data.buffer;
         const uint8Array = new Uint8Array(arrayBuffer);
 
         const images = await pdf2img.convert(uint8Array);
-
-        console.log("Images:");
-        console.log(images);
 
         return res.send(images);
     }

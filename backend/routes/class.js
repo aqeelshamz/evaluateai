@@ -219,7 +219,6 @@ router.post("/import-students", validate, async (req, res) => {
         }
 
         const students = req.files.students.data.toString().split("\n");
-        console.log(students);
 
         for (let i = 0; i < students.length; i++) {
             const student = students[i].split(",");

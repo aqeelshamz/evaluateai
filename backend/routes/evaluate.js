@@ -380,7 +380,6 @@ router.post("/evaluators/evaluate", validate, async (req, res) => {
         return res.send(respData);
     }
     catch (err) {
-        console.log(err);
         const data = await schema.validateAsync(req.body);
         await EvaluationProgress.updateOne({ evaluatorId: data.evaluatorId, rollNo: data.rollNo }, { $set: { status: "error", finished: true } });
         return res.status(500).send(err);
@@ -399,7 +398,6 @@ const sseMiddleware = (req, res, next) => {
     };
 
     req.on('close', () => {
-        console.log('SSE connection closed');
         res.end();
     });
 
@@ -428,9 +426,7 @@ router.get("/evaluation-progress", async (req, res) => {
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
-    res.flushHeaders(); // Flush headers to establish SSE
-
-    console.log(`Client connected for evaluatorId: ${evaluatorId}`);
+    res.flushHeaders();
 
     const interval = setInterval(async () => {
         try {
@@ -449,14 +445,11 @@ router.get("/evaluation-progress", async (req, res) => {
                 clearInterval(interval);
                 res.write(`data: ${JSON.stringify(updates)}\n\n`);
                 res.end();
-                console.log(`Evaluation completed for evaluatorId: ${evaluatorId}`);
                 return;
             }
 
-            console.log("Sending updates:", updates); // Log updates to confirm data is being sent
-            res.write(`data: ${JSON.stringify(updates)}\n\n`); // Proper SSE format
+            res.write(`data: ${JSON.stringify(updates)}\n\n`);
         } catch (error) {
-            console.error("Error querying evaluation progress:", error);
             res.write(`data: ${JSON.stringify({ error: "Failed to fetch data." })}\n\n`);
         }
     }, 1000);
@@ -464,7 +457,6 @@ router.get("/evaluation-progress", async (req, res) => {
     // Cleanup on client disconnect
     req.on("close", () => {
         clearInterval(interval);
-        console.log(`SSE connection closed for evaluatorId: ${evaluatorId}`);
     });
 });
 
