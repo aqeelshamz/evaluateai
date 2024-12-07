@@ -853,6 +853,10 @@ function Context({ children }: { children: React.ReactNode }) {
                 setAddingStudent,
                 deleteStudentRollNo,
                 setDeleteStudentRollNo,
+                setEditStudentName,
+                editStudentName,
+                setEditStudentRollNo,
+                editStudentRollNo,
 
                 // Results Page
                 resultData,

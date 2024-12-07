@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useState } from "react";
-import { FiUser, FiEdit, FiTrash, FiPlusCircle, FiUsers, FiBook, FiHash, FiPrinter, FiDownload } from "react-icons/fi";
+import { FiUser, FiEdit, FiTrash, FiPlusCircle, FiUsers, FiBook, FiHash, FiPrinter, FiDownload, FiHelpCircle } from "react-icons/fi";
 import { MainContext } from "@/context/context";
 import { appName } from "@/utils/utils";
 import { FaFileImport } from "react-icons/fa";
@@ -60,16 +60,35 @@ export default function Classes() {
       </div>
       <div className="print flex mt-5">
         <label htmlFor="newstudent_modal" className="btn btn-primary mr-2" onClick={() => setNewStudentRollNo(students.length + 1)}>+ New Student</label>
-        <label htmlFor="uploadCSVFile" className="btn mr-2"><TbFileImport /> Import Students<input
+        <label htmlFor="uploadCSVFile" className="btn rounded-r-none"><TbFileImport /> Import Students<input
           id="uploadCSVFile"
           type="file"
           accept=".csv"
           onChange={handleStudentFileChange}
           className="hidden"
         /></label>
+        <div className="tooltip" data-tip="Help"><label htmlFor="help_modal" className="btn btn-square mr-2 rounded-l-none"><FiHelpCircle /></label></div>
         {students.length > 0 ?
           <div className="flex items-center w-full justify-between">
-            <button className='btn mr-2' onClick={() => window.print()}><FiDownload />Download</button>
+            <button className='btn mr-2' onClick={() => {
+              const csvHeader = "RollNo,Name\n";
+              const csvRows = students.map((student: any) =>
+                `${student.rollNo},${student.name}`
+              ).join("\n");
+
+              const csv = csvHeader + csvRows;
+              const blob = new Blob([csv], { type: 'text/csv' });
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+
+              // Download the CSV
+              a.download = 'students.csv';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }}><FiDownload />Download</button>
+
             <input value={search} onChange={(e) => setSearch(e.target.value)} type="text" placeholder="Search" className="input input-bordered w-full max-w-xs" />
           </div>
           : ""}
@@ -148,6 +167,18 @@ export default function Classes() {
           </div>
         </div>
         <label className="modal-backdrop" htmlFor="editstudent_modal">Cancel</label>
+      </div>
+      {/* Import Help */}
+      <input type="checkbox" id="help_modal" className="modal-toggle" />
+      <div className="modal">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><TbFileImport className="mr-1" /> Import Students</h3>
+          <p className="py-4">Create a CSV file with the following columns: <br />RollNo, Name<br />  Then import the file to add students.</p>
+          <div className="modal-action">
+            <label htmlFor="help_modal" className="btn">OK</label>
+          </div>
+        </div>
+        <label className="modal-backdrop" htmlFor="help_modal">Cancel</label>
       </div>
     </div>
   );
