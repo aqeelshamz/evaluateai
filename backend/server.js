@@ -2,6 +2,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
+import fileUpload from "express-fileupload";
 import userRouter from "./routes/users.js";
 import evaluateRouter from "./routes/evaluate.js";
 import shopRouter from "./routes/shop.js";
@@ -15,6 +16,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(fileUpload());
 
 app.use("/users", userRouter);
 app.use("/evaluate", evaluateRouter);

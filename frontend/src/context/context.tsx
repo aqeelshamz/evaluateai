@@ -417,6 +417,34 @@ function Context({ children }: { children: React.ReactNode }) {
         }
     };
 
+    // upload .csv file to add students
+    const handleStudentFileChange = async (e: any) => {
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append("students", file);
+        formData.append("classId", classes[selectedClass]._id); 
+
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/class/import-students`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+                data: formData,
+            };
+
+            console.log(Array.from(formData.entries()));
+
+            await axios(config);
+            toast.success("Students added!");
+            await getStudents();
+        } catch (error: any) {
+            toast.error("Failed to add students.");
+        }
+    };
+
+
     // Function to edit an existing student
     const editStudent = async () => {
         if (editStudentName === "") {
@@ -600,8 +628,8 @@ function Context({ children }: { children: React.ReactNode }) {
                     setEvaluationProgress((prevProgress) => [...data]);
                 }
 
-                for(const progress of data) {
-                    if(!progress.finished) {
+                for (const progress of data) {
+                    if (!progress.finished) {
                         setOngoingEvaluation({
                             evaluatorId: evaluatorId,
                         });
@@ -846,6 +874,7 @@ function Context({ children }: { children: React.ReactNode }) {
                 deleteClass,
                 getStudents,
                 addStudent,
+                handleStudentFileChange,
                 editStudent,
                 deleteStudent,
                 getEvaluation,

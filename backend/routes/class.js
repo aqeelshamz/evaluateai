@@ -205,4 +205,52 @@ router.post("/add-student", validate, async (req, res) => {
     }
 });
 
+router.post("/import-students", validate, async (req, res) => {
+    try {
+        const data = req.body;
+        const _class = await Class.findById(data.classId);
+
+        if (_class.createdBy.toString() != req.user._id.toString()) {
+            return res.status(400).send("You are not authorized to update this class");
+        }
+
+        if (!req.files || !req.files.students) {
+            return res.status(400).send("No file uploaded");
+        }
+
+        const students = req.files.students.data.toString().split("\n");
+        console.log(students);
+
+        for (let i = 0; i < students.length; i++) {
+            const student = students[i].split(",");
+            if (student.length != 2) {
+                continue;
+            }
+
+            if (isNaN(parseInt(student[0]))) {
+                continue;
+            }
+
+            const rollNo = parseInt(student[0]);
+            const name = student[1];
+
+            const studentExists = await Class.findOne({ _id: data.classId, "students.rollNo": rollNo });
+
+            if (studentExists) {
+                _class.students = _class.students.filter(student => student.rollNo != rollNo);
+            }
+
+            _class.students.push({ name: name, rollNo: rollNo });
+        }
+
+        await _class.save();
+
+        return res.send(_class);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
+
 export default router;

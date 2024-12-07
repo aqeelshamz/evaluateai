@@ -41,6 +41,10 @@ export default function Results() {
         }
     }, [selectedTab, selectedRollNo]);
 
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     return (
         <main className="w-screen h-screen bg-base-100 flex flex-col p-2 overflow-auto box-border">
             <div className='print flex items-center justify-between text-lg mb-4'>

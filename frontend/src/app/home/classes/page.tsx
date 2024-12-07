@@ -1,8 +1,10 @@
 "use client";
-import { useContext } from "react";
-import { FiUser, FiEdit, FiTrash, FiPlusCircle, FiUsers, FiBook, FiHash, FiPrinter } from "react-icons/fi";
+import { useContext, useState } from "react";
+import { FiUser, FiEdit, FiTrash, FiPlusCircle, FiUsers, FiBook, FiHash, FiPrinter, FiDownload } from "react-icons/fi";
 import { MainContext } from "@/context/context";
 import { appName } from "@/utils/utils";
+import { FaFileImport } from "react-icons/fa";
+import { TbFileImport } from "react-icons/tb";
 
 export default function Classes() {
   const {
@@ -21,8 +23,11 @@ export default function Classes() {
     setEditStudentRollNo,
     editStudentName,
     setEditStudentName,
-    editStudent
+    editStudent,
+    handleStudentFileChange
   } = useContext(MainContext);
+
+  const [search, setSearch] = useState("");
 
   return (
     classes.length === 0 ? <div className="animate-fade-in-bottom flex flex-col w-full max-sm:max-w-none">
@@ -54,12 +59,22 @@ export default function Classes() {
         <p className="flex items-center font-semibold text-xl"><FiBook className="mr-2" /> {classes[selectedClass]?.subject} <FiUsers className="ml-5 mr-2" /> {classes[selectedClass]?.name} {classes[selectedClass]?.section}</p>
       </div>
       <div className="print flex mt-5">
-        <label htmlFor="newstudent_modal" className="btn btn-primary" onClick={() => setNewStudentRollNo(students.length + 1)}>+ New Student</label>
+        <label htmlFor="newstudent_modal" className="btn btn-primary mr-2" onClick={() => setNewStudentRollNo(students.length + 1)}>+ New Student</label>
+        <label htmlFor="uploadCSVFile" className="btn mr-2"><TbFileImport /> Import Students<input
+          id="uploadCSVFile"
+          type="file"
+          accept=".csv"
+          onChange={handleStudentFileChange}
+          className="hidden"
+        /></label>
+        {students.length > 0 ?
+          <div className="flex items-center w-full justify-between">
+            <button className='btn mr-2' onClick={() => window.print()}><FiDownload />Download</button>
+            <input value={search} onChange={(e) => setSearch(e.target.value)} type="text" placeholder="Search" className="input input-bordered w-full max-w-xs" />
+          </div>
+          : ""}
       </div>
-      <div className="overflow-y-auto h-[70vh] mt-5">
-        <div className='print flex w-full items-center max-w-7xl py-5'>
-          <button className='btn btn-primary' onClick={() => window.print()}><FiPrinter />Download / Print</button>
-        </div>
+      <div className="overflow-y-auto mt-5">
         <table className="table">
           {/* head */}
           <thead>
@@ -72,17 +87,19 @@ export default function Classes() {
           </thead>
           <tbody>
             {
-              students.map((student: any, i: any) => (
-                <tr key={i}>
-                  <th>{student?.rollNo}</th>
-                  <td>{student?.name}</td>
-                  <td className="print"><label htmlFor="editstudent_modal" className="btn btn-square" onClick={() => {
-                    setEditStudentRollNo(student.rollNo);
-                    setEditStudentName(student.name);
-                  }}><FiEdit /></label></td>
-                  <td className="print"><label htmlFor="deletestudent_modal" className="btn btn-square" onClick={() => setDeleteStudentRollNo(student.rollNo)}><FiTrash /></label></td>
-                </tr>
-              ))
+              students.map((student: any, i: any) =>
+                student.name.toLowerCase().includes(search.toLowerCase()) &&
+                (
+                  <tr key={i}>
+                    <th>{student?.rollNo}</th>
+                    <td>{student?.name}</td>
+                    <td className="print"><label htmlFor="editstudent_modal" className="btn btn-square" onClick={() => {
+                      setEditStudentRollNo(student.rollNo);
+                      setEditStudentName(student.name);
+                    }}><FiEdit /></label></td>
+                    <td className="print"><label htmlFor="deletestudent_modal" className="btn btn-square" onClick={() => setDeleteStudentRollNo(student.rollNo)}><FiTrash /></label></td>
+                  </tr>
+                ))
             }
           </tbody>
         </table>
