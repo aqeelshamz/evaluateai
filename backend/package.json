@@ -22,6 +22,7 @@
     "nodemailer-smtp-transport": "^2.7.4",
     "nodemon": "^3.0.3",
     "openai": "^4.26.0",
+    "pdf-img-convert": "^1.2.1",
     "razorpay": "^2.9.2",
     "stripe": "^14.16.0"
   }

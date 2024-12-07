@@ -62,7 +62,8 @@ export default function Home({
     setEditEvaluatorClassId,
     editEvaluator,
     ongoingEvaluation,
-    getEvaluationProgressSSE
+    getEvaluationProgressSSE,
+    convertPDFToImage
   } = useContext(MainContext);
 
   const pathname = usePathname();
@@ -97,7 +98,7 @@ export default function Home({
       localStorage.setItem("selectedEvaluator", selectedEvaluator.toString());
     }
 
-    if(selectedEvaluator !== -1 && evaluators[selectedEvaluator]?._id) {
+    if (selectedEvaluator !== -1 && evaluators[selectedEvaluator]?._id) {
       getEvaluationProgressSSE(evaluators[selectedEvaluator]._id);
     }
   }, [selectedEvaluator, evaluators]);
@@ -247,6 +248,19 @@ export default function Home({
             : <div className="flex">
               <UploadButton
                 endpoint="media"
+                onBeforeUploadBegin={async (files) => {
+                  var pdfFiles = files.filter((file) => file.type === "application/pdf");
+                  var otherFiles = files.filter((file) => file.type !== "application/pdf");
+
+                  if (pdfFiles.length === 0) return files;
+
+                  for (const file of pdfFiles) {
+                    const images = await convertPDFToImage(file);
+                    otherFiles.push(...images);
+                  }
+
+                  return otherFiles;
+                }}
                 onClientUploadComplete={(res) => {
                   var files = [];
                   for (const file of res) {
@@ -269,6 +283,19 @@ export default function Home({
             : <div className="flex">
               <UploadButton
                 endpoint="media"
+                onBeforeUploadBegin={async (files) => {
+                  var pdfFiles = files.filter((file) => file.type === "application/pdf");
+                  var otherFiles = files.filter((file) => file.type !== "application/pdf");
+
+                  if (pdfFiles.length === 0) return files;
+
+                  for (const file of pdfFiles) {
+                    const images = await convertPDFToImage(file);
+                    otherFiles.push(...images);
+                  }
+
+                  return otherFiles;
+                }}
                 onClientUploadComplete={(res) => {
                   var files = [];
                   for (const file of res) {

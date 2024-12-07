@@ -7,7 +7,7 @@ const f = createUploadthing();
 
 export const ourFileRouter = {
     // Define as many FileRoutes as you like, each with a unique routeSlug
-    media: f({ image: { maxFileSize: maxFileSize, maxFileCount: maxFileCount } }).onUploadComplete(async ({ metadata, file }) => {
+    media: f({ image: { maxFileSize: maxFileSize, maxFileCount: maxFileCount }, pdf: { maxFileSize: maxFileSize, maxFileCount: maxFileCount } }).onUploadComplete(async ({ metadata, file }) => {
         // console.log("file url", file.url);
     }),
 } satisfies FileRouter;

@@ -3,7 +3,7 @@ const hostname = "https://evaluateai.vercel.app";
 const currencySymbol = "₹";
 const appName = "EvaluateAI";
 //UploadThing
-const maxFileCount = 10;
-const maxFileSize = "8MB"; // 8MB
+const maxFileCount = 50;
+const maxFileSize = "128MB"; 
 
 export { serverURL, currencySymbol, appName, maxFileCount, maxFileSize, hostname };

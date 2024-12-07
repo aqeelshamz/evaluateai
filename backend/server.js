@@ -8,6 +8,7 @@ import evaluateRouter from "./routes/evaluate.js";
 import shopRouter from "./routes/shop.js";
 import classRouter from "./routes/class.js";
 import adminRouter from "./routes/admin.js";
+import pdfImgRouter from "./routes/pdfimg.js";
 import Faq from "./models/Faq.js";
 
 dotenv.config();
@@ -23,6 +24,7 @@ app.use("/evaluate", evaluateRouter);
 app.use("/shop", shopRouter);
 app.use("/class", classRouter);
 app.use("/admin", adminRouter);
+app.use("/pdfimg", pdfImgRouter);
 
 app.get("/", (req, res) => {
     res.send("EvaluateAI API");

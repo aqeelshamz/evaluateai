@@ -186,6 +186,49 @@ function Context({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const convertPDFToImage = async (file: any) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const config = {
+                method: "POST",
+                url: `${serverURL}/pdfimg/convert-pdf`,
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                },
+                data: formData,
+            };
+
+            console.log(Array.from(formData.entries()));
+
+            // Send the request to convert the PDF
+            const response = await axios(config);
+
+            console.log("Response from converted PDF to Image:");
+            console.log(response.data);
+
+            // Convert the response to File array
+            const files = response.data.map((fileData: any, index: number) => {
+                // Convert the object to a Uint8Array
+                const byteArray = new Uint8Array(Object.values(fileData));
+
+                // Create a Blob from the Uint8Array
+                const blob = new Blob([byteArray], { type: "image/png" }); // Assuming the images are PNGs
+
+                // Create a File object from the Blob
+                return new File([blob], `converted_image_${index + 1}.png`, { type: "image/png" });
+            });
+
+            return files; // Return the array of File objects
+        } catch (error) {
+            console.error("Error converting PDF to images:", error);
+            toast.error("Failed to convert PDF to images.");
+            return []; // Return an empty array in case of error
+        }
+    };
+
+
     // Function to create a new evaluator
     const createEvaluator = async () => {
         if (
@@ -422,7 +465,7 @@ function Context({ children }: { children: React.ReactNode }) {
         const file = e.target.files[0];
         const formData = new FormData();
         formData.append("students", file);
-        formData.append("classId", classes[selectedClass]._id); 
+        formData.append("classId", classes[selectedClass]._id);
 
         try {
             const config = {
@@ -809,6 +852,8 @@ function Context({ children }: { children: React.ReactNode }) {
                 setNewEvaluatorQuestionPapers,
                 newEvaluatorAnswerKeys,
                 setNewEvaluatorAnswerKeys,
+                newEvaluatorClassId,
+                setNewEvaluatorClassId,
                 editEvaluatorTitle,
                 setEditEvaluatorTitle,
                 editEvaluatorClassId,
@@ -821,7 +866,7 @@ function Context({ children }: { children: React.ReactNode }) {
                 setEvaluationProgress,
                 ongoingEvaluation,
                 setOngoingEvaluation,
-
+                convertPDFToImage,
                 // Classes Page
                 classes,
                 setClasses,

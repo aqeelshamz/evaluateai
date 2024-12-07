@@ -27,7 +27,8 @@ export default function Evaluators() {
     getEvaluationProgressSSE,
     evaluationProgress,
     ongoingEvaluation,
-    setOngoingEvaluation
+    setOngoingEvaluation,
+    convertPDFToImage
   } = useContext(MainContext);
 
   const [prompt, setPrompt] = useState("");
@@ -154,6 +155,19 @@ export default function Evaluators() {
                   })
                 }</div> : <UploadDropzone
                   endpoint="media"
+                  onBeforeUploadBegin={async (files) => {
+                    var pdfFiles = files.filter((file) => file.type === "application/pdf");
+                    var otherFiles = files.filter((file) => file.type !== "application/pdf");
+
+                    if (pdfFiles.length === 0) return files;
+
+                    for (const file of pdfFiles) {
+                      const images = await convertPDFToImage(file);
+                      otherFiles.push(...images);
+                    }
+
+                    return otherFiles;
+                  }}
                   onClientUploadComplete={(res) => {
                     var files = [];
                     for (const file of res) {
