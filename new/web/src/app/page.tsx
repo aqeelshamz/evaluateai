@@ -78,7 +78,7 @@ export default function Home() {
           </div>
         </div>
         <div className="flex flex-col w-full items-center justify-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl">AI</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl">X</h1>
         </div>
       </section>
       <section className="flex flex-col items-center h-screen bg-gray-50 p-10">
