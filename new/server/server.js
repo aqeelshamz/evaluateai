@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
 import userRouter from "./routes/users.js";
+import evaluatorRouter from "./routes/evaluators.js";
+import classRouter from "./routes/classes.js";
 import { appName } from "./utils/config.js";
 
 const app = express();
@@ -26,6 +28,8 @@ mongoose
     });
 
 app.use("/users", userRouter);
+app.use("/evaluators", evaluatorRouter);
+app.use("/classes", classRouter);
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

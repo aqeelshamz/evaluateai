@@ -9,10 +9,16 @@ import EmailVerification from "../models/EmailVerification.js";
 import nodemailer from "nodemailer";
 import smtpTransport from "nodemailer-smtp-transport";
 import Limits from "../models/Limits.js";
+import { validate } from "../middlewares/validate.js";
 
 dotenv.config();
 
 const router = express.Router();
+
+router.get("/", validate, async (req, res) => {
+    const user = await User.findById(req.user._id).select("-password");
+    res.send(user);
+});
 
 router.post("/login", async (req, res) => {
     const schema = joi.object({
@@ -165,6 +171,7 @@ router.post("/verify-email-signup", async (req, res) => {
                 userId: savedUser._id,
                 evaluatorLimit: defaultEvaluatorLimit,
                 evaluationLimit: defaultEvaluationLimit,
+                classesLimit: defaultClassesLimit,
             });
 
             await newLimits.save();

@@ -2,8 +2,17 @@
 import { appName } from "@/utils/config";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      setIsLoggedIn(true);
+    }
+  }, [])
+
   return (
     <div className="oveflow-x-hidden">
       {/* Navbar */}
@@ -15,10 +24,13 @@ export default function Home() {
           <img src="/logo.png" alt="logo" className="mr-2 h-8" />
           <h1 className="text-2xl font-semibold">{appName}</h1>
         </div>
-        <div className="md:block hidden">
-          <button className="btn btn-ghost mr-2">Login</button>
-          <button className="btn btn-primary">Signup</button>
-        </div>
+        {isLoggedIn ? <div className="md:block hidden">
+          <button onClick={() => window.location.href = "/dashboard"} className="btn btn-primary">Go to Dashboard</button>
+        </div> :
+          <div className="md:block hidden">
+            <button onClick={() => window.location.href = "/auth/login"} className="btn btn-ghost mr-2">Login</button>
+            <button onClick={() => window.location.href = "/auth/signup"} className="btn btn-primary">Signup</button>
+          </div>}
       </nav>
       <section className="flex flex-col md:flex-row h-screen pt-16">
         <div className="flex justify-center items-center flex-col w-full text-center md:text-left px-4">

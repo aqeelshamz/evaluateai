@@ -16,6 +16,11 @@ const LimitsSchema = new mongoose.Schema(
             required: true,
             default: 0,
         },
+        classesLimit: {
+            type: Number,
+            required: true,
+            default: 0,
+        }
     },
     {
         timestamps: true,

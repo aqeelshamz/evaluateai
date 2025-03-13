@@ -58,7 +58,7 @@ export default function Login() {
       transition={{ delay: 0.2, duration: 0.4 }}
       className={"w-screen h-screen flex flex-col items-center justify-center"}
     >
-      <div className="flex my-10">
+      <div onClick={() => window.location.href = "/"} className="cursor-pointer flex my-10">
         <img src="/logo.png" alt="logo" className="mr-2 h-10" />
         <h1 className="text-4xl font-semibold">{appName}</h1>
       </div>
