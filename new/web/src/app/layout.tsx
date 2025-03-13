@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Outfit } from "next/font/google";
-import { appName } from "@/utils/utils";
+import { appName } from "@/utils/config";
 
 const font = Outfit({
 	subsets: ["latin"],
