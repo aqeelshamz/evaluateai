@@ -178,7 +178,7 @@ export default function Home() {
           <div className="flex flex-col w-full items-start">
             <p className="text-4xl font-semibold mt-20">📱 Mobile App</p>
             <p className="max-w-4xl text-xl my-10 opacity-80">
-              Access {appName} on the go with our mobile app. Evaluate student performance, manage classes, and generate mark sheets with ease, all from your smartphone. Stay connected and keep your evaluation process streamlined with {appName}'s mobile app.
+              Access {appName} on the go with our mobile app. Evaluate student performance, manage classes, and generate mark sheets with ease, all from your smartphone. Stay connected and keep your evaluation process streamlined with {appName}&apos;s mobile app.
             </p>
           </div>
           <div className="w-full max-w-3xl h-full bg-primary opacity-20 rounded-4xl"></div>
