@@ -6,6 +6,11 @@ const EvaluatorSchema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             required: true,
         },
+        classId: {
+            type: mongoose.Schema.ObjectId,
+            required: true,
+            ref: "Class",
+        },
         title: {
             type: String,
             required: true,

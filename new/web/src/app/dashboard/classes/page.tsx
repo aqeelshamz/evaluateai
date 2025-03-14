@@ -80,7 +80,7 @@ export default function Page() {
       <div className="flex pb-5 w-[80vw] flex-wrap gap-4">
         <div
           className="cursor-pointer w-64 h-40 flex items-center justify-center rounded-lg border-dashed border-2 border-gray-300 font-semibold text-2xl hover:border-4 duration-100"
-          onClick={() => (document.getElementById('my_modal_5') as any).showModal()}
+          onClick={() => (document.getElementById('new_class_modal') as any).showModal()}
         >
           <FiPlus size={24} className="mr-2" /> New class
         </div>
@@ -90,6 +90,7 @@ export default function Page() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index / 10, duration: 0.4 }}
             onClick={() => {
+              window.location.href = `/class/${classData._id}`;
             }}
             key={index}
             className={"flex flex-col justify-between cursor-pointer min-w-64 h-40 rounded-xl border-2 p-3 border-gray-300 hover:border-4 duration-100"}
@@ -106,7 +107,7 @@ export default function Page() {
         ))}
       </div>
       {/* Create Class Modal */}
-      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+      <dialog id="new_class_modal" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
           <h3 className="flex items-center font-bold text-lg"><FiUsers className="mr-2" /> Create new class</h3>
           <fieldset className="fieldset">
