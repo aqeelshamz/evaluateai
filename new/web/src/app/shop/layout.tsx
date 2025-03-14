@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { FiExternalLink, FiHome, FiLogOut, FiShoppingBag, FiUser, FiUsers } from "react-icons/fi";
+import { FiArrowLeft, FiExternalLink, FiHome, FiLogOut, FiShoppingBag, FiShoppingCart, FiUser, FiUsers } from "react-icons/fi";
 import { RiRobot2Line } from "react-icons/ri";
 import { appName, serverURL } from "@/utils/config";
 import axios from "axios";
@@ -56,25 +56,21 @@ export default function Dashboard({
       <div className="flex flex-col">
         <div onClick={() => window.location.href = "/"} className="cursor-pointer flex mb-5">
           <img src="/logo.png" alt="logo" className="mr-2 h-8" />
-          <h1 className="text-2xl font-semibold">{appName}</h1>
+          <h1 className="text-2xl font-semibold">{appName} Shop</h1>
         </div>
         <Link href="/dashboard" className={navLinkClass("/dashboard")}>
-          <FiHome /> Dashboard
+          <FiShoppingBag /> Shop Items
         </Link>
         <Link
           href="/dashboard/evaluators"
           className={navLinkClass("/dashboard/evaluators")}
         >
-          <RiRobot2Line /> Evaluators
-        </Link>
-        <Link href="/dashboard/classes" className={navLinkClass("/dashboard/classes")}>
-          <FiUsers /> Classes
+          <FiShoppingCart /> My Purchases
         </Link>
       </div>
       <div className="mt-auto">
-        <Link href="/shop" className="btn flex justify-between mb-2">
-          <span className="flex items-center"><FiShoppingBag className="mr-2" /> Shop</span>
-          <FiExternalLink />
+        <Link href="/dashboard" className="btn flex justify-between mb-2">
+          <span className="flex items-center"><FiArrowLeft className="mr-2" /> Back to Dashboard</span>
         </Link>
         <div className="dropdown dropdown-top mt-auto">
           <div tabIndex={0} role="button" className="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded-lg">
