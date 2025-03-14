@@ -54,7 +54,7 @@ export default function Dashboard({
   return <div className="flex w-screen h-screen">
     <div className="px-5 py-4 flex flex-col h-full w-full max-w-xs bg-gray-50">
       <div className="flex flex-col">
-        <div onClick={() => window.location.href = "/"} className="cursor-pointer flex mb-5">
+        <div onClick={() => window.location.href = "/"} className="cursor-pointer flex items-center mb-5">
           <img src="/logo.png" alt="logo" className="mr-2 h-8" />
           <h1 className="text-2xl font-semibold">{appName}</h1>
         </div>

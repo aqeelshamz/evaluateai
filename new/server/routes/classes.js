@@ -13,6 +13,21 @@ router.get("/", validate, async (req, res) => {
     return res.send({ classes, limit: limits.classesLimit });
 });
 
+router.post("/by-id", validate, async (req, res) => {
+    const schema = joi.object({
+        classId: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+        const classData = await Class.findOne({ _id: data.classId, userId: req.user._id });
+        return res.send(classData);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
 router.post("/new", validate, async (req, res) => {
     const schema = joi.object({
         name: joi.string().required(),
@@ -40,6 +55,29 @@ router.post("/new", validate, async (req, res) => {
 
         await newClass.save();
         return res.send(newClass);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
+router.post("/save", validate, async (req, res) => {
+    const schema = joi.object({
+        classId: joi.string().required(),
+        name: joi.string().required(),
+        section: joi.string().required(),
+        subject: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+        const classData = await Class.findOneAndUpdate({ _id: data.classId, userId: req.user._id }, {
+            name: data.name,
+            section: data.section,
+            subject: data.subject,
+        }, { new: true });
+        
+        return res.send(classData);
     }
     catch (err) {
         return res.status(500).send(err);

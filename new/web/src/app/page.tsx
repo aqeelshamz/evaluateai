@@ -196,6 +196,13 @@ export default function Home() {
           <div className="w-full max-w-3xl h-full bg-primary opacity-20 rounded-4xl"></div>
         </div>
       </section>
+      <section className="flex flex-col items-center h-screen bg-primary p-10 justify-center">
+        <p className="text-7xl font-bold text-white">🚀 Make your own {appName}!</p>
+        <p className="mt-4 text-2xl text-white">Want to host your own version of {appName} as a SaaS? Purchase the <span className="font-semibold">extended license</span>* and get started!</p>
+        <p className="text-2xl text-white">💸 Make money through shop sales, premium plans, and more!</p>
+        <Link href="https://codecanyon.net/item/evaluateai-ai-powered-answer-sheet-evaluator-and-marksheet-generator-saas-platform/50774309" target="_blank"><button className="btn btn-xl hover:btn-success mt-10">Purchase Now from <img src="/envato.png" alt="logo" className="h-4" /></button></Link>
+        <p className="text-sm text-white mt-10 opacity-75">* Regular license is enough for personal use. For hosting it as a SaaS, you must have the Extended license.</p>
+      </section>
     </div>
   );
 }
