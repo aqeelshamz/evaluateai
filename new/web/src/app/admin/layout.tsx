@@ -1,10 +1,8 @@
 "use client";
-
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { FiArrowLeft, FiCpu, FiCreditCard, FiDollarSign, FiExternalLink, FiHome, FiLogOut, FiShoppingBag, FiShoppingCart, FiUser, FiUsers } from "react-icons/fi";
-import { RiRobot2Line } from "react-icons/ri";
-import { appName, serverURL } from "@/utils/config";
+import { FiArrowLeft, FiCpu, FiCreditCard, FiDollarSign, FiHome, FiLogOut, FiShoppingBag, FiUser, FiUsers } from "react-icons/fi";
+import { serverURL } from "@/utils/config";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
@@ -61,6 +59,9 @@ export default function Dashboard({
         <Link href="/admin" className={navLinkClass("/admin")}>
           <FiHome /> Dashboard
         </Link>
+        <Link href="/admin/shop" className={navLinkClass("/admin/shop")}>
+          <FiShoppingBag /> Shop Items
+        </Link>
         <Link
           href="/admin/ai-model"
           className={navLinkClass("/admin/ai-model")}
@@ -69,9 +70,6 @@ export default function Dashboard({
         </Link>
         <Link href="/admin/payment" className={navLinkClass("/admin/payment")}>
           <FiCreditCard /> Payment Gateways
-        </Link>
-        <Link href="/admin/shop" className={navLinkClass("/admin/shop")}>
-          <FiShoppingBag /> Shop Items
         </Link>
         <Link href="/admin/purchases" className={navLinkClass("/admin/purchases")}>
           <FiDollarSign /> Purchases

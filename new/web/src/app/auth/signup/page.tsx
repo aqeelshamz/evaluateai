@@ -160,8 +160,8 @@ export default function Signup() {
           else {
             verifyEmailAndSignup();
           }
-        }}>{loading ? <span className="loading loading-spinner loading-md"></span> : isVerificationCodeSent ? "Create Account" : "Verify Email"}</button>
-        <p className="text-sm mt-4">Dont have an account? <Link className="text-primary font-semibold" href="/auth/login">Login</Link></p>
+        }}>{loading ? <span className="loading loading-spinner loading-md"></span> : isVerificationCodeSent ? "Verify Email" : "Signup"}</button>
+        <p className="text-sm mt-4">Already have an account? <Link className="text-primary font-semibold" href="/auth/login">Login</Link></p>
       </div>
       <Toaster />
     </motion.div>

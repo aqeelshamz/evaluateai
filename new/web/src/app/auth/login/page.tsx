@@ -73,7 +73,7 @@ export default function Login() {
           <input type="password" className="w-full" placeholder="Password" value={password} onChange={(x) => setPassword(x.target.value)} />
         </label>
         <button className="mt-4 btn btn-primary w-full" onClick={() => login()}>{loading ? <span className="loading loading-spinner loading-md"></span> : "Login"}</button>
-        <p className="text-sm mt-4">Dont have an account? <Link className="text-primary font-semibold" href="/auth/signup">Signup</Link></p>
+        <p className="text-sm mt-4">Don't have an account? <Link className="text-primary font-semibold" href="/auth/signup">Signup</Link></p>
       </div>
       <Toaster />
     </motion.div>

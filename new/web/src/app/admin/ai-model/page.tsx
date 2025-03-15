@@ -3,7 +3,7 @@ import { serverURL } from "@/utils/config";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { FiCpu, FiPlus } from "react-icons/fi";
+import { FiCpu } from "react-icons/fi";
 
 export default function Page() {
   const [aiModels, setAIModels] = useState([]);

@@ -1,12 +1,10 @@
 "use client";
-
-import { appName, checkAuth, serverURL } from "@/utils/config";
+import { checkAuth, serverURL } from "@/utils/config";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { FaFileImport } from "react-icons/fa";
-import { FiBookOpen, FiChevronLeft, FiEdit, FiEdit2, FiInfo, FiPlus, FiSave, FiTrash, FiTrash2, FiUsers } from "react-icons/fi";
+import { FiBookOpen, FiChevronLeft, FiEdit, FiInfo, FiPlus, FiSave, FiTrash2, FiUsers } from "react-icons/fi";
 import { TbFileImport } from "react-icons/tb";
 
 export default function Page() {

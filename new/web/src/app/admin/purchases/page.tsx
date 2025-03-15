@@ -1,5 +1,5 @@
 "use client";
-import { FiCpu, FiCreditCard, FiDollarSign, FiPlus, FiShoppingBag } from "react-icons/fi";
+import { FiDollarSign, FiPlus } from "react-icons/fi";
 
 export default function Page() {
   return (
