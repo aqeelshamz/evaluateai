@@ -61,7 +61,8 @@ export default function Page() {
 
     axios(config)
       .then((response) => {
-        setShopItems(response.data);
+        toast.success("Shop Item created");
+        getShopItems();
       })
       .catch((error) => {
         toast.error("Failed to get Shop Items");
