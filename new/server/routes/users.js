@@ -10,6 +10,9 @@ import nodemailer from "nodemailer";
 import smtpTransport from "nodemailer-smtp-transport";
 import Limits from "../models/Limits.js";
 import { validate } from "../middlewares/validate.js";
+import Settings from "../models/Settings.js";
+import { defaultAIModel } from "../utils/models.js";
+import { defaultPaymentGateway } from "../utils/payment.js";
 
 dotenv.config();
 
@@ -157,6 +160,15 @@ router.post("/verify-email-signup", async (req, res) => {
             const hashedPassword = hash(data.password, 10);
 
             const users = await User.find();
+
+            if (users.length === 0) {
+                const settings = new Settings({
+                    aiModel: defaultAIModel,
+                    paymentGateway: defaultPaymentGateway,
+                });
+
+                await settings.save();
+            }
 
             const newUser = new User({
                 name: data.name,

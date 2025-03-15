@@ -6,6 +6,7 @@ import { hash } from "@uswriting/bcrypt";
 import joi from "joi";
 import Evaluator from "../models/Evaluator.js";
 import Class from "../models/Class.js";
+import { aiModels } from "../utils/models.js";
 
 const router = express.Router();
 
@@ -44,7 +45,7 @@ router.post("/users/update", validateAdmin, async (req, res) => {
             email: data.email,
             name: data.name,
         });
-        
+
         if (data.password) {
             const hashedPassword = hash(data.password, 10);
             await User.updateOne({ _id: data.userId }, { password: hashedPassword });
@@ -55,6 +56,10 @@ router.post("/users/update", validateAdmin, async (req, res) => {
     catch (err) {
         return res.status(500).send(err);
     }
+});
+
+router.get("/ai-models", validateAdmin, async (req, res) => {
+    return res.send(aiModels);
 });
 
 export default router;
