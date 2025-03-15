@@ -33,7 +33,7 @@ router.post("/login", async (req, res) => {
 
         if (!user) return res.status(400).send("Email or password is wrong");
 
-        const validPassword = await compare(data.password, user.password);
+        const validPassword = compare(data.password, user.password);
 
         if (!validPassword)
             return res.status(400).send("Email or password is wrong");

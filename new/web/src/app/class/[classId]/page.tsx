@@ -128,7 +128,7 @@ export default function Page() {
         </div>
         {/* Table with columnns SlNo, Name, Roll No, Email, Edit, Delete */}
         <div className="overflow-y-auto h-[90%] rounded-box border border-base-content/5 bg-base-100 mt-5">
-          <table className="table table-pin-rows">
+          <table className="table table-pin-rows table-pin-cols">
             {/* head */}
             <thead>
               <tr>

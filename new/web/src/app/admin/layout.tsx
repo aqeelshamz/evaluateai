@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { FiExternalLink, FiHome, FiLogOut, FiShoppingBag, FiUser, FiUsers } from "react-icons/fi";
+import { FiArrowLeft, FiCpu, FiCreditCard, FiDollarSign, FiExternalLink, FiHome, FiLogOut, FiShoppingBag, FiShoppingCart, FiUser, FiUsers } from "react-icons/fi";
 import { RiRobot2Line } from "react-icons/ri";
 import { appName, serverURL } from "@/utils/config";
 import axios from "axios";
@@ -56,33 +56,34 @@ export default function Dashboard({
       <div className="flex flex-col">
         <div onClick={() => window.location.href = "/"} className="cursor-pointer flex items-center mb-5">
           <img src="/logo.png" alt="logo" className="mr-2 h-8" />
-          <h1 className="text-2xl font-semibold">{appName}</h1>
+          <h1 className="text-2xl font-semibold">Admin Panel</h1>
         </div>
-        <Link href="/dashboard" className={navLinkClass("/dashboard")}>
+        <Link href="/admin" className={navLinkClass("/admin")}>
           <FiHome /> Dashboard
         </Link>
         <Link
-          href="/dashboard/evaluators"
-          className={navLinkClass("/dashboard/evaluators")}
+          href="/admin/ai-model"
+          className={navLinkClass("/admin/ai-model")}
         >
-          <RiRobot2Line /> Evaluators
+          <FiCpu /> AI Model
         </Link>
-        <Link href="/dashboard/classes" className={navLinkClass("/dashboard/classes")}>
-          <FiUsers /> Classes
+        <Link href="/admin/payment" className={navLinkClass("/admin/payment")}>
+          <FiCreditCard /> Payment Gateways
+        </Link>
+        <Link href="/admin/shop" className={navLinkClass("/admin/shop")}>
+          <FiShoppingBag /> Shop Items
+        </Link>
+        <Link href="/admin/purchases" className={navLinkClass("/admin/purchases")}>
+          <FiDollarSign /> Purchases
+        </Link>
+        <Link href="/admin/users" className={navLinkClass("/admin/users")}>
+          <FiUsers /> Users
         </Link>
       </div>
       <div className="mt-auto">
-        <Link href="/shop" className="btn flex justify-between mb-2">
-          <span className="flex items-center"><FiShoppingBag className="mr-2" /> Shop</span>
-          <FiExternalLink />
+        <Link href="/dashboard" className="btn flex justify-between mb-2">
+          <span className="flex items-center"><FiArrowLeft className="mr-2" /> Back to Dashboard</span>
         </Link>
-        {
-          user?.type === 0 ?
-            <Link href="/admin" className="btn flex justify-between mb-2">
-              <span className="flex items-center"><FiUser className="mr-2" /> Admin Panel</span>
-              <FiExternalLink />
-            </Link> : ""
-        }
         <div className="dropdown dropdown-top mt-auto">
           <div tabIndex={0} role="button" className="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded-lg">
             <div className="w-10 h-10 mask mask-squircle w-10 bg-primary flex items-center justify-center">
