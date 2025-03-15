@@ -7,6 +7,8 @@ import joi from "joi";
 import Evaluator from "../models/Evaluator.js";
 import Class from "../models/Class.js";
 import { aiModels } from "../utils/models.js";
+import { paymentGateways } from "../utils/payment.js";
+import ShopItem from "../models/ShopItem.js";
 
 const router = express.Router();
 
@@ -60,6 +62,78 @@ router.post("/users/update", validateAdmin, async (req, res) => {
 
 router.get("/ai-models", validateAdmin, async (req, res) => {
     return res.send(aiModels);
+});
+
+router.get("/payment-gateways", validateAdmin, async (req, res) => {
+    return res.send(paymentGateways);
+});
+
+router.get("/shop-items", validateAdmin, async (req, res) => {
+    return res.send(await ShopItem.find());
+});
+
+router.post("/shop-items/new", validateAdmin, async (req, res) => {
+    const schema = joi.object({
+        title: joi.string().required(),
+        description: joi.string().required(),
+        evaluatorLimit: joi.number().required(),
+        evaluationLimit: joi.number().required(),
+        classesLimit: joi.number().required(),
+        price: joi.number().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+        const newItem = new ShopItem(data);
+        await newItem.save();
+        return res.send(newItem);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
+router.post("/shop-items/edit", validateAdmin, async (req, res) => {
+    const schema = joi.object({
+        itemId: joi.string().required(),
+        title: joi.string().required(),
+        description: joi.string().required(),
+        evaluatorLimit: joi.number().required(),
+        evaluationLimit: joi.number().required(),
+        classesLimit: joi.number().required(),
+        price: joi.number().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+        const updatedItem = await ShopItem.findByIdAndUpdate(data.itemId, {
+            title: data.title,
+            description: data.description,
+            evaluatorLimit: data.evaluatorLimit,
+            evaluationLimit: data.evaluationLimit,
+            classesLimit: data.classesLimit,
+            price: data.price
+        }, { new: true });
+
+        return res.send(updatedItem);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
+router.post("/shop-items/delete", validateAdmin, async (req, res) => {
+    const schema = joi.object({
+        itemId: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+        return res.send(await ShopItem.findByIdAndDelete(data.itemId));
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
 });
 
 export default router;

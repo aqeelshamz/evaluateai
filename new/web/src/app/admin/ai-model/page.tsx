@@ -34,7 +34,7 @@ export default function Page() {
   return (
     <div className="flex flex-col">
       <p className="flex items-center text-2xl font-semibold"><FiCpu className="mr-2" /> AI Model</p>
-      <div className="flex pb-5 flex-wrap gap-4 mt-4">
+      <div className="flex pb-5 min-w-[80vw] flex-wrap gap-4 mt-4">
         {
           aiModels?.map((aiModel: any, index: number) => (
             <div

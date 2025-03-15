@@ -1,9 +1,7 @@
 "use client";
-
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { FiArrowLeft, FiExternalLink, FiHome, FiLogOut, FiShoppingBag, FiShoppingCart, FiUser, FiUsers } from "react-icons/fi";
-import { RiRobot2Line } from "react-icons/ri";
+import { FiArrowLeft, FiLogOut, FiShoppingBag, FiShoppingCart, FiUser } from "react-icons/fi";
 import { appName, serverURL } from "@/utils/config";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -52,7 +50,7 @@ export default function Dashboard({
   }, [])
 
   return <div className="flex w-screen h-screen">
-    <div className="px-5 py-4 flex flex-col h-full w-full max-w-xs bg-gray-50">
+    <div className="px-5 py-4 flex flex-col h-full w-xs max-w-xs bg-gray-50">
       <div className="flex flex-col">
         <div onClick={() => window.location.href = "/"} className="cursor-pointer flex mb-5">
           <img src="/logo.png" alt="logo" className="mr-2 h-8" />

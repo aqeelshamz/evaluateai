@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { aiModels, defaultAIModel } from "../utils/models";
-import { defaultPaymentGateway, paymentGateways } from "../utils/payment";
+import { aiModels, defaultAIModel } from "../utils/models.js";
+import { defaultPaymentGateway, paymentGateways } from "../utils/payment.js";
 
 const SettingsSchema = new mongoose.Schema(
     {
