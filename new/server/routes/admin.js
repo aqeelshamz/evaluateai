@@ -9,6 +9,7 @@ import Class from "../models/Class.js";
 import { aiModels } from "../utils/models.js";
 import { paymentGateways } from "../utils/payment.js";
 import ShopItem from "../models/ShopItem.js";
+import Settings from "../models/Settings.js";
 
 const router = express.Router();
 
@@ -61,11 +62,63 @@ router.post("/users/update", validateAdmin, async (req, res) => {
 });
 
 router.get("/ai-models", validateAdmin, async (req, res) => {
+    const settings = await Settings.findOne();
+
+    aiModels.forEach((model) => {
+        if (model.model === settings.aiModel) {
+            model.selected = true;
+        }
+        else {
+            model.selected = false;
+        }
+    });
+
     return res.send(aiModels);
 });
 
+router.post("/ai-models/select", validateAdmin, async (req, res) => {
+    const schema = joi.object({
+        model: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+        await Settings.updateOne({}, { aiModel: data.model });
+        return res.send(data);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
 router.get("/payment-gateways", validateAdmin, async (req, res) => {
+    const settings = await Settings.findOne();
+
+    paymentGateways.forEach((gateway) => {
+        if (gateway.code === settings.paymentGateway) {
+            gateway.selected = true;
+        }
+        else {
+            gateway.selected = false;
+        }
+    });
+
     return res.send(paymentGateways);
+});
+
+router.post("/payment-gateways/select", validateAdmin, async (req, res) => {
+    const schema = joi.object({
+        gateway: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+        await Settings.updateOne({}, { paymentGateway: data.gateway });
+        return res.send(data);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
 });
 
 router.get("/shop-items", validateAdmin, async (req, res) => {

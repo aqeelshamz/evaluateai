@@ -3,7 +3,7 @@ import { hash, compare } from "@uswriting/bcrypt";
 import express from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { appName, defaultEvaluationLimit, defaultEvaluatorLimit, logoBase64 } from "../utils/config.js";
+import { appName, defaultClassesLimit, defaultEvaluationLimit, defaultEvaluatorLimit, logoBase64 } from "../utils/config.js";
 import dotenv from "dotenv";
 import EmailVerification from "../models/EmailVerification.js";
 import nodemailer from "nodemailer";
@@ -79,7 +79,7 @@ async function sendEmail(email, res) {
                 cid: "logo",
             },
         ],
-        html: `<div style="height:100%;background:black;color:white;padding:40px;"><center>${logoHTML}<br/><h2>Verify your email</h2></center><br/><p style="font-size:18px;">${process.env.APP_NAME} verification code: <b>${code.toString()}</b></p><br/><br/></div>`,
+        html: `<div style="height:100%;background:black;color:white;padding:40px;"><center>${logoHTML}<br/><h2>Verify your email</h2></center><br/><p style="font-size:18px;">${appName} verification code: <b>${code.toString()}</b></p><br/><br/></div>`,
     };
 
     transporter.sendMail(options, async (err, info) => {
@@ -193,6 +193,7 @@ router.post("/verify-email-signup", async (req, res) => {
             return res.status(400).send("Invalid code");
         }
     } catch (err) {
+        console.log(err)
         return res.status(500).send(err);
     }
 });

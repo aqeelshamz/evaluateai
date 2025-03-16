@@ -7,6 +7,7 @@ import { currency } from "../utils/config.js";
 import Order from "../models/Order.js";
 import joi from "joi";
 import Stripe from "stripe";
+import Settings from "../models/Settings.js";
 
 dotenv.config();
 
@@ -20,9 +21,11 @@ const razorpay = new Razorpay({
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 router.get("/", validate, async (req, res) => {
+    const settings = await Settings.findOne();
+    const paymentMethod = settings.paymentGateway;
     const shopItems = await ShopItem.find();
 
-    return res.send(shopItems);
+    return res.send({ shopItems, paymentMethod });
 });
 
 router.post('/create-order', validate, async (req, res) => {
@@ -31,7 +34,8 @@ router.post('/create-order', validate, async (req, res) => {
     });
 
     try {
-        const paymentMethod = "stripe";
+        const settings = await Settings.findOne();
+        const paymentMethod = settings.paymentGateway;
         const data = await schema.validateAsync(req.body);
         const item = await ShopItem.findById(data.itemId);
 

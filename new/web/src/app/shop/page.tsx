@@ -19,6 +19,7 @@ import { loadStripe } from '@stripe/stripe-js'
 
 export default function Page() {
   const [shopItems, setShopItems] = useState([]);
+  const [paymentMethod, setPaymentMethod] = useState("");
 
   const getShopItems = async () => {
     const config = {
@@ -32,7 +33,8 @@ export default function Page() {
 
     axios(config)
       .then((response) => {
-        setShopItems(response.data);
+        setShopItems(response.data.shopItems);
+        setPaymentMethod(response.data.paymentMethod);
       })
       .catch((error) => {
         toast.error("Failed to get shop items");
@@ -60,9 +62,13 @@ export default function Page() {
     axios(config)
       .then((response) => {
         console.log(response.data);
-        setStripeClientSecret(response.data.clientSecret);
-        (document.getElementById('stripe_payment_modal') as any).showModal()
-        // handlePayment({ ...response.data, theme: { color: primaryColor } });
+        if (paymentMethod === "stripe") {
+          setStripeClientSecret(response.data.clientSecret);
+          (document.getElementById('stripe_payment_modal') as any).showModal()
+        }
+        else if (paymentMethod === "razorpay") {
+          handlePayment({ ...response.data, theme: { color: primaryColor } });
+        }
       })
       .catch((err) => {
         toast.error("Failed to purchase shop item");
