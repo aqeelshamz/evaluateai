@@ -10,6 +10,7 @@ import { aiModels } from "../utils/models.js";
 import { paymentGateways } from "../utils/payment.js";
 import ShopItem from "../models/ShopItem.js";
 import Settings from "../models/Settings.js";
+import Order from "../models/Order.js";
 
 const router = express.Router();
 
@@ -119,6 +120,16 @@ router.post("/payment-gateways/select", validateAdmin, async (req, res) => {
     catch (err) {
         return res.status(500).send(err);
     }
+});
+
+router.get("/purchases", validateAdmin, async (req, res) => {
+    const orders = await Order.find({ isCompleted: true }).lean();
+
+    for (const order of orders) {
+        order.user = await User.findById(order.userId).select("-password");
+    }
+
+    return res.send(orders);
 });
 
 router.get("/shop-items", validateAdmin, async (req, res) => {

@@ -28,6 +28,11 @@ router.get("/", validate, async (req, res) => {
     return res.send({ shopItems, paymentMethod });
 });
 
+router.get("/purchases", validate, async (req, res) => {
+    const orders = await Order.find({ userId: req.user._id, isCompleted: true });
+    return res.send(orders);
+});
+
 router.post('/create-order', validate, async (req, res) => {
     const schema = joi.object({
         itemId: joi.string().required(),
