@@ -388,6 +388,13 @@ export default function Page() {
               setEvaluator({ ...evaluator });
             }}></textarea>
           </fieldset>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Total Marks</legend>
+            <input type="number" className="input w-full" placeholder="Total Marks" value={evaluator?.totalMarks} onChange={(x) => {
+              evaluator.totalMarks = parseInt(x.target.value);
+              setEvaluator({ ...evaluator });
+            }} />
+          </fieldset>
           <div className="mt-4 justify-between flex w-full">
             <form method="dialog">
               <button className="btn btn-primary" onClick={() => {
