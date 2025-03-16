@@ -82,7 +82,7 @@ export default function Page() {
         setClasses(response.data.classes);
       })
       .catch((error) => {
-        toast.error("Failed to get evaluators");
+        toast.error("Failed to get classes");
       });
   }
 
