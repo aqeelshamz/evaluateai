@@ -5,10 +5,11 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { FiBookOpen, FiChevronLeft, FiClipboard, FiFileText, FiInfo, FiKey, FiPlay, FiSave, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
+import { FiBookOpen, FiChevronLeft, FiClipboard, FiExternalLink, FiFileText, FiImage, FiInfo, FiKey, FiPlay, FiSave, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
 import { RiRobot2Line } from "react-icons/ri";
 import "@uploadthing/react/styles.css";
 import { UploadButton } from "@/utils/uploadthing";
+import { BiFullscreen } from "react-icons/bi";
 
 export default function Page() {
   const { evaluatorId } = useParams();
@@ -23,6 +24,7 @@ export default function Page() {
   });
   const [selectedTab, setSelectedTab] = useState("details");
   const [classes, setClasses] = useState<any>([]);
+  const [previewURL, setPreviewURL] = useState("");
 
   const getEvaluator = async () => {
     const config = {
@@ -122,6 +124,33 @@ export default function Page() {
       });
   }
 
+  const [evaluating, setEvaluating] = useState(false);
+  const evaluate = async () => {
+    setEvaluating(true);
+    const config = {
+      method: "POST",
+      url: `${serverURL}/evaluators/evaluate-all`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+      data: {
+        evaluatorId,
+        rollNo: 4,
+      }
+    };
+
+    axios(config)
+      .then((response) => {
+        setEvaluating(false);
+        toast.success("Evaluation completed");
+      })
+      .catch((error) => {
+        setEvaluating(false);
+        toast.error("Failed to evaluate");
+      });
+  }
+
   useEffect(() => {
     getEvaluator();
     getClasses();
@@ -188,20 +217,29 @@ export default function Page() {
         </div>
       </div> : selectedTab === "uploads" ?
         <div className="flex flex-col items-start w-full max-w-5xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
-          <p className="flex items-center my-2"><FiFileText className="mr-2" /> Question Papers</p>
-          <p className="flex items-center mb-2 text-sm opacity-50 mb-4">Upload question papers for the evaluator. You can upload multiple files.</p>
+          <p className="flex items-center my-2"><FiFileText className="mr-2" /> Question Paper</p>
+          <p className="flex items-center mb-2 text-sm opacity-50 mb-4">Upload question paper for the evaluator. You can upload multiple files.</p>
           <div className="flex flex-wrap gap-2">
             {
               evaluator?.questionPapers?.map((questionPaper: any, index: number) => (
                 <div className="cursor-pointer relative flex flex-col items-center group" key={index}>
-                  <button className="btn btn-error btn-square btn-xs absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                    onClick={() => {
-                      evaluator.questionPapers.splice(index, 1);
-                      setEvaluator({ ...evaluator });
-                      saveEvaluator({ showToast: false });
-                    }}>
-                    <FiTrash2 />
-                  </button>
+                  <div className="absolute top-1 right-1">
+                    <button className="btn btn-square btn-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      onClick={() => {
+                        setPreviewURL(questionPaper);
+                        (document.getElementById("image_preview_modal") as any).showModal();
+                      }}>
+                      <BiFullscreen />
+                    </button>
+                    <button className="btn btn-error btn-square btn-xs ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      onClick={() => {
+                        evaluator.questionPapers.splice(index, 1);
+                        setEvaluator({ ...evaluator });
+                        saveEvaluator({ showToast: false });
+                      }}>
+                      <FiTrash2 />
+                    </button>
+                  </div>
                   <img src={questionPaper} alt="Question Paper" className="w-28 h-32 border border-gray-300 object-cover rounded-lg mb-2" />
                 </div>
               ))
@@ -231,14 +269,23 @@ export default function Page() {
             {
               evaluator?.answerKeys?.map((answerKey: any, index: number) => (
                 <div className="cursor-pointer relative flex flex-col items-center group" key={index}>
-                  <button className="btn btn-error btn-square btn-xs absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                    onClick={() => {
-                      evaluator.answerKeys.splice(index, 1);
-                      setEvaluator({ ...evaluator });
-                      saveEvaluator({ showToast: false });
-                    }}>
-                    <FiTrash2 />
-                  </button>
+                  <div className="absolute top-1 right-1">
+                    <button className="btn btn-square btn-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      onClick={() => {
+                        setPreviewURL(answerKey);
+                        (document.getElementById("image_preview_modal") as any).showModal();
+                      }}>
+                      <BiFullscreen />
+                    </button>
+                    <button className="btn btn-error btn-square btn-xs ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      onClick={() => {
+                        evaluator.answerKeys.splice(index, 1);
+                        setEvaluator({ ...evaluator });
+                        saveEvaluator({ showToast: false });
+                      }}>
+                      <FiTrash2 />
+                    </button>
+                  </div>
                   <img src={answerKey} alt="Question Paper" className="w-28 h-32 border border-gray-300 object-cover rounded-lg mb-2" />
                 </div>
               ))
@@ -270,15 +317,24 @@ export default function Page() {
                   {
                     evaluator?.answerSheets?.find((s: any) => s.rollNo === student.rollNo)?.answerSheets?.map((answerSheet: any, index: number) => (
                       <div className="cursor-pointer relative flex flex-col items-center group" key={index}>
-                        <button className="btn btn-error btn-square btn-xs absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                          onClick={() => {
-                            const studentAnswerSheet = evaluator.answerSheets.find((s: any) => s.rollNo === student.rollNo);
-                            studentAnswerSheet.answerSheets.splice(index, 1);
-                            setEvaluator({ ...evaluator });
-                            saveEvaluator({ showToast: false });
-                          }}>
-                          <FiTrash2 />
-                        </button>
+                        <div className="absolute top-1 right-1">
+                          <button className="btn btn-square btn-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            onClick={() => {
+                              setPreviewURL(answerSheet);
+                              (document.getElementById("image_preview_modal") as any).showModal();
+                            }}>
+                            <BiFullscreen />
+                          </button>
+                          <button className="btn btn-error btn-square btn-xs ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            onClick={() => {
+                              const studentAnswerSheet = evaluator.answerSheets.find((s: any) => s.rollNo === student.rollNo);
+                              studentAnswerSheet.answerSheets.splice(index, 1);
+                              setEvaluator({ ...evaluator });
+                              saveEvaluator({ showToast: false });
+                            }}>
+                            <FiTrash2 />
+                          </button>
+                        </div>
                         <img src={answerSheet} alt="Answer Sheet" className="w-28 h-32 border border-gray-300 object-cover rounded-lg mb-2" />
                       </div>
                     ))
@@ -335,13 +391,23 @@ export default function Page() {
           <div className="mt-4 justify-between flex w-full">
             <form method="dialog">
               <button className="btn btn-primary" onClick={() => {
-                saveEvaluator({ showToast: true });
+                evaluate();
               }}><FiPlay /> Evaluate</button>
             </form>
           </div>
         </div>
       }
       <Toaster />
+      {/* Image Preview Modal */}
+      <dialog id="image_preview_modal" className="modal">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiImage className="mr-2" /> Image Preview <button onClick={() => window.open(previewURL)} className="ml-auto btn btn-square"><BiFullscreen /></button></h3>
+          {previewURL && <img src={previewURL} alt="Preview" className="w-100 object-cover" />}
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
       {/* Delete Evaluator Modal */}
       <dialog id="delete_evaluator_modal" className="modal">
         <div className="modal-box">
@@ -355,6 +421,6 @@ export default function Page() {
           </div>
         </div>
       </dialog>
-    </div>
+    </div >
   );
 }
