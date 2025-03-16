@@ -1,6 +1,6 @@
 "use client";
 
-import { primaryColor, serverURL } from "@/utils/config";
+import { appURL, primaryColor, serverURL } from "@/utils/config";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -101,16 +101,10 @@ export default function Page() {
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          // Make sure to change this to your payment completion page
-          return_url: "http://localhost:3000/success",
+          return_url: `${appURL}/shop/success`,
         },
       });
 
-      // This point will only be reached if there is an immediate error when
-      // confirming the payment. Otherwise, your customer will be redirected to
-      // your `return_url`. For some payment methods like iDEAL, your customer will
-      // be redirected to an intermediate site first to authorize the payment, then
-      // redirected to the `return_url`.
       if (error.type === "card_error" || error.type === "validation_error") {
         setMessage(error.message as any);
       } else {
@@ -157,12 +151,15 @@ export default function Page() {
             "Content-Type": "application/json",
           },
           data: {
-            razorpay_order_id: response.razorpay_order_id
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
           },
         };
 
         axios(config).then((response) => {
           toast.success("Payment successfull!");
+          window.location.href = "/shop/purchases";
         }).catch((err) => {
           toast.error("Something went wrong!");
         })

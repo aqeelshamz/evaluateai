@@ -129,7 +129,7 @@ router.get("/purchases", validateAdmin, async (req, res) => {
         order.user = await User.findById(order.userId).select("-password");
     }
 
-    return res.send(orders);
+    return res.send(orders.reverse());
 });
 
 router.get("/shop-items", validateAdmin, async (req, res) => {

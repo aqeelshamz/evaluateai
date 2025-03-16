@@ -49,7 +49,7 @@ export default function Dashboard({
     getUser();
   }, [])
 
-  return <div className="flex w-screen h-screen">
+  return <div className="flex w-screen h-screen overflow-hidden">
     <div className="px-5 py-4 flex flex-col h-full w-xs max-w-xs bg-gray-50">
       <div className="flex flex-col">
         <div onClick={() => window.location.href = "/"} className="cursor-pointer flex items-center mb-5">
@@ -101,7 +101,7 @@ export default function Dashboard({
         </div>
       </div>
     </div>
-    <div className="w-full h-full p-5">{children}</div>
+    <div className="w-full h-full p-5 overflow-y-auto">{children}</div>
     <Toaster />
   </div>
     ;
