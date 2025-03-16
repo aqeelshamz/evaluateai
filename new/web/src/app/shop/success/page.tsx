@@ -3,10 +3,10 @@
 import { serverURL } from "@/utils/config";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import toast from "react-hot-toast";
 
-export default function Page() {
+function PageContent() {
   const searchParams = useSearchParams();
 
   const verifyPayment = async () => {
@@ -40,5 +40,13 @@ export default function Page() {
     <div className="flex flex-col">
       Verifying payment...
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PageContent />
+    </Suspense>
   );
 }

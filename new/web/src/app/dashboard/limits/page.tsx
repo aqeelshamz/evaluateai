@@ -54,6 +54,7 @@ export default function Page() {
         </div>
         <progress className="progress progress-primary w-full max-w-xs" value={limits?.classesUsage} max={limits?.classesLimit}></progress>
       </div>
+      <div><button onClick={() => window.location.href = "/shop"} className="btn btn-primary mt-10"><FiPlus className="mr-2" /> Expand limit</button></div>
     </div>
   );
 }
