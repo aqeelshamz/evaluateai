@@ -18,6 +18,7 @@ export default function Page() {
     classId: {},
     questionPapers: [],
     answerKeys: [],
+    answerSheets: [],
     extraPrompt: ""
   });
   const [selectedTab, setSelectedTab] = useState("details");
@@ -102,6 +103,7 @@ export default function Page() {
         classId: evaluator.classId?._id,
         questionPapers: evaluator.questionPapers,
         answerKeys: evaluator.answerKeys,
+        answerSheets: evaluator.answerSheets,
         extraPrompt: evaluator.extraPrompt
       }
     };
@@ -188,12 +190,34 @@ export default function Page() {
         <div className="flex flex-col items-start w-full max-w-5xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
           <p className="flex items-center my-2"><FiFileText className="mr-2" /> Question Papers</p>
           <p className="flex items-center mb-2 text-sm opacity-50 mb-4">Upload question papers for the evaluator. You can upload multiple files.</p>
+          <div className="flex flex-wrap gap-2">
+            {
+              evaluator?.questionPapers?.map((questionPaper: any, index: number) => (
+                <div className="cursor-pointer relative flex flex-col items-center group" key={index}>
+                  <button className="btn btn-error btn-square btn-xs absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    onClick={() => {
+                      evaluator.questionPapers.splice(index, 1);
+                      setEvaluator({ ...evaluator });
+                      saveEvaluator({ showToast: false });
+                    }}>
+                    <FiTrash2 />
+                  </button>
+                  <img src={questionPaper} alt="Question Paper" className="w-28 h-32 border border-gray-300 object-cover rounded-lg mb-2" />
+                </div>
+              ))
+            }
+          </div>
           <UploadButton
             endpoint="imageUploader"
-            onClientUploadComplete={(res: any) => {
+            onClientUploadComplete={(files: any) => {
               // Do something with the response
-              console.log("Files: ", res);
-              alert("Upload Completed");
+              console.log("Files: ", files);
+              for (const file of files) {
+                evaluator.questionPapers.push(file.url);
+              }
+
+              setEvaluator({ ...evaluator });
+              saveEvaluator({ showToast: false });
             }}
             onUploadError={(error: Error) => {
               // Do something with the error.
@@ -203,12 +227,34 @@ export default function Page() {
           <div className="divider"></div>
           <p className="flex items-center my-2"><FiKey className="mr-2" /> Answer Keys / Answering Criteria</p>
           <p className="flex items-center mb-2 text-sm opacity-50 mb-4">Upload answer keys / answering criteria for the evaluator. You can upload multiple files.</p>
+          <div className="flex flex-wrap gap-2">
+            {
+              evaluator?.answerKeys?.map((answerKey: any, index: number) => (
+                <div className="cursor-pointer relative flex flex-col items-center group" key={index}>
+                  <button className="btn btn-error btn-square btn-xs absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    onClick={() => {
+                      evaluator.answerKeys.splice(index, 1);
+                      setEvaluator({ ...evaluator });
+                      saveEvaluator({ showToast: false });
+                    }}>
+                    <FiTrash2 />
+                  </button>
+                  <img src={answerKey} alt="Question Paper" className="w-28 h-32 border border-gray-300 object-cover rounded-lg mb-2" />
+                </div>
+              ))
+            }
+          </div>
           <UploadButton
             endpoint="imageUploader"
-            onClientUploadComplete={(res: any) => {
+            onClientUploadComplete={(files: any) => {
               // Do something with the response
-              console.log("Files: ", res);
-              alert("Upload Completed");
+              console.log("Files: ", files);
+              for (const file of files) {
+                evaluator.answerKeys.push(file.url);
+              }
+
+              setEvaluator({ ...evaluator });
+              saveEvaluator({ showToast: false });
             }}
             onUploadError={(error: Error) => {
               // Do something with the error.
@@ -220,15 +266,57 @@ export default function Page() {
             evaluator?.classId?.students?.map((student: any, index: number) => (
               <div className="w-full flex flex-col items-start" key={index}>
                 <p className="flex items-center my-2">{index + 1}. {student?.name}</p>
+                <div className="flex flex-wrap gap-2">
+                  {
+                    evaluator?.answerSheets?.find((s: any) => s.rollNo === student.rollNo)?.answerSheets?.map((answerSheet: any, index: number) => (
+                      <div className="cursor-pointer relative flex flex-col items-center group" key={index}>
+                        <button className="btn btn-error btn-square btn-xs absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          onClick={() => {
+                            const studentAnswerSheet = evaluator.answerSheets.find((s: any) => s.rollNo === student.rollNo);
+                            studentAnswerSheet.answerSheets.splice(index, 1);
+                            setEvaluator({ ...evaluator });
+                            saveEvaluator({ showToast: false });
+                          }}>
+                          <FiTrash2 />
+                        </button>
+                        <img src={answerSheet} alt="Answer Sheet" className="w-28 h-32 border border-gray-300 object-cover rounded-lg mb-2" />
+                      </div>
+                    ))
+                  }
+                </div>
                 <UploadButton
                   endpoint="imageUploader"
-                  onClientUploadComplete={(res: any) => {
-                    // Do something with the response
-                    console.log("Files: ", res);
-                    alert("Upload Completed");
+                  onClientUploadComplete={(files: any) => {
+                    console.log("Files uploaded: ", files);
+
+                    const uploadedUrls = files.map((file: any) => file.url);
+
+                    setEvaluator((prevEvaluator: any) => {
+                      // Clone the previous evaluator state
+                      const updatedEvaluator = { ...prevEvaluator };
+
+                      // Find or create the entry for this student in answerSheets
+                      let studentAnswerSheet = updatedEvaluator.answerSheets.find(
+                        (s: any) => s.rollNo === student.rollNo
+                      );
+
+                      if (studentAnswerSheet) {
+                        // If student already exists, push new answer URLs
+                        studentAnswerSheet.answerSheets.push(...uploadedUrls);
+                      } else {
+                        // If student does not exist, create a new entry
+                        updatedEvaluator.answerSheets.push({
+                          rollNo: student.rollNo,
+                          answerSheets: uploadedUrls,
+                        });
+                      }
+
+                      return updatedEvaluator;
+                    });
+
+                    saveEvaluator({ showToast: false });
                   }}
                   onUploadError={(error: Error) => {
-                    // Do something with the error.
                     alert(`ERROR! ${error.message}`);
                   }}
                 />
