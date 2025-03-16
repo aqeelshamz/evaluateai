@@ -2,11 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Outfit } from "next/font/google";
 import { appName } from "@/utils/config";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "./api/uploadthing/core";
 
 const font = Outfit({
-	subsets: ["latin"],
-	weight: ["400", "500", "600", "700"],
-	display: "swap",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -24,6 +27,9 @@ export default function RootLayout({
       <body
         className={`${font.className} antialiased`}
       >
+        <NextSSRPlugin
+          routerConfig={extractRouterConfig(ourFileRouter)}
+        />
         {children}
       </body>
     </html>

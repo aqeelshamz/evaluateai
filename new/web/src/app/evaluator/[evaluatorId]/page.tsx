@@ -5,8 +5,10 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { FiBookOpen, FiChevronLeft, FiClipboard, FiInfo, FiPlay, FiSave, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
+import { FiBookOpen, FiChevronLeft, FiClipboard, FiFileText, FiInfo, FiKey, FiPlay, FiSave, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
 import { RiRobot2Line } from "react-icons/ri";
+import "@uploadthing/react/styles.css";
+import { UploadButton } from "@/utils/uploadthing";
 
 export default function Page() {
   const { evaluatorId } = useParams();
@@ -85,7 +87,7 @@ export default function Page() {
       });
   }
 
-  const saveEvaluator = async () => {
+  const saveEvaluator = async ({ showToast = false }) => {
     const config = {
       method: "POST",
       url: `${serverURL}/evaluators/save`,
@@ -106,11 +108,15 @@ export default function Page() {
 
     axios(config)
       .then((response) => {
-        toast.success("Evaluator saved!");
+        if (showToast) {
+          toast.success("Evaluator saved!");
+        }
         getEvaluator();
       })
       .catch((error) => {
-        toast.error("Failed to save evaluator");
+        if (showToast) {
+          toast.error("Failed to save evaluator");
+        }
       });
   }
 
@@ -119,8 +125,12 @@ export default function Page() {
     getClasses();
   }, [])
 
+  useEffect(() => {
+    saveEvaluator({ showToast: false });
+  }, [selectedTab]);
+
   return (
-    <div className="flex h-screen flex-col items-center p-4">
+    <div className="flex h-screen w-full flex-col items-center p-4">
       <div className="flex w-full items-center">
         <button className="btn btn-square mr-2" onClick={() => window.location.href = "/dashboard/evaluators"}><FiChevronLeft /></button>
         <p className="flex items-center text-xl font-bold"><RiRobot2Line className="mr-2" /> {evaluator?.title}</p>
@@ -170,11 +180,79 @@ export default function Page() {
               (document.getElementById("delete_evaluator_modal") as any).showModal();
             }}><FiTrash2 /> Delete</button>
             <button className="btn btn-primary" onClick={() => {
-              saveEvaluator();
+              saveEvaluator({ showToast: true });
             }}><FiSave /> Save</button>
           </form>
         </div>
-      </div> : ""}
+      </div> : selectedTab === "uploads" ?
+        <div className="flex flex-col items-start w-full max-w-5xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
+          <p className="flex items-center my-2"><FiFileText className="mr-2" /> Question Papers</p>
+          <p className="flex items-center mb-2 text-sm opacity-50 mb-4">Upload question papers for the evaluator. You can upload multiple files.</p>
+          <UploadButton
+            endpoint="imageUploader"
+            onClientUploadComplete={(res: any) => {
+              // Do something with the response
+              console.log("Files: ", res);
+              alert("Upload Completed");
+            }}
+            onUploadError={(error: Error) => {
+              // Do something with the error.
+              alert(`ERROR! ${error.message}`);
+            }}
+          />
+          <div className="divider"></div>
+          <p className="flex items-center my-2"><FiKey className="mr-2" /> Answer Keys / Answering Criteria</p>
+          <p className="flex items-center mb-2 text-sm opacity-50 mb-4">Upload answer keys / answering criteria for the evaluator. You can upload multiple files.</p>
+          <UploadButton
+            endpoint="imageUploader"
+            onClientUploadComplete={(res: any) => {
+              // Do something with the response
+              console.log("Files: ", res);
+              alert("Upload Completed");
+            }}
+            onUploadError={(error: Error) => {
+              // Do something with the error.
+              alert(`ERROR! ${error.message}`);
+            }}
+          />
+        </div> : selectedTab === "answers" ? <div className="flex flex-col items-start w-full max-w-5xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
+          {
+            evaluator?.classId?.students?.map((student: any, index: number) => (
+              <div className="w-full flex flex-col items-start" key={index}>
+                <p className="flex items-center my-2">{index + 1}. {student?.name}</p>
+                <UploadButton
+                  endpoint="imageUploader"
+                  onClientUploadComplete={(res: any) => {
+                    // Do something with the response
+                    console.log("Files: ", res);
+                    alert("Upload Completed");
+                  }}
+                  onUploadError={(error: Error) => {
+                    // Do something with the error.
+                    alert(`ERROR! ${error.message}`);
+                  }}
+                />
+                <div className="divider"></div>
+              </div>
+            ))
+          }
+        </div> : <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Extra prompt (optional)</legend>
+            <textarea className="textarea w-full h-24" placeholder="Prompt" value={evaluator?.extraPrompt} onChange={(x) => {
+              evaluator.extraPrompt = x.target.value;
+              setEvaluator({ ...evaluator });
+            }}></textarea>
+          </fieldset>
+          <div className="mt-4 justify-between flex w-full">
+            <form method="dialog">
+              <button className="btn btn-primary" onClick={() => {
+                saveEvaluator({ showToast: true });
+              }}><FiPlay /> Evaluate</button>
+            </form>
+          </div>
+        </div>
+      }
       <Toaster />
       {/* Delete Evaluator Modal */}
       <dialog id="delete_evaluator_modal" className="modal">
