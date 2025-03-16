@@ -147,7 +147,7 @@ export default function Page() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index / 10, duration: 0.4 }}
               key={index}
-              className="cursor-pointer w-64 p-5 flex flex-col justify-between rounded-lg border-2 border-gray-300 font-semibold hover:border-gray-400 duration-100"
+              className="cursor-pointer min-w-64 p-5 flex flex-col justify-between rounded-lg border-2 border-gray-300 font-semibold hover:border-gray-400 duration-100"
               onClick={() => {
                 setTitle(shopItem?.title);
                 setDescription(shopItem?.description);

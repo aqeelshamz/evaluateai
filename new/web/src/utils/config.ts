@@ -2,6 +2,7 @@ import axios from "axios";
 
 export const appName = "EvaluateAI";
 export const serverURL = "http://localhost:8000";
+export const primaryColor = "#9A4CFF";
 
 export const checkAuth = async () => {
     const config = {

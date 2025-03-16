@@ -56,12 +56,12 @@ export default function Dashboard({
           <img src="/logo.png" alt="logo" className="mr-2 h-8" />
           <h1 className="text-2xl font-semibold">{appName} Shop</h1>
         </div>
-        <Link href="/dashboard" className={navLinkClass("/dashboard")}>
+        <Link href="/shop" className={navLinkClass("/shop")}>
           <FiShoppingBag /> Shop Items
         </Link>
         <Link
-          href="/dashboard/evaluators"
-          className={navLinkClass("/dashboard/evaluators")}
+          href="/shop/purchases"
+          className={navLinkClass("/shop/purchases")}
         >
           <FiShoppingCart /> My Purchases
         </Link>

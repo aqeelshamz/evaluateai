@@ -6,6 +6,7 @@ import userRouter from "./routes/users.js";
 import evaluatorRouter from "./routes/evaluators.js";
 import classRouter from "./routes/classes.js";
 import adminRouter from "./routes/admin.js";
+import shopRouter from "./routes/shop.js";
 import { appName } from "./utils/config.js";
 
 const app = express();
@@ -32,6 +33,7 @@ app.use("/users", userRouter);
 app.use("/evaluators", evaluatorRouter);
 app.use("/classes", classRouter);
 app.use("/admin", adminRouter);
+app.use("/shop", shopRouter);
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
