@@ -81,7 +81,12 @@ export default function Page() {
       <div className="flex pb-5 w-[80vw] flex-wrap gap-4">
         <div
           className="cursor-pointer w-64 h-40 flex items-center justify-center rounded-lg border-dashed border-2 border-gray-300 font-semibold text-2xl hover:border-4 duration-100"
-          onClick={() => (document.getElementById('new_class_modal') as any).showModal()}
+          onClick={() => {
+            setName("");
+            setSection("");
+            setSubject("");
+            (document.getElementById('new_class_modal') as any).showModal();
+          }}
         >
           <FiPlus size={24} className="mr-2" /> New class
         </div>

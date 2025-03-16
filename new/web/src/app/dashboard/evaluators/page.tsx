@@ -102,7 +102,12 @@ export default function Page() {
       <div className="flex pb-5 w-[80vw] flex-wrap gap-4">
         <div
           className="cursor-pointer w-64 h-40 flex items-center justify-center rounded-lg border-dashed border-2 border-gray-300 font-semibold text-2xl hover:border-4 duration-100"
-          onClick={() => (document.getElementById('new_evaluator_modal') as any).showModal()}
+          onClick={() => {
+            setTitle("");
+            setDescription("");
+            setSelectedClass("");
+            (document.getElementById('new_evaluator_modal') as any).showModal()
+          }}
         >
           <FiPlus size={24} className="mr-2" /> New evaluator
         </div>
@@ -118,7 +123,7 @@ export default function Page() {
             className={"flex flex-col justify-between cursor-pointer min-w-64 h-40 rounded-xl border-2 p-3 border-gray-300 hover:border-4 duration-100"}
           >
             <div className="flex flex-col">
-              <h2 className="text-black font-bold">{evaluator.title}</h2>
+              <h2 className="flex items-center text-black font-bold"><RiRobot2Line className="mr-2" /> {evaluator.title}</h2>
               <p className="text-gray-600">{evaluator.description}</p>
             </div>
             <div className="flex items-center space-x-1">
