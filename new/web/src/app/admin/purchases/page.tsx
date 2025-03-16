@@ -38,7 +38,7 @@ export default function Page() {
 
   return (
     <div className="flex flex-col">
-      <p className="flex items-center text-2xl font-semibold"><FiShoppingCart className="mr-2" /> My Purchases</p>
+      <p className="flex items-center text-2xl font-semibold"><FiDollarSign className="mr-2" /> Purchases</p>
       <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mt-5">
         <table className="table">
           {/* head */}

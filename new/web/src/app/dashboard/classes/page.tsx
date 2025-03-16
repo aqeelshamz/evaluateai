@@ -38,6 +38,7 @@ export default function Page() {
         console.log(response.data);
         toast.success("Class created");
         getClasses();
+        window.location.href = `/class/${response.data._id}`;
       })
       .catch((error) => {
         console.error(error);

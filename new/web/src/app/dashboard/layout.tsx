@@ -1,12 +1,13 @@
 "use client";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { FiExternalLink, FiHome, FiLogOut, FiShoppingBag, FiUser, FiUsers } from "react-icons/fi";
+import { FiExternalLink, FiHome, FiLogOut, FiSettings, FiShoppingBag, FiUser, FiUsers } from "react-icons/fi";
 import { RiRobot2Line } from "react-icons/ri";
 import { appName, serverURL } from "@/utils/config";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
+import { BiCoin, BiCoinStack } from "react-icons/bi";
 
 export default function Dashboard({
   children,
@@ -68,6 +69,9 @@ export default function Dashboard({
         </Link>
         <Link href="/dashboard/classes" className={navLinkClass("/dashboard/classes")}>
           <FiUsers /> Classes
+        </Link>
+        <Link href="/dashboard/limits" className={navLinkClass("/dashboard/limits")}>
+          <BiCoinStack /> Usage & Limits
         </Link>
       </div>
       <div className="mt-auto">

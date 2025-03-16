@@ -13,6 +13,8 @@ import { validate } from "../middlewares/validate.js";
 import Settings from "../models/Settings.js";
 import { defaultAIModel } from "../utils/models.js";
 import { defaultPaymentGateway } from "../utils/payment.js";
+import Evaluator from "../models/Evaluator.js";
+import Class from "../models/Class.js";
 
 dotenv.config();
 
@@ -21,6 +23,18 @@ const router = express.Router();
 router.get("/", validate, async (req, res) => {
     const user = await User.findById(req.user._id).select("-password");
     res.send(user);
+});
+
+router.get("/limits", validate, async (req, res) => {
+    const limits = await Limits.findOne({ userId: req.user._id }).lean();
+
+    const evaluators = await Evaluator.find({ userId: req.user._id }).countDocuments();
+    const classes = await Class.find({ userId: req.user._id }).countDocuments();
+
+    limits.evaluatorUsage = evaluators;
+    limits.classesUsage = classes;
+
+    res.send(limits);
 });
 
 router.post("/login", async (req, res) => {
