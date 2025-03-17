@@ -224,6 +224,34 @@ export default function Page() {
     saveEvaluator({ showToast: false });
   }, [selectedTab]);
 
+  const convertPDFToImage = async (file: any) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const config = {
+        method: "POST",
+        url: `${serverURL}/pdf2img/convert`,
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        data: formData,
+      };
+
+      const response = await axios(config);
+      const files = response.data.map((fileData: any, index: number) => {
+        const byteArray = new Uint8Array(Object.values(fileData));
+        const blob = new Blob([byteArray], { type: "image/png" });
+        return new File([blob], `converted_image_${index + 1}.png`, { type: "image/png" });
+      });
+
+      return files;
+    } catch (error) {
+      toast.error("Failed to convert PDF to images.");
+      return [];
+    }
+  };
+
   return (
     <div className="flex h-screen w-full flex-col items-center p-4">
       <div className="flex w-full items-center">
@@ -331,6 +359,19 @@ export default function Page() {
           </div>
           {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <UploadButton
             endpoint="imageUploader"
+            onBeforeUploadBegin={async (files: any) => {
+              var pdfFiles = files.filter((file: any) => file.type === "application/pdf");
+              var otherFiles = files.filter((file: any) => file.type !== "application/pdf");
+
+              if (pdfFiles.length === 0) return files;
+
+              for (const file of pdfFiles) {
+                const images = await convertPDFToImage(file);
+                otherFiles.push(...images);
+              }
+
+              return otherFiles;
+            }}
             onClientUploadComplete={(files: any) => {
               // Do something with the response
               console.log("Files: ", files);
@@ -377,7 +418,20 @@ export default function Page() {
           </div>
           {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <UploadButton
             endpoint="imageUploader"
-            onClientUploadComplete={(files: any) => {
+            onBeforeUploadBegin={async (files: any) => {
+              var pdfFiles = files.filter((file: any) => file.type === "application/pdf");
+              var otherFiles = files.filter((file: any) => file.type !== "application/pdf");
+
+              if (pdfFiles.length === 0) return files;
+
+              for (const file of pdfFiles) {
+                const images = await convertPDFToImage(file);
+                otherFiles.push(...images);
+              }
+
+              return otherFiles;
+            }}
+            onClientUploadComplete={async (files: any) => {
               // Do something with the response
               console.log("Files: ", files);
               for (const file of files) {
@@ -426,6 +480,19 @@ export default function Page() {
                 </div>
                 {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <UploadButton
                   endpoint="imageUploader"
+                  onBeforeUploadBegin={async (files: any) => {
+                    var pdfFiles = files.filter((file: any) => file.type === "application/pdf");
+                    var otherFiles = files.filter((file: any) => file.type !== "application/pdf");
+      
+                    if (pdfFiles.length === 0) return files;
+      
+                    for (const file of pdfFiles) {
+                      const images = await convertPDFToImage(file);
+                      otherFiles.push(...images);
+                    }
+      
+                    return otherFiles;
+                  }}
                   onClientUploadComplete={(files: any) => {
                     console.log("Files uploaded: ", files);
 
@@ -525,7 +592,7 @@ export default function Page() {
                 }}></textarea>
               </fieldset>
               <fieldset className="fieldset">
-                <legend className="fieldset-legend">Total Marks <div className="tooltip tooltip-right" data-tip="This is taken into account if the total mark cannot be determined from the provided materials."><FiInfo /></div></legend>
+                <legend className="fieldset-legend">Total Marks</legend>
                 <input type="text" className="input w-full" placeholder="Total Marks" value={evaluator?.totalMarks} onChange={(x) => {
                   evaluator.totalMarks = x.target.value;
                   setEvaluator({ ...evaluator });

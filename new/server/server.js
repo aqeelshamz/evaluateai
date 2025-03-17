@@ -7,11 +7,14 @@ import evaluatorRouter from "./routes/evaluators.js";
 import classRouter from "./routes/classes.js";
 import adminRouter from "./routes/admin.js";
 import shopRouter from "./routes/shop.js";
+import pdfImgRouter from "./routes/pdf2img.js";
 import { appName } from "./utils/config.js";
+import fileUpload from "express-fileupload";
 
 const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(cors());
+app.use(fileUpload());
 
 dotenv.config();
 const port = 8000;
@@ -34,6 +37,7 @@ app.use("/evaluators", evaluatorRouter);
 app.use("/classes", classRouter);
 app.use("/admin", adminRouter);
 app.use("/shop", shopRouter);
+app.use("/pdf2img", pdfImgRouter);
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

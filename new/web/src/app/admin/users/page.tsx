@@ -68,7 +68,7 @@ export default function Page() {
                     </td>
                     <td>
                       <div className="badge badge-soft badge-primary"><RiRobot2Line /> Evaluators: {user?.limits?.evaluatorUsage} / {user?.limits?.evaluatorLimit}</div><br />
-                      <div className="badge badge-soft badge-primary mt-3"><FiEdit /> Evaluations: {user?.limits?.evaluationLimit}</div><br />
+                      <div className="badge badge-soft badge-primary mt-3"><FiEdit /> Evaluations: {user?.limits?.evaluationUsage} / {user?.limits?.evaluationLimit}</div><br />
                       <div className="badge badge-soft badge-primary mt-3"><FiUsers /> Classes: {user?.limits?.classesUsage} / {user?.limits?.classesLimit}</div><br />
                     </td>
                     <td>

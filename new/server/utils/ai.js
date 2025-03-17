@@ -50,7 +50,7 @@ Adhere to the following JSON structure for each evaluation:
 - If the answer sheet is **empty or missing answers**, note it.
 - Be consistent and fair, following the answer keys closely.
 - **Ignore handwriting quality** unless it affects comprehension.
-- Total maximum marks should be calculated from the question paper, even if not explicitly provided.
+- Total maximum marks should be calculated from the question paper, only if not explicitly provided. Otherwise, use the provided total marks.
 - If resources are unclear or missing, return a plain text error message.
 
 Begin evaluating now.

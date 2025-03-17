@@ -1,6 +1,6 @@
 "use client";
 
-import { appURL, primaryColor, serverURL } from "@/utils/config";
+import { appURL, currencySymbol, primaryColor, serverURL } from "@/utils/config";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -190,7 +190,7 @@ export default function Page() {
               <div className="flex flex-col space-y-2">
                 <h2 className="font-bold">{shopItem?.title}</h2>
                 <p className="font-normal">{shopItem?.description}</p>
-                <div className="badge badge-outline badge-primary badge-lg"><FiDollarSign /> {shopItem?.price}</div>
+                <div className="badge badge-outline badge-primary badge-lg">{currencySymbol} {shopItem?.price}</div>
               </div>
               <div className="flex flex-wrap items-center gap-1">
                 <div className="tooltip tooltip-bottom" data-tip="Evaluator Limit">

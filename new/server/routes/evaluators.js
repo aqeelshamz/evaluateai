@@ -242,7 +242,7 @@ const evaluateAnswerSheets = async (evaluator, rollNo, userId) => {
             $set: {
                 [`evaluation.${rollNo}.answers`]: parsedJSON.answers,
                 [`evaluation.${rollNo}.totalMarksObtained`]: parsedJSON.totalMarksObtained,
-                [`evaluation.${rollNo}.totalMaximumMarks`]: parsedJSON.totalMaximumMarks,
+                [`evaluation.${rollNo}.totalMaximumMarks`]: evaluator.totalMarks,
                 [`evaluation.${rollNo}.overallFeedback`]: parsedJSON.overallFeedback,
                 [`evaluation.${rollNo}.isCompleted`]: true,
                 [`evaluation.${rollNo}.studentRollNo`]: rollNo,

@@ -11,6 +11,7 @@ import { paymentGateways } from "../utils/payment.js";
 import ShopItem from "../models/ShopItem.js";
 import Settings from "../models/Settings.js";
 import Order from "../models/Order.js";
+import EvaluationUsage from "../models/EvaluationUsage.js";
 
 const router = express.Router();
 
@@ -21,9 +22,11 @@ router.get("/users", validateAdmin, async (req, res) => {
         const limits = await Limits.findOne({ userId: user._id }).lean();
         const evaluatorUsage = await Evaluator.find({ userId: user._id }).countDocuments();
         const classesUsage = await Class.find({ userId: user._id }).countDocuments();
+        const evaluationUsage = await EvaluationUsage.find({ userId: user._id }).countDocuments();
         user.limits = limits;
         user.limits.evaluatorUsage = evaluatorUsage;
         user.limits.classesUsage = classesUsage;
+        user.limits.evaluationUsage = evaluationUsage;
     }
 
     return res.send(users);
