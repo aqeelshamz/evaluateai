@@ -5,7 +5,7 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { FiBookOpen, FiCheckCircle, FiChevronLeft, FiClipboard, FiExternalLink, FiFileText, FiHelpCircle, FiImage, FiInfo, FiKey, FiPlay, FiRefreshCcw, FiSave, FiTrash, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
+import { FiBookOpen, FiCheckCircle, FiChevronLeft, FiClipboard, FiEdit, FiExternalLink, FiFileText, FiHelpCircle, FiImage, FiInfo, FiKey, FiPlay, FiRefreshCcw, FiSave, FiStar, FiTrash, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
 import { RiRobot2Line } from "react-icons/ri";
 import "@uploadthing/react/styles.css";
 import { UploadButton } from "@/utils/uploadthing";
@@ -27,6 +27,9 @@ export default function Page() {
   const [selectedTab, setSelectedTab] = useState("details");
   const [classes, setClasses] = useState<any>([]);
   const [previewURL, setPreviewURL] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState(-1);
+
+  const [selectedResultsSubTab, setSelectedResultsSubTab] = useState("answerSheets");
 
   const getEvaluator = async () => {
     const config = {
@@ -308,7 +311,7 @@ export default function Page() {
           <a role="tab" onClick={() => setSelectedTab("uploads")} className={"tab " + (selectedTab === "uploads" ? "tab-active" : "")}><FiUpload className="mr-2" /> Materials</a>
           <a role="tab" onClick={() => setSelectedTab("answers")} className={"tab " + (selectedTab === "answers" ? "tab-active" : "")}><FiClipboard className="mr-2" /> Answer Sheets</a>
           <a role="tab" onClick={() => setSelectedTab("evaluate")} className={"tab " + (selectedTab === "evaluate" ? "tab-active" : "")}><FiPlay className="mr-2" /> Evaluate</a>
-          {evaluation?.hasErrors ? <a role="tab" onClick={() => setSelectedTab("results")} className={"tab " + (selectedTab === "results" ? "tab-active" : "")}><BiError className="mr-2" /> Error Logs</a> : evaluation?.isCompleted && !evaluation?.notSet ? <a role="tab" onClick={() => setSelectedTab("results")} className={"tab " + (selectedTab === "results" ? "tab-active" : "")}><BiTrophy className="mr-2" /> Results</a> : ""}
+          {evaluation?.hasErrors ? <a role="tab" onClick={() => { setSelectedTab("results"); }} className={"tab " + (selectedTab === "results" ? "tab-active" : "")}><BiError className="mr-2" /> Error Logs</a> : evaluation?.isCompleted && !evaluation?.notSet ? <a role="tab" onClick={() => { setSelectedTab("results"); setSelectedStudent(-1) }} className={"tab " + (selectedTab === "results" ? "tab-active" : "")}><BiTrophy className="mr-2" /> Results</a> : ""}
         </div>
       </div>
       {selectedTab === "details" ? <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
@@ -565,7 +568,7 @@ export default function Page() {
                 </div>
               })
             }
-            <button className="btn btn-sm btn-primary btn-outline mt-4" onClick={()=>{
+            <button className="btn btn-xs btn-outline mt-4" onClick={() => {
               (document.getElementById("reset_modal") as any).showModal();
             }}><FiRefreshCcw /> Reset progress</button>
           </div>
@@ -580,31 +583,88 @@ export default function Page() {
                 <p className="my-1 text-sm opacity-75"><span className="font-semibold">AI Response:</span> {evaluation?.aiResponse}</p>
               </div>
             </div> :
-            <div className="w-full max-w-2xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
-              <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
-                <div className="join join-vertical bg-base-100 w-full">
-                  {
-                    evaluation?.evaluation && Object.keys(evaluation?.evaluation)?.map((rollNo: any, index: number) => {
-                      const data = evaluation?.evaluation[rollNo];
-                      return <div key={index} className="collapse collapse-arrow join-item border-base-300 border">
-                        <input type="radio" name="my-accordion-4" defaultChecked />
-                        <div className="collapse-title font-semibold">{data?.studentRollNo}. {evaluator?.classId?.students?.find((student: any) => student.rollNo === data?.studentRollNo)?.name} <div className="ml-2 badge badge-soft badge-primary"><BiTrophy /> {data?.totalMarksObtained} / {data?.totalMaximumMarks}</div></div>
-                        <div key={index} className="collapse-content text-sm">
-                          {
-                            data?.answers?.map((answer: any, index: number) => {
-                              return <div key={index} className="flex flex-col bg-gray-50 p-2 mb-2">
-                                <p className="text-sm flex items-center"><FiHelpCircle className="mr-2" /> Question {answer?.questionNumber}</p>
-                                <div className="m-2 badge badge-soft badge-primary"><BiTrophy /> {answer?.marksAwarded} / {answer?.maximumMarks}</div>
-                                <p className="text-sm flex items-center my-2"><FiFileText className="mr-2" /> Feedback</p>
-                                <p className="text-sm flex items-center opacity-60">{answer?.feedback}</p>
-                              </div>
-                            })
-                          }
+            <div className="flex w-full justify-center h-full overflow-hidden">
+              <div className="w-full max-w-2xl border border-gray-200 rounded-l-lg mt-2 p-4 overflow-y-auto">
+                <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+                  <div className="join join-vertical bg-base-100 w-full">
+                    {
+                      evaluation?.evaluation && Object.keys(evaluation?.evaluation)?.map((rollNo: any, index: number) => {
+                        const data = evaluation?.evaluation[rollNo];
+                        return <div key={index} className="collapse collapse-arrow join-item border-base-300 border" onClick={() => {
+                          setSelectedStudent(selectedStudent === data?.studentRollNo ? -1 : data?.studentRollNo);
+                        }}>
+                          <input type="radio" name="my-accordion-4" checked={data?.studentRollNo === selectedStudent} onChange={(x) => { }} />
+                          <div className="collapse-title font-semibold">{data?.studentRollNo}. {evaluator?.classId?.students?.find((student: any) => student.rollNo === data?.studentRollNo)?.name} <span className="ml-2 badge badge-soft badge-primary"><BiTrophy /> {data?.totalMarksObtained} / {data?.totalMaximumMarks}</span></div>
+                          <div key={index} className="collapse-content text-sm">
+                            {
+                              data?.answers?.map((answer: any, index: number) => {
+                                return <div key={index} className="flex flex-col bg-gray-50 p-5 mb-2">
+                                  <div className="mb-2 badge badge-soft badge-secondary"><FiStar /> Marks awarded: {answer?.marksAwarded} / {answer?.maximumMarks}</div>
+                                  <p className="text-sm flex items-center">{answer?.questionNumber}. {answer?.question}</p>
+                                  <p className="mt-2 text-sm flex items-center opacity-75">{answer?.answer}</p>
+                                  <p className="text-sm flex items-center my-2"><FiFileText className="mr-2" /> Feedback</p>
+                                  <p className="text-sm flex items-center opacity-60">{answer?.feedback}</p>
+                                </div>
+                              })
+                            }
+                          </div>
                         </div>
-                      </div>
-                    })
-                  }
+                      })
+                    }
+                  </div>
                 </div>
+              </div>
+              <div className="w-full max-w-2xl border border-gray-200 rounded-r-lg mt-2 p-4 overflow-y-auto">
+                {
+                  selectedStudent === -1 ? <p>Select a Student to view answer sheet.</p> :
+                    <p className="text-lg font-bold mb-2">{selectedStudent}. {evaluator?.classId?.students?.find((student: any) => student.rollNo === selectedStudent)?.name}</p>}
+                {selectedStudent === -1 ? "" : <div role="tablist" className="tabs tabs-lift tabs-sm">
+                  <a onClick={() => setSelectedResultsSubTab("questionPapers")} role="tab" className={"tab " + (selectedResultsSubTab === "questionPapers" ? "tab-active" : "")}>Question Paper</a>
+                  <a onClick={() => setSelectedResultsSubTab("answerKeys")} role="tab" className={"tab " + (selectedResultsSubTab === "answerKeys" ? "tab-active" : "")}>Answer Keys</a>
+                  <a onClick={() => setSelectedResultsSubTab("answerSheets")} role="tab" className={"tab " + (selectedResultsSubTab === "answerSheets" ? "tab-active" : "")}>Answer Sheets</a>
+                </div>}
+                {selectedStudent === -1 ? "" :
+                  selectedResultsSubTab === "questionPapers" ? evaluator?.questionPapers?.map((answerSheet: any, index: number) => (
+                    <div className="cursor-pointer relative flex flex-col items-center group" key={index}>
+                      <div className="absolute top-1 right-1">
+                        <button className="btn btn-square btn-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          onClick={() => {
+                            setPreviewURL(answerSheet);
+                            (document.getElementById("image_preview_modal") as any).showModal();
+                          }}>
+                          <BiFullscreen />
+                        </button>
+                      </div>
+                      <img src={answerSheet} alt="Answer Sheet" className="border border-gray-300 object-cover rounded-lg mb-2" />
+                    </div>
+                  )) : selectedResultsSubTab === "answerKeys" ? evaluator?.answerKeys?.map((answerSheet: any, index: number) => (
+                    <div className="cursor-pointer relative flex flex-col items-center group" key={index}>
+                      <div className="absolute top-1 right-1">
+                        <button className="btn btn-square btn-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          onClick={() => {
+                            setPreviewURL(answerSheet);
+                            (document.getElementById("image_preview_modal") as any).showModal();
+                          }}>
+                          <BiFullscreen />
+                        </button>
+                      </div>
+                      <img src={answerSheet} alt="Answer Sheet" className="border border-gray-300 object-cover rounded-lg mb-2" />
+                    </div>
+                  )) : evaluator?.answerSheets?.find((s: any) => s.rollNo === selectedStudent)?.answerSheets?.map((answerSheet: any, index: number) => (
+                    <div className="cursor-pointer relative flex flex-col items-center group" key={index}>
+                      <div className="absolute top-1 right-1">
+                        <button className="btn btn-square btn-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          onClick={() => {
+                            setPreviewURL(answerSheet);
+                            (document.getElementById("image_preview_modal") as any).showModal();
+                          }}>
+                          <BiFullscreen />
+                        </button>
+                      </div>
+                      <img src={answerSheet} alt="Answer Sheet" className="border border-gray-300 object-cover rounded-lg mb-2" />
+                    </div>
+                  ))
+                }
               </div>
             </div>
             : <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
