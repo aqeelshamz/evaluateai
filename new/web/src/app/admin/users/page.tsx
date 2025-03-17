@@ -9,6 +9,14 @@ import { RiRobot2Line } from "react-icons/ri";
 export default function Page() {
   const [users, setUsers] = useState([]);
 
+  const [userId, setUserId] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [evaluatorLimit, setEvaluatorLimit] = useState(0);
+  const [evaluationLimit, setEvaluationLimit] = useState(0);
+  const [classesLimit, setClassesLimit] = useState(0);
+
   const getUsers = async () => {
     const config = {
       method: "GET",
@@ -25,6 +33,56 @@ export default function Page() {
       })
       .catch((error) => {
         toast.error("Failed to get users");
+      });
+  }
+
+  const updateUser = async () => {
+    const config = {
+      method: "POST",
+      url: `${serverURL}/admin/users/update`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+      data: {
+        userId,
+        name,
+        email,
+        password,
+        evaluatorLimit,
+        evaluationLimit,
+        classesLimit
+      }
+    };
+
+    axios(config)
+      .then((response) => {
+        toast.success("User deleted");
+      })
+      .catch((error) => {
+        toast.error("Failed to delete user");
+      });
+  }
+
+  const deleteUser = async () => {
+    const config = {
+      method: "POST",
+      url: `${serverURL}/admin/users/delete`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+      data: {
+        userId
+      }
+    };
+
+    axios(config)
+      .then((response) => {
+        toast.success("User deleted");
+      })
+      .catch((error) => {
+        toast.error("Failed to delete user");
       });
   }
 
@@ -72,10 +130,22 @@ export default function Page() {
                       <div className="badge badge-soft badge-primary mt-3"><FiUsers /> Classes: {user?.limits?.classesUsage} / {user?.limits?.classesLimit}</div><br />
                     </td>
                     <td>
-                      <button className="btn btn-square"><FiEdit /></button>
+                      <button className="btn btn-square" onClick={() => {
+                        setUserId(user._id);
+                        setName(user.name);
+                        setEmail(user.email);
+                        setPassword("");
+                        setEvaluatorLimit(user.limits.evaluatorLimit);
+                        setEvaluationLimit(user.limits.evaluationLimit);
+                        setClassesLimit(user.limits.classesLimit);
+                        (document.getElementById('edit_user_modal') as any).showModal();
+                      }}><FiEdit /></button>
                     </td>
                     <td>
-                      <button className="btn btn-square hover:btn-error"><FiTrash2 /></button>
+                      <button className="btn btn-square hover:btn-error" onClick={() => {
+                        setUserId(user._id);
+                        (document.getElementById('delete_user_modal') as any).showModal();
+                      }}><FiTrash2 /></button>
                     </td>
                   </tr>
                 ))
@@ -83,34 +153,60 @@ export default function Page() {
             </tbody>
           </table>
         </div>
-        {/* <div
-          className="cursor-pointer w-64 h-40 flex items-center justify-center rounded-lg border-dashed border-2 border-gray-300 font-semibold text-2xl hover:border-4 duration-100"
-          onClick={() => (document.getElementById('new_class_modal') as any).showModal()}
-        >
-          <FiPlus size={24} className="mr-2" /> New
-        </div> */}
-        {/* {classes?.map((classData: any, index: number) => (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index / 10, duration: 0.4 }}
-            onClick={() => {
-              window.location.href = `/class/${classData._id}`;
-            }}
-            key={index}
-            className={"flex flex-col justify-between cursor-pointer min-w-64 h-40 rounded-xl border-2 p-3 border-gray-300 hover:border-4 duration-100"}
-          >
-            <div className="flex flex-col">
-              <h2 className="flex items-center text-black font-bold"><FiUsers className="mr-2" /> {classData.name}</h2>
-              <p className="text-gray-600">{classData.section}</p>
-            </div>
-            <div className="flex items-center space-x-1">
-              <div className="badge badge-soft badge-primary"><FiBookOpen /> {classData.subject}</div>
-              <div className="badge badge-soft badge-secondary"><FiUsers /> {classData.students.length} Students</div>
-            </div>
-          </motion.div>
-        ))} */}
       </div>
+      {/* Edit User Modal */}
+      <dialog id="edit_user_modal" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiUser className="mr-2" /> Edit User</h3>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Name</legend>
+            <input type="text" className="input w-full" placeholder="Title" value={name} onChange={(x) => setName(x.target.value)} />
+          </fieldset>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Email</legend>
+            <input type="email" className="input w-full" placeholder="Email" value={email} onChange={(x) => setEmail(x.target.value)} disabled />
+          </fieldset>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Password</legend>
+            <input type="password" className="input w-full" placeholder="Leave blank for no change" value={password} onChange={(x) => setPassword(x.target.value)} />
+          </fieldset>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Evaluator Limit</legend>
+            <input type="number" className="input w-full" placeholder="Evaluator Limit" value={evaluatorLimit} onChange={(x) => setEvaluatorLimit(parseInt(x.target.value))} />
+          </fieldset>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Evaluation Limit</legend>
+            <input type="number" className="input w-full" placeholder="Evaluation Limit" value={evaluationLimit} onChange={(x) => setEvaluationLimit(parseInt(x.target.value))} />
+          </fieldset>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Classes Limit</legend>
+            <input type="number" className="input w-full" placeholder="Classes Limit" value={classesLimit} onChange={(x) => setClassesLimit(parseInt(x.target.value))} />
+          </fieldset>
+          <div className="modal-action">
+            <form method="dialog" className="w-full flex justify-between">
+              <div>
+                <button className="btn mr-2">Cancel</button>
+                <button className="btn btn-primary" onClick={() => {
+                  updateUser();
+                }}>Update User</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </dialog >
+      {/* Delete Shop Item Modal */}
+      <dialog id="delete_user_modal" className="modal">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiTrash2 className="mr-2" /> Delete User</h3>
+          <p className="py-4">Are you sure you want to delete this user?</p>
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn mr-2">Cancel</button>
+              <button className="btn btn-error" onClick={() => deleteUser()}>Delete</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }

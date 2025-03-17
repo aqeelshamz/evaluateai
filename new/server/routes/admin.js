@@ -57,8 +57,7 @@ router.get("/users", validateAdmin, async (req, res) => {
 router.post("/users/update", validateAdmin, async (req, res) => {
     const schema = joi.object({
         userId: joi.string().required(),
-        type: joi.number().required(),
-        email: joi.string().required().email(),
+        email: joi.string().required(),
         name: joi.string().required(),
         password: joi.string().allow(""),
         evaluatorLimit: joi.number().required(),
@@ -70,9 +69,13 @@ router.post("/users/update", validateAdmin, async (req, res) => {
         const data = await schema.validateAsync(req.body);
 
         await User.updateOne({ _id: data.userId }, {
-            type: data.type,
-            email: data.email,
             name: data.name,
+        });
+
+        await Limits.findOneAndUpdate({ userId: data.userId }, {
+            evaluatorLimit: data.evaluatorLimit,
+            evaluationLimit: data.evaluationLimit,
+            classesLimit: data.classesLimit,
         });
 
         if (data.password) {
@@ -81,6 +84,32 @@ router.post("/users/update", validateAdmin, async (req, res) => {
         }
 
         return res.send(data);
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
+router.post("/users/delete", validateAdmin, async (req, res) => {
+    const schema = joi.object({
+        userId: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+        const user = await User.findById(data.userId);
+
+        if (user._id.toString() === req.user._id.toString()) {
+            return res.status(400).send("You cannot delete yourself.");
+        }
+
+        await User.findByIdAndDelete(data.userId);
+        await Limits.findOneAndDelete({ userId: data.userId });
+        await Evaluator.deleteMany({ userId: data.userId });
+        await Class.deleteMany({ userId: data.userId });
+        await EvaluationUsage.deleteMany({ userId: data.userId });
+
+        return res.send(user);
     }
     catch (err) {
         return res.status(500).send(err);
