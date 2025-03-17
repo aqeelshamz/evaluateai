@@ -1,9 +1,9 @@
 export const appName = "EvaluateAI";
 
 //Default Limits
-export const defaultEvaluatorLimit = 5;
-export const defaultEvaluationLimit = 10;
-export const defaultClassesLimit = 5;
+export const defaultEvaluatorLimit = 3;
+export const defaultEvaluationLimit = 50;
+export const defaultClassesLimit = 3;
 
 //Currency
 export const currency = "INR";

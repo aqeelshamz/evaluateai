@@ -471,7 +471,7 @@ export default function Page() {
                 const data = evaluation?.evaluation[rollNo];
                 return <div key={index} className="flex items-center my-2">
                   {data?.isCompleted ? <BsCheckCircleFill className="mr-2" color="green" /> : <span className="mr-2 loading loading-spinner loading-xs text-primary"></span>}
-                  <p className="opacity-50">Evaluating answer sheets of Roll No.{data?.studentRollNo} ...</p>
+                  <p className="opacity-50">{data?.isCompleted ? "Evaluated " : "Evaluating "} answer sheets of Roll No.{data?.studentRollNo} {data?.isCompleted ? "" : "..."}</p>
                 </div>
               })
             }
