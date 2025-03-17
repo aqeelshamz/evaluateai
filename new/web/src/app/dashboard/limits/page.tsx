@@ -40,17 +40,17 @@ export default function Page() {
       <div className="flex flex-col gap-4 max-w-lg">
         <div className="w-full flex items-center">
           <p className="flex items-center"><RiRobot2Line className="mr-2" /> Evaluator Limit</p>
-          <div className="ml-4 badge badge-soft badge-primary">{limits?.evaluatorUsage} / {limits?.evaluatorLimit}</div><br />
+          <div className="ml-4 badge badge-soft badge-primary">{limits?.evaluatorUsage} of {limits?.evaluatorLimit} used</div><div className="ml-2 badge badge-soft badge-secondary">{limits?.evaluatorLimit - limits?.evaluatorUsage} left</div><br />
         </div>
         <progress className="progress progress-primary w-full max-w-xs" value={limits?.evaluatorUsage} max={limits?.evaluatorLimit}></progress>
         <div className="flex items-center mt-4">
           <p className="flex items-center"><FiEdit className="mr-2" /> Evaluation Limit</p>
-          <div className="ml-4 badge badge-soft badge-primary">{limits?.evaluationUsage} / {limits?.evaluationLimit}</div><br />
+          <div className="ml-4 badge badge-soft badge-primary">{limits?.evaluationUsage} of {limits?.evaluationLimit} used</div><div className="ml-2 badge badge-soft badge-secondary">{limits?.evaluationLimit - limits?.evaluationUsage} left</div><br />
         </div>
         <progress className="progress progress-primary w-full max-w-xs" value={limits?.evaluationUsage} max={limits?.evaluationLimit}></progress>
         <div className="flex items-center mt-4">
           <p className="flex items-center"><FiUsers className="mr-2" /> Classes Limit</p>
-          <div className="ml-4 badge badge-soft badge-primary">{limits?.classesUsage} / {limits?.classesLimit}</div><br />
+          <div className="ml-4 badge badge-soft badge-primary">{limits?.classesUsage} of {limits?.classesLimit} used</div><div className="ml-2 badge badge-soft badge-secondary">{limits?.classesLimit - limits?.classesUsage} left</div><br />
         </div>
         <progress className="progress progress-primary w-full max-w-xs" value={limits?.classesUsage} max={limits?.classesLimit}></progress>
       </div>
