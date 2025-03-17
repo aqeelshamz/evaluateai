@@ -15,6 +15,28 @@ import EvaluationUsage from "../models/EvaluationUsage.js";
 
 const router = express.Router();
 
+router.get("/dashboard", validateAdmin, async (req, res) => {
+    const shopItems = await ShopItem.countDocuments();
+    const settings = await Settings.findOne();
+    const users = await User.countDocuments();
+    const purchases = await Order.find({ isCompleted: true });
+    let earnings = 0;
+
+    for (const purchase of purchases) {
+        earnings += purchase.amount;
+    }
+
+    return res.send({
+        shopItems,
+        aiModel: settings.aiModel,
+        modelLogo: aiModels.find(model => model.model === settings.aiModel).logo,
+        paymentGateway: paymentGateways.find(gateway => gateway.code === settings.paymentGateway).name,
+        gatewayLogo: paymentGateways.find(gateway => gateway.code === settings.paymentGateway).logo,
+        users,
+        earnings,
+    });
+});
+
 router.get("/users", validateAdmin, async (req, res) => {
     const users = await User.find().select("-password").lean();
 
