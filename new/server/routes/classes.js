@@ -9,7 +9,7 @@ const router = express.Router();
 router.get("/", validate, async (req, res) => {
     const limits = await Limits.findOne({ userId: req.user._id });
 
-    const classes = await Class.find();
+    const classes = await Class.find({ userId: req.user._id }).lean();
     return res.send({ classes, limit: limits.classesLimit });
 });
 
