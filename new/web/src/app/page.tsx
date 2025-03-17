@@ -90,7 +90,7 @@ export default function Home() {
           </div>
         </div>
         <div className="flex flex-col w-full items-center justify-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl">X</h1>
+          <img src="/logo_xl.png" alt="Logo" className="object-cover w-100" />
         </div>
       </section>
       <section className="flex flex-col items-center h-screen bg-gray-50 p-10">
@@ -98,7 +98,9 @@ export default function Home() {
         <p className="max-w-4xl text-xl my-10 text-center opacity-80">
           Just upload the answer sheets and let {appName} handle the rest. Say goodbye to manual grading hassles and hello to streamlined evaluation with advanced AI technology.
         </p>
-        <div className="w-full max-w-3xl h-full bg-primary opacity-20 rounded-4xl"></div>
+        <div className="w-full max-w-3xl h-full rounded-4xl border-4 border-gray-100">
+          <img src="/landing/landing_1.png" alt="AI" className="w-full h-full rounded-4xl object-cover" />
+        </div>
       </section>
       <section className="flex flex-col items-center h-screen bg-gray-50 p-10">
         <div className="flex flex-wrap justify-center gap-5">
@@ -170,7 +172,9 @@ export default function Home() {
               Organize classes, assign subjects, and manage student information seamlessly.
             </p>
           </div>
-          <div className="w-full max-w-3xl h-full bg-primary opacity-20 rounded-4xl"></div>
+          <div className="w-full max-w-3xl h-full rounded-4xl border-4 border-gray-100">
+            <img src="/landing/landing_2.png" alt="AI" className="w-full h-full rounded-4xl object-cover" />
+          </div>
         </div>
       </section>
       <section className="flex flex-col items-center h-screen bg-gray-50 p-10">

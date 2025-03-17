@@ -11,6 +11,7 @@ import { RiRobot2Line } from "react-icons/ri";
 
 export default function Page() {
   const [onboardingStep, setOnboardingStep] = useState(0);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
 
   const getUser = async () => {
     const config = {
@@ -24,6 +25,7 @@ export default function Page() {
 
     axios(config)
       .then((response) => {
+        setOnboardingCompleted(response.data.onboardingCompleted);
         if (response.data.onboardingCompleted === false) {
           (document.getElementById('onboarding_modal') as any).showModal()
         }
@@ -42,7 +44,9 @@ export default function Page() {
 
     axios(config)
       .then((response) => {
-        toast.success("Welcome to " + appName + "!");
+        if (!onboardingCompleted) {
+          toast.success("Welcome to " + appName + "!");
+        }
       });
   }
 
@@ -77,7 +81,7 @@ export default function Page() {
         </Link>
         <div
           className="cursor-pointer w-64 h-40 flex items-center justify-center rounded-lg border-2 border-gray-300 font-semibold text-2xl hover:border-4 hover:border-primary duration-100"
-          onClick={() => (document.getElementById('onboarding_modal') as any).showModal()}
+          onClick={() => { setOnboardingStep(0); (document.getElementById('onboarding_modal') as any).showModal(); }}
         >
           <FiHelpCircle className="mr-2" /> Get Started
         </div>
