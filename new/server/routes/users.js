@@ -149,16 +149,16 @@ router.post("/send-verification-code", async (req, res) => {
             const code = Math.floor(Math.random() * (maxm - minm + 1)) + minm;
 
             const emailVerification = await EmailVerification.findOne({
-                email: email,
+                email: data.email,
             });
             if (emailVerification) {
                 await EmailVerification.findOneAndUpdate(
-                    { email: email },
+                    { email: data.email },
                     { code: code.toString() }
                 );
             } else {
                 const newEmailVerification = new EmailVerification({
-                    email: email,
+                    email: data.email,
                     code: code.toString(),
                     isVerified: false,
                 });
