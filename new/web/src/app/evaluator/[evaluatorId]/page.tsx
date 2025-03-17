@@ -21,7 +21,8 @@ export default function Page() {
     questionPapers: [],
     answerKeys: [],
     answerSheets: [],
-    extraPrompt: ""
+    extraPrompt: "",
+    totalMarks: 100
   });
   const [selectedTab, setSelectedTab] = useState("details");
   const [classes, setClasses] = useState<any>([]);
@@ -107,7 +108,8 @@ export default function Page() {
         questionPapers: evaluator.questionPapers,
         answerKeys: evaluator.answerKeys,
         answerSheets: evaluator.answerSheets,
-        extraPrompt: evaluator.extraPrompt
+        extraPrompt: evaluator.extraPrompt,
+        totalMarks: parseInt(evaluator.totalMarks)
       }
     };
 
@@ -442,7 +444,7 @@ export default function Page() {
         </div> : evaluating ?
           <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
             {
-              Object.keys(evaluation?.evaluation)?.map((rollNo: any, index: number) => {
+              evaluation?.evaluation && Object.keys(evaluation?.evaluation)?.map((rollNo: any, index: number) => {
                 const data = evaluation?.evaluation[rollNo];
                 return <div key={index} className="flex items-center my-2">
                   {data?.isCompleted ? <BsCheckCircleFill className="mr-2" color="green" /> : <span className="mr-2 loading loading-spinner loading-xs text-primary"></span>}
@@ -476,7 +478,7 @@ export default function Page() {
                   </thead>
                   <tbody>
                     {
-                      Object.keys(evaluation?.evaluation)?.map((rollNo: any, index: number) => {
+                      evaluation?.evaluation && Object.keys(evaluation?.evaluation)?.map((rollNo: any, index: number) => {
                         const data = evaluation?.evaluation[rollNo];
                         return <tr key={index}>
                           <th>{data?.studentRollNo}</th>
@@ -496,13 +498,15 @@ export default function Page() {
                 <textarea className="textarea w-full h-24" placeholder="Prompt" value={evaluator?.extraPrompt} onChange={(x) => {
                   evaluator.extraPrompt = x.target.value;
                   setEvaluator({ ...evaluator });
+                  saveEvaluator({ showToast: false });
                 }}></textarea>
               </fieldset>
               <fieldset className="fieldset">
                 <legend className="fieldset-legend">Total Marks <div className="tooltip tooltip-right" data-tip="This is taken into account if the total mark cannot be determined from the provided materials."><FiInfo /></div></legend>
-                <input type="number" className="input w-full" placeholder="Total Marks" value={evaluator?.totalMarks} onChange={(x) => {
-                  evaluator.totalMarks = parseInt(x.target.value);
+                <input type="text" className="input w-full" placeholder="Total Marks" value={evaluator?.totalMarks} onChange={(x) => {
+                  evaluator.totalMarks = x.target.value;
                   setEvaluator({ ...evaluator });
+                  saveEvaluator({ showToast: false });
                 }} />
               </fieldset>
               <div className="mt-4 justify-between flex w-full">
