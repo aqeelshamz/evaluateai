@@ -3,7 +3,7 @@ import { hash, compare } from "@uswriting/bcrypt";
 import express from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { appName, defaultClassesLimit, defaultEvaluationLimit, defaultEvaluatorLimit, logoBase64 } from "../utils/config.js";
+import { appName, defaultClassesLimit, defaultEvaluationLimit, defaultEvaluatorLimit, logoBase64, skipEmailVerification } from "../utils/config.js";
 import dotenv from "dotenv";
 import EmailVerification from "../models/EmailVerification.js";
 import nodemailer from "nodemailer";
@@ -77,13 +77,6 @@ async function sendEmail(email, res) {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
-            tls: {
-                rejectUnauthorized: false,
-            },
-            connectionTimeout: 10000, 
-            socketTimeout: 10000,
-            dnsTimeout: 10000,
-            family: 4,
         })
     );
 
@@ -150,6 +143,32 @@ router.post("/send-verification-code", async (req, res) => {
         if (emailVerification && emailVerification.isVerified)
             return res.status(400).send("Email already verified");
 
+        if (skipEmailVerification) {
+            var minm = 1000;
+            var maxm = 9999;
+            const code = Math.floor(Math.random() * (maxm - minm + 1)) + minm;
+
+            const emailVerification = await EmailVerification.findOne({
+                email: email,
+            });
+            if (emailVerification) {
+                await EmailVerification.findOneAndUpdate(
+                    { email: email },
+                    { code: code.toString() }
+                );
+            } else {
+                const newEmailVerification = new EmailVerification({
+                    email: email,
+                    code: code.toString(),
+                    isVerified: false,
+                });
+
+                await newEmailVerification.save();
+            }
+
+            return res.send({ skip: code });
+        }
+
         await sendEmail(data.email, res, false);
     } catch (err) {
         console.log(err)
@@ -173,7 +192,7 @@ router.post("/verify-email-signup", async (req, res) => {
 
         if (!emailVerification) return res.status(404).send("Email not found");
 
-        if (emailVerification.code === data.code) {
+        if (emailVerification.code === data.code || skipEmailVerification) {
             await EmailVerification.updateOne(
                 { email: data.email },
                 { isVerified: true }

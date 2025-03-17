@@ -5,6 +5,8 @@ export const defaultEvaluatorLimit = 3;
 export const defaultEvaluationLimit = 10;
 export const defaultClassesLimit = 3;
 
+export const skipEmailVerification = true;
+
 //Currency
 export const currency = "INR";
 

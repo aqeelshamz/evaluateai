@@ -43,7 +43,12 @@ export default function Signup() {
         setLoading(false);
         setIsVerificationCodeSent(true);
         console.log(response.data);
-        toast.success("Verification code sent successfully");
+        if (response.data.skip) {
+          setVerificationCode(response.data.skip);
+          verifyEmailAndSignup();
+        } else {
+          toast.success("Verification code sent successfully");
+        }
       })
       .catch((error) => {
         setLoading(false);
@@ -127,7 +132,7 @@ export default function Signup() {
       transition={{ delay: 0.2, duration: 0.4 }}
       className={"w-screen h-screen flex flex-col items-center justify-center"}
     >
-      <div onClick={() => window.location.href = "/"}  className="cursor-pointer flex my-10">
+      <div onClick={() => window.location.href = "/"} className="cursor-pointer flex my-10">
         <img src="/logo.png" alt="logo" className="mr-2 h-10" />
         <h1 className="text-4xl font-semibold">{appName}</h1>
       </div>
