@@ -1,8 +1,8 @@
 import axios from "axios";
 
 export const appName = "EvaluateAI";
-export const appURL = "http://localhost:3000";
-export const serverURL = "http://localhost:8000";
+export const appURL = "https://evaluateai.vercel.app";
+export const serverURL = "https://evaluateaiapi.aqeelshamz.com";
 export const primaryColor = "#9A4CFF";
 export const currencySymbol = "₹";
 
