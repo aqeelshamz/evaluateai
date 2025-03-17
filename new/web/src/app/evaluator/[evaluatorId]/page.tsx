@@ -5,7 +5,7 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { FiBookOpen, FiCheckCircle, FiChevronLeft, FiClipboard, FiExternalLink, FiFileText, FiImage, FiInfo, FiKey, FiPlay, FiSave, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
+import { FiBookOpen, FiCheckCircle, FiChevronLeft, FiClipboard, FiExternalLink, FiFileText, FiHelpCircle, FiImage, FiInfo, FiKey, FiPlay, FiRefreshCcw, FiSave, FiTrash, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
 import { RiRobot2Line } from "react-icons/ri";
 import "@uploadthing/react/styles.css";
 import { UploadButton } from "@/utils/uploadthing";
@@ -70,6 +70,29 @@ export default function Page() {
       })
       .catch((error) => {
         toast.error("Failed to delete evaluator");
+      });
+  }
+
+  const resetEvaluator = async () => {
+    const config = {
+      method: "POST",
+      url: `${serverURL}/evaluators/reset`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+      data: {
+        evaluatorId
+      }
+    };
+
+    axios(config)
+      .then((response) => {
+        toast.success("Progress reset");
+        getEvaluator();
+      })
+      .catch((error) => {
+        toast.error("Failed to reset progress");
       });
   }
 
@@ -483,14 +506,14 @@ export default function Page() {
                   onBeforeUploadBegin={async (files: any) => {
                     var pdfFiles = files.filter((file: any) => file.type === "application/pdf");
                     var otherFiles = files.filter((file: any) => file.type !== "application/pdf");
-      
+
                     if (pdfFiles.length === 0) return files;
-      
+
                     for (const file of pdfFiles) {
                       const images = await convertPDFToImage(file);
                       otherFiles.push(...images);
                     }
-      
+
                     return otherFiles;
                   }}
                   onClientUploadComplete={(files: any) => {
@@ -542,6 +565,9 @@ export default function Page() {
                 </div>
               })
             }
+            <button className="btn btn-sm btn-primary btn-outline mt-4" onClick={()=>{
+              (document.getElementById("reset_modal") as any).showModal();
+            }}><FiRefreshCcw /> Reset progress</button>
           </div>
           : selectedTab === "results" ? evaluation?.hasErrors ?
             <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
@@ -554,32 +580,31 @@ export default function Page() {
                 <p className="my-1 text-sm opacity-75"><span className="font-semibold">AI Response:</span> {evaluation?.aiResponse}</p>
               </div>
             </div> :
-            <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
+            <div className="w-full max-w-2xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
               <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
-                <table className="table">
-                  {/* head */}
-                  <thead>
-                    <tr>
-                      <th>Roll No</th>
-                      <th>Name</th>
-                      <th>Marks</th>
-                      <th>Details</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      evaluation?.evaluation && Object.keys(evaluation?.evaluation)?.map((rollNo: any, index: number) => {
-                        const data = evaluation?.evaluation[rollNo];
-                        return <tr key={index}>
-                          <th>{data?.studentRollNo}</th>
-                          <td>{evaluator?.classId?.students?.find((student: any) => student.rollNo === data?.studentRollNo)?.name}</td>
-                          <td>{data?.totalMarksObtained} / {data?.totalMaximumMarks}</td>
-                          <td><button className="btn btn-square"><FiExternalLink /></button></td>
-                        </tr>
-                      })
-                    }
-                  </tbody>
-                </table>
+                <div className="join join-vertical bg-base-100 w-full">
+                  {
+                    evaluation?.evaluation && Object.keys(evaluation?.evaluation)?.map((rollNo: any, index: number) => {
+                      const data = evaluation?.evaluation[rollNo];
+                      return <div key={index} className="collapse collapse-arrow join-item border-base-300 border">
+                        <input type="radio" name="my-accordion-4" defaultChecked />
+                        <div className="collapse-title font-semibold">{data?.studentRollNo}. {evaluator?.classId?.students?.find((student: any) => student.rollNo === data?.studentRollNo)?.name} <div className="ml-2 badge badge-soft badge-primary"><BiTrophy /> {data?.totalMarksObtained} / {data?.totalMaximumMarks}</div></div>
+                        <div key={index} className="collapse-content text-sm">
+                          {
+                            data?.answers?.map((answer: any, index: number) => {
+                              return <div key={index} className="flex flex-col bg-gray-50 p-2 mb-2">
+                                <p className="text-sm flex items-center"><FiHelpCircle className="mr-2" /> Question {answer?.questionNumber}</p>
+                                <div className="m-2 badge badge-soft badge-primary"><BiTrophy /> {answer?.marksAwarded} / {answer?.maximumMarks}</div>
+                                <p className="text-sm flex items-center my-2"><FiFileText className="mr-2" /> Feedback</p>
+                                <p className="text-sm flex items-center opacity-60">{answer?.feedback}</p>
+                              </div>
+                            })
+                          }
+                        </div>
+                      </div>
+                    })
+                  }
+                </div>
               </div>
             </div>
             : <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
@@ -629,6 +654,19 @@ export default function Page() {
             <form method="dialog">
               <button className="btn mr-2">Cancel</button>
               <button className="btn btn-error" onClick={() => deleteEvaluator()}>Delete</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+      {/* Reset Modal */}
+      <dialog id="reset_modal" className="modal">
+        <div className="modal-box">
+          <h3 className="flex items-center font-bold text-lg"><FiRefreshCcw className="mr-2" /> Reset progress</h3>
+          <p className="py-4">Resetting progress will not terminate current evaluation process. If you are experiencing an unexpected glitch, resetting progress will fix it.</p>
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn mr-2">Cancel</button>
+              <button className="btn btn-error" onClick={() => resetEvaluator()}>Reset progress</button>
             </form>
           </div>
         </div>

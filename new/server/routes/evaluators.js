@@ -9,6 +9,7 @@ import { aiPrompt } from "../utils/ai.js";
 import Evaluation from "../models/Evaluation.js";
 import Class from "../models/Class.js";
 import EvaluationUsage from "../models/EvaluationUsage.js";
+import JSON5 from "json5";
 
 const router = express.Router();
 
@@ -154,16 +155,41 @@ const aiClient = new OpenAI({
 });
 
 const parseAIResponse = (aiContent) => {
-    // Clean up escaped characters first
-    const cleanedContent = aiContent.replace(/\\n/g, '\n').replace(/\\"/g, '"');
+    // Clean up escaped characters
+    let cleanedContent = aiContent.replace(/\\n/g, '\n').replace(/\\"/g, '"');
 
-    const jsonMatch = cleanedContent.match(/```json\n([\s\S]*?)\n```/);
+    // Try to extract JSON content from a Markdown code block first
+    let jsonMatch = cleanedContent.match(/```json\n([\s\S]*?)\n```/);
+    let jsonContent;
 
     if (jsonMatch && jsonMatch[1]) {
-        return JSON.parse(jsonMatch[1]);
+        jsonContent = jsonMatch[1];
     } else {
-        throw new Error('JSON content not found in AI response');
+        // Fallback: attempt to extract JSON by finding the first "{" and last "}"
+        const startIndex = cleanedContent.indexOf('{');
+        const endIndex = cleanedContent.lastIndexOf('}');
+        if (startIndex !== -1 && endIndex !== -1) {
+            jsonContent = cleanedContent.slice(startIndex, endIndex + 1);
+        } else {
+            throw new Error('JSON content not found in AI response');
+        }
     }
+
+    // Optional: remove unwanted control characters if needed
+    jsonContent = jsonContent.replace(/[\u0000-\u001F]+/g, '');
+
+    // Parse and return the JSON
+    try {
+        return JSON.parse(jsonContent);
+    } catch (error) {
+        console.error('JSON parsing error:', error);
+        throw error;
+    }
+};
+
+
+const sanitizeJSON = (jsonStr) => {
+    return jsonStr.replace(/[\u0000-\u001F]+/g, '');
 };
 
 const evaluateAnswerSheets = async (evaluator, rollNo, userId) => {
@@ -277,7 +303,6 @@ const evaluateAnswerSheets = async (evaluator, rollNo, userId) => {
         return parsedJSON;
     }
     catch (err) {
-        console.log(err);
         await Evaluation.updateOne({ evaluatorId: evaluator._id, userId: userId }, {
             $set: {
                 hasErrors: true,
@@ -303,27 +328,27 @@ router.post("/evaluate-all", validate, async (req, res) => {
         const limits = await Limits.findOne({ userId: req.user._id }).lean();
         const evaluationUsage = await EvaluationUsage.find({ userId: req.user._id }).countDocuments();
         const evaluationsLeft = limits.evaluationLimit - evaluationUsage;
-        
-        if(evaluationUsage >= limits.evaluationLimit) {
+
+        if (evaluationUsage >= limits.evaluationLimit) {
             return res.status(400).send("You have reached the limit of evaluations you can perform. Please upgrade your plan to evaluate more answer sheets.");
         }
 
         const classData = await Class.findById(evaluator.classId);
         const rollNos = classData.students.map(student => student.rollNo);
 
-        if(evaluationsLeft < rollNos.length) {
+        if (evaluationsLeft < rollNos.length) {
             return res.status(400).send("You do not have enough evaluations left to evaluate all answer sheets. Please upgrade your plan to evaluate more answer sheets.");
         }
 
-        if(evaluator.questionPapers.length === 0) {
+        if (evaluator.questionPapers.length === 0) {
             return res.status(400).send("No question papers to evaluate");
         }
 
-        if(evaluator.answerKeys.length === 0) {
+        if (evaluator.answerKeys.length === 0) {
             return res.status(400).send("No answer keys to evaluate");
         }
 
-        if(evaluator.answerSheets.length === 0) {
+        if (evaluator.answerSheets.length === 0) {
             return res.status(400).send("No answer sheets to evaluate");
         }
 
@@ -362,7 +387,6 @@ router.post("/evaluate-all", validate, async (req, res) => {
 
         return res.send("Evaluation started");
     } catch (err) {
-        console.log(err)
         return res.status(500).send(err);
     }
 });
@@ -393,6 +417,28 @@ router.post("/poll-evaluation", validate, async (req, res) => {
         evaluation.completedEvaluations = completedEvaluations;
 
         return res.send(evaluation);
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
+router.post("/reset", validate, async (req, res) => {
+    const schema = joi.object({
+        evaluatorId: joi.string().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+
+        await Evaluation.updateOne({ evaluatorId: data.evaluatorId, userId: req.user._id }, {
+            $set: {
+                errorLog: "",
+                hasErrors: false,
+                isCompleted: true,
+            },
+        });
+
+        return res.send("Reset");
     } catch (err) {
         return res.status(500).send(err);
     }
