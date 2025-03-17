@@ -77,6 +77,13 @@ async function sendEmail(email, res) {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
+            tls: {
+                rejectUnauthorized: false,
+            },
+            connectionTimeout: 10000, 
+            socketTimeout: 10000,
+            dnsTimeout: 10000,
+            family: 4,
         })
     );
 
