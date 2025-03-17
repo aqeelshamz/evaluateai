@@ -5,11 +5,12 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { FiBookOpen, FiChevronLeft, FiClipboard, FiExternalLink, FiFileText, FiImage, FiInfo, FiKey, FiPlay, FiSave, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
+import { FiBookOpen, FiCheckCircle, FiChevronLeft, FiClipboard, FiExternalLink, FiFileText, FiImage, FiInfo, FiKey, FiPlay, FiSave, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
 import { RiRobot2Line } from "react-icons/ri";
 import "@uploadthing/react/styles.css";
 import { UploadButton } from "@/utils/uploadthing";
-import { BiFullscreen } from "react-icons/bi";
+import { BiFullscreen, BiTrophy } from "react-icons/bi";
+import { BsCheckCircleFill } from "react-icons/bs";
 
 export default function Page() {
   const { evaluatorId } = useParams();
@@ -136,14 +137,13 @@ export default function Page() {
       },
       data: {
         evaluatorId,
-        rollNo: 4,
       }
     };
 
     axios(config)
       .then((response) => {
-        setEvaluating(false);
-        toast.success("Evaluation completed");
+        toast.success("Evaluation started");
+        pollEvaluation({ showToast: true });
       })
       .catch((error) => {
         setEvaluating(false);
@@ -151,9 +151,48 @@ export default function Page() {
       });
   }
 
+  const [evaluation, setEvaluation] = useState<any>({ notSet: true, evaluation: {} });
+  const pollEvaluation = async ({ showToast = false } = {}) => {
+    const config = {
+      method: "POST",
+      url: `${serverURL}/evaluators/poll-evaluation`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+      data: {
+        evaluatorId,
+      }
+    };
+
+    axios(config)
+      .then((response) => {
+        setEvaluation(response.data);
+        if (response.data.isCompleted) {
+          setEvaluating(false);
+          setSelectedTab("results");
+          if (showToast) {
+            toast.success("Evaluation completed");
+          }
+        } else {
+          setEvaluating(true);
+          setTimeout(() => {
+            pollEvaluation({ showToast: true });
+          }, 1000);
+        }
+      })
+      .catch((error) => {
+        setEvaluating(false);
+        if (showToast) {
+          toast.error("Failed to poll evaluation");
+        }
+      });
+  }
+
   useEffect(() => {
     getEvaluator();
     getClasses();
+    pollEvaluation();
   }, [])
 
   useEffect(() => {
@@ -167,6 +206,20 @@ export default function Page() {
         <p className="flex items-center text-xl font-bold"><RiRobot2Line className="mr-2" /> {evaluator?.title}</p>
         <div className="ml-2 text-lg badge badge-soft badge-primary"><FiUsers /> {evaluator?.classId?.name} {evaluator?.classId?.section}</div>
         <div className="ml-2 text-lg badge badge-soft badge-secondary"><FiBookOpen /> {evaluator?.classId?.subject}</div>
+        {
+          evaluation?.notSet ? "" : evaluation?.isCompleted && !evaluation?.notSet ?
+            <div className="text-sm flex items-center ml-auto">
+              <BsCheckCircleFill className="mr-2" color="green" />
+              <p>Evaluation Completed</p>
+            </div>
+            : <div className="ml-auto text-sm flex items-center">
+              <div className="tooltip tooltip-bottom" data-tip="Evaluating...">
+                <span className="mr-2 loading loading-spinner loading-xs text-primary"></span>
+              </div>
+              <progress className="progress progress-primary w-56" value={evaluation?.completedEvaluations} max={evaluation?.totalEvaluations}></progress>
+              <p className="ml-2">{evaluation?.completedEvaluations} / {evaluation?.totalEvaluations}</p>
+            </div>
+        }
       </div>
       <div className="flex mt-4 w-full justify-center">
         <div role="tablist" className="tabs tabs-box">
@@ -174,6 +227,7 @@ export default function Page() {
           <a role="tab" onClick={() => setSelectedTab("uploads")} className={"tab " + (selectedTab === "uploads" ? "tab-active" : "")}><FiUpload className="mr-2" /> Materials</a>
           <a role="tab" onClick={() => setSelectedTab("answers")} className={"tab " + (selectedTab === "answers" ? "tab-active" : "")}><FiClipboard className="mr-2" /> Answer Sheets</a>
           <a role="tab" onClick={() => setSelectedTab("evaluate")} className={"tab " + (selectedTab === "evaluate" ? "tab-active" : "")}><FiPlay className="mr-2" /> Evaluate</a>
+          {evaluation?.isCompleted && !evaluation?.notSet ? <a role="tab" onClick={() => setSelectedTab("results")} className={"tab " + (selectedTab === "results" ? "tab-active" : "")}><BiTrophy className="mr-2" /> Results</a> : ""}
         </div>
       </div>
       {selectedTab === "details" ? <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
@@ -205,7 +259,7 @@ export default function Page() {
             }
           </select>
         </fieldset>
-        <div className="mt-4 justify-between flex w-full">
+        {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <div className="mt-4 justify-between flex w-full">
           <form method="dialog">
             <button className="btn mr-2 hover:btn-error" onClick={() => {
               (document.getElementById("delete_evaluator_modal") as any).showModal();
@@ -214,7 +268,7 @@ export default function Page() {
               saveEvaluator({ showToast: true });
             }}><FiSave /> Save</button>
           </form>
-        </div>
+        </div>}
       </div> : selectedTab === "uploads" ?
         <div className="flex flex-col items-start w-full max-w-5xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
           <p className="flex items-center my-2"><FiFileText className="mr-2" /> Question Paper</p>
@@ -231,21 +285,21 @@ export default function Page() {
                       }}>
                       <BiFullscreen />
                     </button>
-                    <button className="btn btn-error btn-square btn-xs ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <button className="btn btn-error btn-square btn-xs ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                       onClick={() => {
                         evaluator.questionPapers.splice(index, 1);
                         setEvaluator({ ...evaluator });
                         saveEvaluator({ showToast: false });
                       }}>
                       <FiTrash2 />
-                    </button>
+                    </button>}
                   </div>
                   <img src={questionPaper} alt="Question Paper" className="w-28 h-32 border border-gray-300 object-cover rounded-lg mb-2" />
                 </div>
               ))
             }
           </div>
-          <UploadButton
+          {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <UploadButton
             endpoint="imageUploader"
             onClientUploadComplete={(files: any) => {
               // Do something with the response
@@ -261,7 +315,7 @@ export default function Page() {
               // Do something with the error.
               alert(`ERROR! ${error.message}`);
             }}
-          />
+          />}
           <div className="divider"></div>
           <p className="flex items-center my-2"><FiKey className="mr-2" /> Answer Keys / Answering Criteria</p>
           <p className="flex items-center mb-2 text-sm opacity-50 mb-4">Upload answer keys / answering criteria for the evaluator. You can upload multiple files.</p>
@@ -277,21 +331,21 @@ export default function Page() {
                       }}>
                       <BiFullscreen />
                     </button>
-                    <button className="btn btn-error btn-square btn-xs ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <button className="btn btn-error btn-square btn-xs ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                       onClick={() => {
                         evaluator.answerKeys.splice(index, 1);
                         setEvaluator({ ...evaluator });
                         saveEvaluator({ showToast: false });
                       }}>
                       <FiTrash2 />
-                    </button>
+                    </button>}
                   </div>
                   <img src={answerKey} alt="Question Paper" className="w-28 h-32 border border-gray-300 object-cover rounded-lg mb-2" />
                 </div>
               ))
             }
           </div>
-          <UploadButton
+          {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <UploadButton
             endpoint="imageUploader"
             onClientUploadComplete={(files: any) => {
               // Do something with the response
@@ -307,12 +361,12 @@ export default function Page() {
               // Do something with the error.
               alert(`ERROR! ${error.message}`);
             }}
-          />
+          />}
         </div> : selectedTab === "answers" ? <div className="flex flex-col items-start w-full max-w-5xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
           {
             evaluator?.classId?.students?.map((student: any, index: number) => (
               <div className="w-full flex flex-col items-start" key={index}>
-                <p className="flex items-center my-2">{index + 1}. {student?.name}</p>
+                <p className="flex items-center my-2">{student?.rollNo}. {student?.name}</p>
                 <div className="flex flex-wrap gap-2">
                   {
                     evaluator?.answerSheets?.find((s: any) => s.rollNo === student.rollNo)?.answerSheets?.map((answerSheet: any, index: number) => (
@@ -325,7 +379,7 @@ export default function Page() {
                             }}>
                             <BiFullscreen />
                           </button>
-                          <button className="btn btn-error btn-square btn-xs ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <button className="btn btn-error btn-square btn-xs ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                             onClick={() => {
                               const studentAnswerSheet = evaluator.answerSheets.find((s: any) => s.rollNo === student.rollNo);
                               studentAnswerSheet.answerSheets.splice(index, 1);
@@ -333,14 +387,14 @@ export default function Page() {
                               saveEvaluator({ showToast: false });
                             }}>
                             <FiTrash2 />
-                          </button>
+                          </button>}
                         </div>
                         <img src={answerSheet} alt="Answer Sheet" className="w-28 h-32 border border-gray-300 object-cover rounded-lg mb-2" />
                       </div>
                     ))
                   }
                 </div>
-                <UploadButton
+                {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <UploadButton
                   endpoint="imageUploader"
                   onClientUploadComplete={(files: any) => {
                     console.log("Files uploaded: ", files);
@@ -375,34 +429,75 @@ export default function Page() {
                   onUploadError={(error: Error) => {
                     alert(`ERROR! ${error.message}`);
                   }}
-                />
+                />}
                 <div className="divider"></div>
               </div>
             ))
           }
-        </div> : <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Extra prompt (optional)</legend>
-            <textarea className="textarea w-full h-24" placeholder="Prompt" value={evaluator?.extraPrompt} onChange={(x) => {
-              evaluator.extraPrompt = x.target.value;
-              setEvaluator({ ...evaluator });
-            }}></textarea>
-          </fieldset>
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Total Marks</legend>
-            <input type="number" className="input w-full" placeholder="Total Marks" value={evaluator?.totalMarks} onChange={(x) => {
-              evaluator.totalMarks = parseInt(x.target.value);
-              setEvaluator({ ...evaluator });
-            }} />
-          </fieldset>
-          <div className="mt-4 justify-between flex w-full">
-            <form method="dialog">
-              <button className="btn btn-primary" onClick={() => {
-                evaluate();
-              }}><FiPlay /> Evaluate</button>
-            </form>
+        </div> : evaluating ?
+          <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
+            {
+              Object.keys(evaluation?.evaluation)?.map((rollNo: any, index: number) => {
+                const data = evaluation?.evaluation[rollNo];
+                return <div key={index} className="flex items-center my-2">
+                  {data?.isCompleted ? <BsCheckCircleFill className="mr-2" color="green" /> : <span className="mr-2 loading loading-spinner loading-xs text-primary"></span>}
+                  <p className="opacity-50">Evaluating answer sheets of Roll No.{data?.studentRollNo} ...</p>
+                </div>
+              })
+            }
           </div>
-        </div>
+          : selectedTab === "results" ?
+            <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
+              <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+                <table className="table">
+                  {/* head */}
+                  <thead>
+                    <tr>
+                      <th>Roll No</th>
+                      <th>Name</th>
+                      <th>Marks</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      Object.keys(evaluation?.evaluation)?.map((rollNo: any, index: number) => {
+                        const data = evaluation?.evaluation[rollNo];
+                        return <tr key={index}>
+                          <th>{data?.studentRollNo}</th>
+                          <td>{evaluator?.classId?.students?.find((student: any) => student.rollNo === data?.studentRollNo)?.name}</td>
+                          <td>{data?.totalMarksObtained} / {data?.totalMaximumMarks}</td>
+                          <td><button className="btn btn-square"><FiExternalLink /></button></td>
+                        </tr>
+                      })
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            : <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">Extra prompt (optional)</legend>
+                <textarea className="textarea w-full h-24" placeholder="Prompt" value={evaluator?.extraPrompt} onChange={(x) => {
+                  evaluator.extraPrompt = x.target.value;
+                  setEvaluator({ ...evaluator });
+                }}></textarea>
+              </fieldset>
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">Total Marks <div className="tooltip tooltip-right" data-tip="This is taken into account if the total mark cannot be determined from the provided materials."><FiInfo /></div></legend>
+                <input type="number" className="input w-full" placeholder="Total Marks" value={evaluator?.totalMarks} onChange={(x) => {
+                  evaluator.totalMarks = parseInt(x.target.value);
+                  setEvaluator({ ...evaluator });
+                }} />
+              </fieldset>
+              <div className="mt-4 justify-between flex w-full">
+                <form method="dialog">
+                  <button className="btn btn-primary" onClick={() => {
+                    evaluate();
+                  }}><FiPlay /> Evaluate</button>
+                </form>
+              </div>
+            </div>
       }
       <Toaster />
       {/* Image Preview Modal */}

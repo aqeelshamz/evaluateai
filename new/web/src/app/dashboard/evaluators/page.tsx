@@ -40,6 +40,7 @@ export default function Page() {
         console.log(response.data);
         toast.success("Evaluator created");
         getEvaluators();
+        window.location.href = `/evaluator/${response.data._id}`;
       })
       .catch((error) => {
         console.error(error);
@@ -61,6 +62,11 @@ export default function Page() {
       .then((response) => {
         setEvaluators(response.data.evaluators);
         setEvaluatorLimit(response.data.limit);
+        if (response.data.hasOngoingEvaluations) {
+          setTimeout(() => {
+            getEvaluators();
+          }, 2000);
+        }
       })
       .catch((error) => {
         toast.error("Failed to get evaluators");
@@ -123,7 +129,12 @@ export default function Page() {
             className={"flex flex-col justify-between cursor-pointer min-w-64 h-40 rounded-xl border-2 p-3 border-gray-300 hover:border-4 duration-100"}
           >
             <div className="flex flex-col">
-              <h2 className="flex items-center text-black font-bold"><RiRobot2Line className="mr-2" /> {evaluator.title}</h2>
+              <h2 className="flex items-center text-black font-bold">
+                {evaluator.evaluating ?
+                  <div className="tooltip tooltip-bottom" data-tip="Evaluating...">
+                    <span className="mr-2 loading loading-spinner loading-xs text-primary"></span>
+                  </div> :
+                  <RiRobot2Line className="mr-2" />} {evaluator.title}</h2>
               <p className="text-gray-600">{evaluator.description}</p>
             </div>
             <div className="flex items-center space-x-1">
