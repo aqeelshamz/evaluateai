@@ -577,10 +577,10 @@ export default function Page() {
                     {
                       evaluation?.evaluation && Object.keys(evaluation?.evaluation)?.map((rollNo: any, index: number) => {
                         const data = evaluation?.evaluation[rollNo];
-                        return <div key={index} className="collapse collapse-arrow join-item border-base-300 border" onClick={() => {
-                          setSelectedStudent(selectedStudent === data?.studentRollNo ? -1 : data?.studentRollNo);
-                        }}>
-                          <input type="radio" name="my-accordion-4" checked={data?.studentRollNo === selectedStudent} onChange={(x) => { }} />
+                        return <div key={index} className="collapse collapse-arrow join-item border-base-300 border">
+                          <input type="radio" name="my-accordion-4" checked={data?.studentRollNo === selectedStudent} onChange={(x) => {
+                            setSelectedStudent(selectedStudent === data?.studentRollNo ? -1 : data?.studentRollNo);
+                          }} />
                           <div className="collapse-title font-semibold">{data?.studentRollNo}. {evaluator?.classId?.students?.find((student: any) => student.rollNo === data?.studentRollNo)?.name} <span className="ml-2 badge badge-soft badge-primary"><BiTrophy /> {data?.totalMarksObtained} / {data?.totalMaximumMarks}</span></div>
                           <div key={index} className="collapse-content text-sm">
                             {
