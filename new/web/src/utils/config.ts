@@ -5,6 +5,7 @@ export const appURL = "https://evaluateai.vercel.app";
 export const serverURL = "https://evaluateaiapi.aqeelshamz.com";
 export const primaryColor = "#9A4CFF";
 export const currencySymbol = "₹";
+export const currency = "INR";
 
 export const checkAuth = async () => {
     const config = {

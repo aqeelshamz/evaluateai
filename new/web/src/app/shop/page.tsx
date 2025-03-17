@@ -1,6 +1,6 @@
 "use client";
 
-import { appURL, currencySymbol, primaryColor, serverURL } from "@/utils/config";
+import { appURL, currency, currencySymbol, primaryColor, serverURL } from "@/utils/config";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -134,9 +134,9 @@ export default function Page() {
 
   const handlePayment = (data: any) => {
     const options: RazorpayOrderOptions = {
-      key: "rzp_test_lFtAUAI3UzLg4f",
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
       amount: data.amount * 100,
-      currency: "INR",
+      currency: currency,
       name: data.name,
       description: data.description,
       order_id: data.order_id,
