@@ -70,7 +70,7 @@ async function sendEmail(email, res) {
     const transporter = nodemailer.createTransport(
         smtpTransport({
             host: process.env.SMTP_HOST,
-            port: 587,
+            port: process.env.SMTP_PORT,
             requireTLS: true,
             secure: false,
             auth: {
@@ -145,6 +145,7 @@ router.post("/send-verification-code", async (req, res) => {
 
         await sendEmail(data.email, res, false);
     } catch (err) {
+        console.log(err)
         return res.status(500).send(err);
     }
 });
