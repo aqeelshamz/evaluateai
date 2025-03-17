@@ -239,4 +239,14 @@ router.post("/verify-email-signup", async (req, res) => {
     }
 });
 
+router.post("/finish-onboarding", validate, async (req, res) => {
+    try {
+        await User.findOneAndUpdate({ _id: req.user._id }, { onboardingCompleted: true });
+
+        return res.send("Onboarding completed");
+    } catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
 export default router;

@@ -22,6 +22,10 @@ const UserSchema = new mongoose.Schema(
             enum: [0, 1], // 0: admin, 1: user
             default: 1,
         },
+        onboardingCompleted: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,
