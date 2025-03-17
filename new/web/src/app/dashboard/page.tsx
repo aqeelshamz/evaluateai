@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { BiCoinStack } from "react-icons/bi";
-import { FiHome, FiUsers } from "react-icons/fi";
+import { FiHelpCircle, FiHome, FiUsers } from "react-icons/fi";
 import { RiRobot2Line } from "react-icons/ri";
 
 export default function Page() {
@@ -75,6 +75,12 @@ export default function Page() {
             <BiCoinStack className="mr-2" /> Usage & Limits
           </div>
         </Link>
+        <div
+          className="cursor-pointer w-64 h-40 flex items-center justify-center rounded-lg border-2 border-gray-300 font-semibold text-2xl hover:border-4 hover:border-primary duration-100"
+          onClick={() => (document.getElementById('onboarding_modal') as any).showModal()}
+        >
+          <FiHelpCircle className="mr-2" /> Get Started
+        </div>
       </div>
       {/* Onboarding Modal */}
       <dialog id="onboarding_modal" className="modal">
@@ -87,6 +93,7 @@ export default function Page() {
             <button className="btn btn-ghost" onClick={() => {
               if (onboardingStep <= 0) {
                 (document.getElementById('onboarding_modal') as any).close();
+                finishOnboarding();
               }
 
               if (onboardingStep > 0) {
@@ -108,11 +115,6 @@ export default function Page() {
               {onboardingStep < onboardingSteps.length - 1 ? "Next" : "Finish"}
             </button>
           </div>
-          {/* <div className="modal-action">
-            <form method="dialog">
-              <button className="btn">Close</button>
-            </form>
-          </div> */}
         </div>
       </dialog>
     </div>
