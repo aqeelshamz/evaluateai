@@ -166,7 +166,7 @@ router.post("/send-verification-code", async (req, res) => {
                 await newEmailVerification.save();
             }
 
-            return res.send({ skip: code });
+            return res.send({ skip: code.toString() });
         }
 
         await sendEmail(data.email, res, false);
