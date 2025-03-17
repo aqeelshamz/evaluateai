@@ -168,8 +168,9 @@ router.post("/send-verification-code", async (req, res) => {
 
             return res.send({ skip: code.toString() });
         }
-
-        await sendEmail(data.email, res, false);
+        else {
+            await sendEmail(data.email, res, false);
+        }
     } catch (err) {
         console.log(err)
         return res.status(500).send(err);
