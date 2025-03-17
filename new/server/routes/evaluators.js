@@ -9,7 +9,6 @@ import { aiPrompt } from "../utils/ai.js";
 import Evaluation from "../models/Evaluation.js";
 import Class from "../models/Class.js";
 import EvaluationUsage from "../models/EvaluationUsage.js";
-import JSON5 from "json5";
 
 const router = express.Router();
 
@@ -155,17 +154,14 @@ const aiClient = new OpenAI({
 });
 
 const parseAIResponse = (aiContent) => {
-    // Clean up escaped characters
     let cleanedContent = aiContent.replace(/\\n/g, '\n').replace(/\\"/g, '"');
 
-    // Try to extract JSON content from a Markdown code block first
     let jsonMatch = cleanedContent.match(/```json\n([\s\S]*?)\n```/);
     let jsonContent;
 
     if (jsonMatch && jsonMatch[1]) {
         jsonContent = jsonMatch[1];
     } else {
-        // Fallback: attempt to extract JSON by finding the first "{" and last "}"
         const startIndex = cleanedContent.indexOf('{');
         const endIndex = cleanedContent.lastIndexOf('}');
         if (startIndex !== -1 && endIndex !== -1) {
@@ -175,21 +171,13 @@ const parseAIResponse = (aiContent) => {
         }
     }
 
-    // Optional: remove unwanted control characters if needed
     jsonContent = jsonContent.replace(/[\u0000-\u001F]+/g, '');
-
-    // Parse and return the JSON
     try {
         return JSON.parse(jsonContent);
     } catch (error) {
         console.error('JSON parsing error:', error);
         throw error;
     }
-};
-
-
-const sanitizeJSON = (jsonStr) => {
-    return jsonStr.replace(/[\u0000-\u001F]+/g, '');
 };
 
 const evaluateAnswerSheets = async (evaluator, rollNo, userId) => {
