@@ -9,8 +9,8 @@ import { FiBookOpen, FiCheckCircle, FiChevronLeft, FiClipboard, FiExternalLink, 
 import { RiRobot2Line } from "react-icons/ri";
 import "@uploadthing/react/styles.css";
 import { UploadButton } from "@/utils/uploadthing";
-import { BiFullscreen, BiTrophy } from "react-icons/bi";
-import { BsCheckCircleFill } from "react-icons/bs";
+import { BiError, BiFullscreen, BiTrophy } from "react-icons/bi";
+import { BsCheckCircleFill, BsXCircleFill } from "react-icons/bs";
 
 export default function Page() {
   const { evaluatorId } = useParams();
@@ -207,18 +207,23 @@ export default function Page() {
         <div className="ml-2 text-lg badge badge-soft badge-primary"><FiUsers /> {evaluator?.classId?.name} {evaluator?.classId?.section}</div>
         <div className="ml-2 text-lg badge badge-soft badge-secondary"><FiBookOpen /> {evaluator?.classId?.subject}</div>
         {
-          evaluation?.notSet ? "" : evaluation?.isCompleted && !evaluation?.notSet ?
+          evaluation?.hasErrors && evaluation?.isCompleted ?
             <div className="text-sm flex items-center ml-auto">
-              <BsCheckCircleFill className="mr-2" color="green" />
-              <p>Evaluation Completed</p>
-            </div>
-            : <div className="ml-auto text-sm flex items-center">
-              <div className="tooltip tooltip-bottom" data-tip="Evaluating...">
-                <span className="mr-2 loading loading-spinner loading-xs text-primary"></span>
+              <BsXCircleFill className="mr-2" color="red" />
+              <p>Error Occured</p>
+            </div> : evaluation?.notSet ? "" : evaluation?.isCompleted && !evaluation?.notSet ?
+              <div className="text-sm flex items-center ml-auto">
+                <BsCheckCircleFill className="mr-2" color="green" />
+                <p>Evaluation Completed</p>
               </div>
-              <progress className="progress progress-primary w-56" value={evaluation?.completedEvaluations} max={evaluation?.totalEvaluations}></progress>
-              <p className="ml-2">{evaluation?.completedEvaluations} / {evaluation?.totalEvaluations}</p>
-            </div>
+              :
+              <div className="ml-auto text-sm flex items-center">
+                <div className="tooltip tooltip-bottom" data-tip="Evaluating...">
+                  <span className="mr-2 loading loading-spinner loading-xs text-primary"></span>
+                </div>
+                <progress className="progress progress-primary w-56" value={evaluation?.completedEvaluations} max={evaluation?.totalEvaluations}></progress>
+                <p className="ml-2">{evaluation?.completedEvaluations} / {evaluation?.totalEvaluations}</p>
+              </div>
         }
       </div>
       <div className="flex mt-4 w-full justify-center">
@@ -227,7 +232,7 @@ export default function Page() {
           <a role="tab" onClick={() => setSelectedTab("uploads")} className={"tab " + (selectedTab === "uploads" ? "tab-active" : "")}><FiUpload className="mr-2" /> Materials</a>
           <a role="tab" onClick={() => setSelectedTab("answers")} className={"tab " + (selectedTab === "answers" ? "tab-active" : "")}><FiClipboard className="mr-2" /> Answer Sheets</a>
           <a role="tab" onClick={() => setSelectedTab("evaluate")} className={"tab " + (selectedTab === "evaluate" ? "tab-active" : "")}><FiPlay className="mr-2" /> Evaluate</a>
-          {evaluation?.isCompleted && !evaluation?.notSet ? <a role="tab" onClick={() => setSelectedTab("results")} className={"tab " + (selectedTab === "results" ? "tab-active" : "")}><BiTrophy className="mr-2" /> Results</a> : ""}
+          {evaluation?.hasErrors ? <a role="tab" onClick={() => setSelectedTab("results")} className={"tab " + (selectedTab === "results" ? "tab-active" : "")}><BiError className="mr-2" /> Error Logs</a> : evaluation?.isCompleted && !evaluation?.notSet ? <a role="tab" onClick={() => setSelectedTab("results")} className={"tab " + (selectedTab === "results" ? "tab-active" : "")}><BiTrophy className="mr-2" /> Results</a> : ""}
         </div>
       </div>
       {selectedTab === "details" ? <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
@@ -446,7 +451,17 @@ export default function Page() {
               })
             }
           </div>
-          : selectedTab === "results" ?
+          : selectedTab === "results" ? evaluation?.hasErrors ?
+            <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
+              <div className="flex flex-col">
+                <div className="flex items-center mb-4">
+                  <BsXCircleFill className="mr-2" color="red" />
+                  <p>Error occured</p>
+                </div>
+                <p className="my-1 text-sm opacity-75"><span className="font-semibold">Reason:</span> {evaluation?.errorLog}</p>
+                <p className="my-1 text-sm opacity-75"><span className="font-semibold">AI Response:</span> {evaluation?.aiResponse}</p>
+              </div>
+            </div> :
             <div className="w-full max-w-xl border border-gray-200 rounded-lg mt-2 p-4 overflow-y-auto">
               <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
                 <table className="table">
