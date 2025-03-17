@@ -144,29 +144,25 @@ router.post("/send-verification-code", async (req, res) => {
             return res.status(400).send("Email already verified");
 
         if (skipEmailVerification) {
-            var minm = 1000;
-            var maxm = 9999;
-            const code = Math.floor(Math.random() * (maxm - minm + 1)) + minm;
-
             const emailVerification = await EmailVerification.findOne({
                 email: data.email,
             });
             if (emailVerification) {
                 await EmailVerification.findOneAndUpdate(
                     { email: data.email },
-                    { code: code.toString() }
+                    { code: "0000", isVerified: true }
                 );
             } else {
                 const newEmailVerification = new EmailVerification({
                     email: data.email,
-                    code: code.toString(),
-                    isVerified: false,
+                    code: "0000",
+                    isVerified: true,
                 });
 
                 await newEmailVerification.save();
             }
 
-            return res.send({ skip: code.toString() });
+            return res.send({ skip: true });
         }
         else {
             await sendEmail(data.email, res, false);

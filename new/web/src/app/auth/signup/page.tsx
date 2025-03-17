@@ -44,8 +44,7 @@ export default function Signup() {
         setIsVerificationCodeSent(true);
         console.log(response.data);
         if (response.data.skip) {
-          setVerificationCode(response.data.skip);
-          verifyEmailAndSignup(response.data.skip);
+          verifyEmailAndSignup(true);
         } else {
           toast.success("Verification code sent successfully");
         }
@@ -57,8 +56,8 @@ export default function Signup() {
       });
   }
 
-  const verifyEmailAndSignup = async (code: string) => {
-    if (!verificationCode) {
+  const verifyEmailAndSignup = async (skip: boolean) => {
+    if (!skip && !verificationCode) {
       toast.error("Enter verification code");
       return;
     }
@@ -74,7 +73,7 @@ export default function Signup() {
         email,
         name,
         password,
-        code: code ?? verificationCode
+        code: skip ? "0000" : verificationCode
       }
     };
 
@@ -82,7 +81,6 @@ export default function Signup() {
       .then((response) => {
         setLoading(false);
         setIsVerificationCodeSent(true);
-        console.log(response.data);
         toast.success("Account created!");
         login();
       })
@@ -163,7 +161,7 @@ export default function Signup() {
             sendVerificationCode();
           }
           else {
-            verifyEmailAndSignup(verificationCode);
+            verifyEmailAndSignup(false);
           }
         }}>{loading ? <span className="loading loading-spinner loading-md"></span> : isVerificationCodeSent ? "Verify Email" : "Signup"}</button>
         <p className="text-sm mt-4">Already have an account? <Link className="text-primary font-semibold" href="/auth/login">Login</Link></p>
