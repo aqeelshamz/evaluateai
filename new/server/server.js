@@ -17,7 +17,7 @@ app.use(cors());
 app.use(fileUpload());
 
 dotenv.config();
-const port = 8000;
+const port = 8800;
 
 app.get("/", (req, res) => {
     res.send(appName);
