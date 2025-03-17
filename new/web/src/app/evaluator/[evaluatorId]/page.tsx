@@ -149,7 +149,7 @@ export default function Page() {
       })
       .catch((error) => {
         setEvaluating(false);
-        toast.error("Failed to evaluate");
+        toast.error(error.response.data);
       });
   }
 
@@ -175,6 +175,7 @@ export default function Page() {
           setSelectedTab("results");
           if (showToast) {
             toast.success("Evaluation completed");
+            getLimits();
           }
         } else {
           setEvaluating(true);
@@ -191,10 +192,32 @@ export default function Page() {
       });
   }
 
+  const [limits, setLimits] = useState<any>({});
+
+  const getLimits = async () => {
+    const config = {
+      method: "GET",
+      url: `${serverURL}/users/limits`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+    };
+
+    axios(config)
+      .then((response) => {
+        setLimits(response.data);
+      })
+      .catch((error) => {
+        toast.error("Failed to get evaluators");
+      });
+  }
+
   useEffect(() => {
     getEvaluator();
     getClasses();
     pollEvaluation();
+    getLimits();
   }, [])
 
   useEffect(() => {
@@ -514,6 +537,7 @@ export default function Page() {
                   <button className="btn btn-primary" onClick={() => {
                     evaluate();
                   }}><FiPlay /> Evaluate</button>
+                  <p className="text-xs opacity-75 mt-2">{limits?.evaluationLimit - limits?.evaluationUsage} evaluations left.</p>
                 </form>
               </div>
             </div>
