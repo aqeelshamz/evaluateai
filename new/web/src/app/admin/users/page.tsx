@@ -57,10 +57,11 @@ export default function Page() {
 
     axios(config)
       .then((response) => {
-        toast.success("User deleted");
+        toast.success("User updated");
+        getUsers();
       })
       .catch((error) => {
-        toast.error("Failed to delete user");
+        toast.error("Failed to update user");
       });
   }
 
@@ -80,9 +81,10 @@ export default function Page() {
     axios(config)
       .then((response) => {
         toast.success("User deleted");
+        getUsers();
       })
       .catch((error) => {
-        toast.error("Failed to delete user");
+        toast.error(error.response.data);
       });
   }
 
