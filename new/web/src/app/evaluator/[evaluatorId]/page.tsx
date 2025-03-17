@@ -386,8 +386,8 @@ export default function Page() {
           {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <UploadButton
             endpoint="imageUploader"
             onBeforeUploadBegin={async (files: any) => {
-              var pdfFiles = files.filter((file: any) => file.type === "application/pdf");
-              var otherFiles = files.filter((file: any) => file.type !== "application/pdf");
+              const pdfFiles = files.filter((file: any) => file.type === "application/pdf");
+              const otherFiles = files.filter((file: any) => file.type !== "application/pdf");
 
               if (pdfFiles.length === 0) return files;
 
@@ -399,8 +399,6 @@ export default function Page() {
               return otherFiles;
             }}
             onClientUploadComplete={(files: any) => {
-              // Do something with the response
-              console.log("Files: ", files);
               for (const file of files) {
                 evaluator.questionPapers.push(file.url);
               }
@@ -409,7 +407,6 @@ export default function Page() {
               saveEvaluator({ showToast: false });
             }}
             onUploadError={(error: Error) => {
-              // Do something with the error.
               alert(`ERROR! ${error.message}`);
             }}
           />}
@@ -445,8 +442,8 @@ export default function Page() {
           {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <UploadButton
             endpoint="imageUploader"
             onBeforeUploadBegin={async (files: any) => {
-              var pdfFiles = files.filter((file: any) => file.type === "application/pdf");
-              var otherFiles = files.filter((file: any) => file.type !== "application/pdf");
+              const pdfFiles = files.filter((file: any) => file.type === "application/pdf");
+              const otherFiles = files.filter((file: any) => file.type !== "application/pdf");
 
               if (pdfFiles.length === 0) return files;
 
@@ -458,8 +455,6 @@ export default function Page() {
               return otherFiles;
             }}
             onClientUploadComplete={async (files: any) => {
-              // Do something with the response
-              console.log("Files: ", files);
               for (const file of files) {
                 evaluator.answerKeys.push(file.url);
               }
@@ -468,7 +463,6 @@ export default function Page() {
               saveEvaluator({ showToast: false });
             }}
             onUploadError={(error: Error) => {
-              // Do something with the error.
               alert(`ERROR! ${error.message}`);
             }}
           />}
@@ -507,8 +501,8 @@ export default function Page() {
                 {!evaluation?.isCompleted && !evaluation?.notSet ? "" : <UploadButton
                   endpoint="imageUploader"
                   onBeforeUploadBegin={async (files: any) => {
-                    var pdfFiles = files.filter((file: any) => file.type === "application/pdf");
-                    var otherFiles = files.filter((file: any) => file.type !== "application/pdf");
+                    const pdfFiles = files.filter((file: any) => file.type === "application/pdf");
+                    const otherFiles = files.filter((file: any) => file.type !== "application/pdf");
 
                     if (pdfFiles.length === 0) return files;
 
@@ -520,24 +514,17 @@ export default function Page() {
                     return otherFiles;
                   }}
                   onClientUploadComplete={(files: any) => {
-                    console.log("Files uploaded: ", files);
-
                     const uploadedUrls = files.map((file: any) => file.url);
 
                     setEvaluator((prevEvaluator: any) => {
-                      // Clone the previous evaluator state
                       const updatedEvaluator = { ...prevEvaluator };
-
-                      // Find or create the entry for this student in answerSheets
-                      let studentAnswerSheet = updatedEvaluator.answerSheets.find(
+                      const studentAnswerSheet = updatedEvaluator.answerSheets.find(
                         (s: any) => s.rollNo === student.rollNo
                       );
 
                       if (studentAnswerSheet) {
-                        // If student already exists, push new answer URLs
                         studentAnswerSheet.answerSheets.push(...uploadedUrls);
                       } else {
-                        // If student does not exist, create a new entry
                         updatedEvaluator.answerSheets.push({
                           rollNo: student.rollNo,
                           answerSheets: uploadedUrls,
