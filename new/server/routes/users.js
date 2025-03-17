@@ -15,6 +15,7 @@ import { defaultAIModel } from "../utils/models.js";
 import { defaultPaymentGateway } from "../utils/payment.js";
 import Evaluator from "../models/Evaluator.js";
 import Class from "../models/Class.js";
+import EvaluationUsage from "../models/EvaluationUsage.js";
 
 dotenv.config();
 
@@ -30,9 +31,11 @@ router.get("/limits", validate, async (req, res) => {
 
     const evaluators = await Evaluator.find({ userId: req.user._id }).countDocuments();
     const classes = await Class.find({ userId: req.user._id }).countDocuments();
+    const evaluations = await EvaluationUsage.find({ userId: req.user._id }).countDocuments();
 
     limits.evaluatorUsage = evaluators;
     limits.classesUsage = classes;
+    limits.evaluationUsage = evaluations;
 
     res.send(limits);
 });

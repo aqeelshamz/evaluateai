@@ -28,11 +28,28 @@ const EvaluatorSchema = new mongoose.Schema(
             type: Array,
             required: true,
         },
+        answerSheets: [
+            {
+                rollNo: {
+                    type: Number,
+                    required: true,
+                },
+                answerSheets: {
+                    type: Array,
+                    required: true,
+                },
+            },
+        ],
         extraPrompt: {
             type: String,
             required: false,
             default: "",
-        }
+        },
+        totalMarks: {
+            type: Number,
+            required: true,
+            default: 100,
+        },
     },
     {
         timestamps: true,

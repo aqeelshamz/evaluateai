@@ -23,12 +23,12 @@ export const aiModels = [
         "model": "meta-llama/llama-3.2-90b-vision-instruct",
         "cost": "$5.146/K input imgs"
     },
-    {
-        "name": "OpenAI: GPT-4.5 (Preview)",
-        "logo": "/openai.png",
-        "model": "openai/gpt-4.5-preview",
-        "cost": "$108.4/K input imgs"
-    },
+    // {
+    //     "name": "OpenAI: GPT-4.5 (Preview)",
+    //     "logo": "/openai.png",
+    //     "model": "openai/gpt-4.5-preview",
+    //     "cost": "$108.4/K input imgs"
+    // },
     {
         "name": "OpenAI: ChatGPT-4o",
         "logo": "/openai.png",
