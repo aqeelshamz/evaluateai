@@ -12,6 +12,7 @@ import ShopItem from "../models/ShopItem.js";
 import Settings from "../models/Settings.js";
 import Order from "../models/Order.js";
 import EvaluationUsage from "../models/EvaluationUsage.js";
+import EmailVerification from "../models/EmailVerification.js";
 
 const router = express.Router();
 
@@ -108,6 +109,7 @@ router.post("/users/delete", validateAdmin, async (req, res) => {
         await Evaluator.deleteMany({ userId: data.userId });
         await Class.deleteMany({ userId: data.userId });
         await EvaluationUsage.deleteMany({ userId: data.userId });
+        await EmailVerification.deleteMany({ email: user.email });
 
         return res.send(user);
     }
