@@ -57,3 +57,5 @@ Strictly adhere to the following JSON structure for each evaluation:
 - If resources are unclear or missing, return a plain text error message.
 - Response should not contain any characters outside the ASCII range. Should be JSON parsable.
 `;
+
+export const maxTokens = 5000;

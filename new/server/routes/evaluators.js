@@ -5,7 +5,7 @@ import Evaluator from "../models/Evaluator.js";
 import Limits from "../models/Limits.js";
 import OpenAI from "openai";
 import Settings from "../models/Settings.js";
-import { aiPrompt } from "../utils/ai.js";
+import { aiPrompt, maxTokens } from "../utils/ai.js";
 import Evaluation from "../models/Evaluation.js";
 import Class from "../models/Class.js";
 import EvaluationUsage from "../models/EvaluationUsage.js";
@@ -209,6 +209,7 @@ const evaluateAnswerSheets = async (evaluator, rollNo, userId) => {
 
         const completion = await aiClient.chat.completions.create({
             model: aiModel,
+            max_tokens: maxTokens,
             messages: [
                 { role: "system", content: aiPrompt },
                 {
