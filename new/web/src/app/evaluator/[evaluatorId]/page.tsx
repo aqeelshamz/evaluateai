@@ -232,7 +232,9 @@ export default function Page() {
       }
     };
 
-    axios(config).catch((error) => {
+    axios(config).then(()=>{
+      pollEvaluation();
+    }).catch((error) => {
       toast.error(error.response.data);
     });
   }
