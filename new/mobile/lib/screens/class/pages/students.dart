@@ -58,7 +58,49 @@ class _StudentsPageState extends State<StudentsPage> {
                       classesProvider.classData["students"][index]["email"]),
                   trailing: IconButton(
                     icon: Icon(FeatherIcons.trash),
-                    onPressed: () {},
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Row(
+                                children: [
+                                  Icon(FeatherIcons.trash2),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text("Delete Student"),
+                                ],
+                              ),
+                              content: Text(
+                                "Are you sure you want to delete this student?",
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Provider.of<ClassesProvider>(context,
+                                            listen: false)
+                                        .deleteStudent(classesProvider
+                                                .classData["students"][index]
+                                            ["rollNo"]);
+                                  },
+                                  child: Text(
+                                    "Delete",
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          });
+                    },
                   ),
                 );
               },

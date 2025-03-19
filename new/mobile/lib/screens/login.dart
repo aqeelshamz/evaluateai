@@ -17,6 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   String email = "";
   String password = "";
+  bool showPassword = false;
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +51,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 onChanged: (value) {
                   password = value;
                 },
-                obscureText: true,
+                obscureText: !showPassword,
                 decoration: InputDecoration(
                   prefixIcon: Icon(FeatherIcons.lock),
                   hintText: "Password",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
+                  ),
+                  suffix: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        showPassword = !showPassword;
+                      });
+                    },
+                    child: Icon(
+                        showPassword ? FeatherIcons.eyeOff : FeatherIcons.eye),
                   ),
                 ),
               ),

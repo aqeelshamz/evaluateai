@@ -46,114 +46,119 @@ class _ClassesPageState extends State<ClassesPage> {
           ),
           const SizedBox(height: 20),
           Expanded(
-            child: ListView.builder(
-              itemCount: classesProvider.classes.length,
-              itemBuilder: (context, index) {
-                return InkWell(
-                  onTap: () {
-                    classesProvider
-                        .selectClass(classesProvider.classes[index]["_id"]);
-                    Get.to(() => ClassScreen());
-                  },
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 5),
-                    padding: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey.withAlpha(50),
-                        width: 4,
+            child: RefreshIndicator(
+              onRefresh: () async {
+                classesProvider.getClasses();
+              },
+              child: ListView.builder(
+                itemCount: classesProvider.classes.length,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () {
+                      classesProvider
+                          .selectClass(classesProvider.classes[index]["_id"]);
+                      Get.to(() => ClassScreen());
+                    },
+                    child: Container(
+                      margin: EdgeInsets.symmetric(vertical: 5),
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey.withAlpha(50),
+                          width: 4,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(FeatherIcons.users),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "${classesProvider.classes[index]["name"]} ${classesProvider.classes[index]["section"]}",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(FeatherIcons.users),
+                              SizedBox(
+                                width: 10,
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 15),
-                              decoration: BoxDecoration(
-                                color: primaryColor.withAlpha(30),
-                                borderRadius: BorderRadius.circular(50),
+                              Text(
+                                "${classesProvider.classes[index]["name"]} ${classesProvider.classes[index]["section"]}",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    FeatherIcons.bookOpen,
-                                    size: 18,
-                                    color: primaryColor,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    classesProvider.classes[index]["subject"],
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
+                            ],
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 5, horizontal: 15),
+                                decoration: BoxDecoration(
+                                  color: primaryColor.withAlpha(30),
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      FeatherIcons.bookOpen,
+                                      size: 18,
                                       color: primaryColor,
                                     ),
-                                  ),
-                                ],
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      classesProvider.classes[index]["subject"],
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: primaryColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 15),
-                              decoration: BoxDecoration(
-                                color: secondaryColor.withAlpha(30),
-                                borderRadius: BorderRadius.circular(50),
+                              SizedBox(
+                                width: 10,
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    FeatherIcons.users,
-                                    size: 18,
-                                    color: secondaryColor,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    "${classesProvider.classes[index]["students"].length} Students",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 5, horizontal: 15),
+                                decoration: BoxDecoration(
+                                  color: secondaryColor.withAlpha(30),
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      FeatherIcons.users,
+                                      size: 18,
                                       color: secondaryColor,
                                     ),
-                                  ),
-                                ],
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      "${classesProvider.classes[index]["students"].length} Students",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: secondaryColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         ],

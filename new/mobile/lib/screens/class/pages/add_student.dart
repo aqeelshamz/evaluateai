@@ -1,7 +1,9 @@
+import 'package:evaluateai/providers/classes.dart';
 import 'package:evaluateai/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 class AddStudentScreen extends StatefulWidget {
   const AddStudentScreen({super.key});
@@ -17,6 +19,8 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var classesProvider = Provider.of<ClassesProvider>(context, listen: false);
+
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -47,6 +51,19 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                 ],
               ),
               const SizedBox(height: 20),
+              Text("Roll No"),
+              const SizedBox(height: 10),
+              TextField(
+                keyboardType: TextInputType.number,
+                controller: rollNoController,
+                decoration: InputDecoration(
+                  hintText: "Roll No",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               Text("Name"),
               const SizedBox(height: 10),
               TextField(
@@ -72,27 +89,28 @@ class _AddStudentScreenState extends State<AddStudentScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text("Roll No"),
-              const SizedBox(height: 10),
-              TextField(
-                keyboardType: TextInputType.number,
-                controller: rollNoController,
-                decoration: InputDecoration(
-                  hintText: "Roll No",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  classesProvider.addStudent(
+                    nameController.text,
+                    emailController.text,
+                    int.parse(rollNoController.text),
+                  );
+                },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 15),
                   backgroundColor: primaryColor,
                   foregroundColor: Colors.white,
                 ),
-                child: Text("Add Student"),
+                child: classesProvider.loading
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text("Add Student"),
               ),
             ],
           ),

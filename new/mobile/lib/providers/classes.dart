@@ -100,7 +100,7 @@ class ClassesProvider extends ChangeNotifier {
     }
   }
 
-  void addStudent(String email, String name, int rollNo) async {
+  void addStudent(String name, String email, int rollNo) async {
     loading = true;
     notifyListeners();
 
@@ -116,6 +116,8 @@ class ClassesProvider extends ChangeNotifier {
 
     if (response.statusCode == 200) {
       Fluttertoast.showToast(msg: "Student added");
+      getClass();
+      getClasses();
       Get.back();
     } else {
       Fluttertoast.showToast(msg: "Failed to add student");
@@ -137,6 +139,8 @@ class ClassesProvider extends ChangeNotifier {
 
     if (response.statusCode == 200) {
       Fluttertoast.showToast(msg: "Student deleted");
+      getClass();
+      getClasses();
       Get.back();
     } else {
       Fluttertoast.showToast(msg: "Failed to delete student");

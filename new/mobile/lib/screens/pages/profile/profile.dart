@@ -1,5 +1,6 @@
 import 'package:evaluateai/providers/user.dart';
 import 'package:evaluateai/utils/colors.dart';
+import 'package:evaluateai/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
@@ -153,8 +154,45 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       TextButton.icon(
                         onPressed: () {
-                          Provider.of<UserProvider>(context, listen: false)
-                              .logOut();
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Row(
+                                    children: [
+                                      Icon(FeatherIcons.logOut),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text("Logout"),
+                                    ],
+                                  ),
+                                  content: Text(
+                                    "Are you sure you want to logout?",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Get.back();
+                                      },
+                                      child: Text("Cancel"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Provider.of<UserProvider>(context,
+                                                listen: false)
+                                            .logOut();
+                                      },
+                                      child: Text(
+                                        "Logout",
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              });
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: Colors.red,
