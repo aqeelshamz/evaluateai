@@ -420,6 +420,18 @@ router.post("/save-evaluation", validate, async (req, res) => {
     try {
         const data = await schema.validateAsync(req.body);
 
+        for (const rollNo in data.evaluation) {
+            const sheet = data.evaluation[rollNo];
+            for (const answer of sheet.answers) {
+                if (answer.marksAwarded < 0) {
+                    return res.status(400).send("Marks awarded cannot be less than 0");
+                }
+                if (answer.marksAwarded > answer.maximumMarks) {
+                    return res.status(400).send("Marks awarded cannot be greater than maximum marks");
+                }
+            }
+        }
+
         await Evaluation.updateOne({ evaluatorId: data.evaluatorId, userId: req.user._id }, {
             $set: {
                 evaluation: data.evaluation,

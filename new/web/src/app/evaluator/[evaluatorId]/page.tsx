@@ -232,14 +232,7 @@ export default function Page() {
       }
     };
 
-    axios(config)
-      .then((response) => {
-        toast.success("Evaluation saved");
-      })
-      .catch((error) => {
-        setEvaluating(false);
-        toast.error("Failed to save evaluation");
-      });
+    axios(config);
   }
 
   const [limits, setLimits] = useState<any>({});
@@ -614,6 +607,17 @@ export default function Page() {
                                     answer.marksAwarded = x.target.value;
                                     setEvaluation({ ...evaluation });
                                   }} onBlur={() => {
+                                    if(answer.marksAwarded > answer.maximumMarks) {
+                                      toast.error("Marks awarded cannot be greater than maximum marks.");
+                                      answer.marksAwarded = answer.maximumMarks;
+                                      setEvaluation({ ...evaluation });
+                                    }
+
+                                    if(answer.marksAwarded < 0) {
+                                      toast.error("Marks awarded cannot be negative.");
+                                      answer.marksAwarded = 0;
+                                      setEvaluation({ ...evaluation });
+                                    }
                                     saveEvaluation();
                                   }} /> / {answer?.maximumMarks}</div>
                                   <p className="text-sm flex items-center">{answer?.questionNumber}. {answer?.question}</p>
