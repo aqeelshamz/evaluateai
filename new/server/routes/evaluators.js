@@ -420,6 +420,13 @@ router.post("/save-evaluation", validate, async (req, res) => {
     try {
         const data = await schema.validateAsync(req.body);
 
+        //evaluation is an object with rollNo as key and answers, totalMarksObtained, totalMaximumMarks, overallFeedback, isCompleted as values
+        //answers is an array of objects with question, answer, marksAwarded, maximumMarks, feedback
+        //we have to check if all marks awarded are less than or equal to maximum marks and not less than 0
+
+        //also calculate total marks obtained and if it is greater than total maximum marks, make it equal to total maximum marks
+        var totalMarksObtained = 0;
+        //iterate the keys of evaluation object
         for (const rollNo in data.evaluation) {
             const sheet = data.evaluation[rollNo];
             for (const answer of sheet.answers) {
@@ -429,7 +436,15 @@ router.post("/save-evaluation", validate, async (req, res) => {
                 if (answer.marksAwarded > answer.maximumMarks) {
                     return res.status(400).send("Marks awarded cannot be greater than maximum marks");
                 }
+
+                totalMarksObtained += answer.marksAwarded;
+
+                if (totalMarksObtained > sheet.totalMaximumMarks) {
+                    totalMarksObtained = sheet.totalMaximumMarks;
+                }
             }
+
+            data.evaluation[rollNo].totalMarksObtained = totalMarksObtained;
         }
 
         await Evaluation.updateOne({ evaluatorId: data.evaluatorId, userId: req.user._id }, {
