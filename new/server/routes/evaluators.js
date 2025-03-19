@@ -425,9 +425,9 @@ router.post("/save-evaluation", validate, async (req, res) => {
         //we have to check if all marks awarded are less than or equal to maximum marks and not less than 0
 
         //also calculate total marks obtained and if it is greater than total maximum marks, make it equal to total maximum marks
-        var totalMarksObtained = 0;
         //iterate the keys of evaluation object
         for (const rollNo in data.evaluation) {
+            var totalMarksObtained = 0;
             const sheet = data.evaluation[rollNo];
             for (const answer of sheet.answers) {
                 if (answer.marksAwarded < 0) {
