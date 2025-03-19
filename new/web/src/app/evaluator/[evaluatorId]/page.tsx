@@ -5,12 +5,13 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { FiBookOpen, FiCheckCircle, FiChevronLeft, FiClipboard, FiEdit, FiExternalLink, FiFileText, FiHelpCircle, FiImage, FiInfo, FiKey, FiPlay, FiRefreshCcw, FiSave, FiStar, FiTrash, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
+import { FiBookOpen, FiCheckCircle, FiChevronLeft, FiClipboard, FiDownload, FiEdit, FiExternalLink, FiFileText, FiHelpCircle, FiImage, FiInfo, FiKey, FiPlay, FiRefreshCcw, FiSave, FiStar, FiTrash, FiTrash2, FiUpload, FiUsers } from "react-icons/fi";
 import { RiRobot2Line } from "react-icons/ri";
 import "@uploadthing/react/styles.css";
 import { UploadButton } from "@/utils/uploadthing";
 import { BiError, BiFullscreen, BiTrophy } from "react-icons/bi";
 import { BsCheckCircleFill, BsXCircleFill } from "react-icons/bs";
+import * as XLSX from "xlsx";
 
 export default function Page() {
   const { evaluatorId } = useParams();
@@ -232,7 +233,7 @@ export default function Page() {
       }
     };
 
-    axios(config).then(()=>{
+    axios(config).then(() => {
       pollEvaluation();
     }).catch((error) => {
       toast.error(error.response.data);
@@ -593,6 +594,32 @@ export default function Page() {
             </div> :
             <div className="flex w-full justify-center h-full overflow-hidden">
               <div className="w-full max-w-2xl border border-gray-200 rounded-l-lg mt-2 p-4 overflow-y-auto">
+                <button className="btn btn-primary mb-2" onClick={() => {
+                  //create marksheet excel and download it
+                  const data = evaluation?.evaluation;
+                  const wb = XLSX.utils.book_new();
+                  const ws = XLSX.utils.json_to_sheet(Object.keys(data).map((rollNo: any) => {
+                    const student = evaluator?.classId?.students?.find((student: any) => student.rollNo === rollNo);
+                    const studentData = data[rollNo];
+                    return {
+                      "Roll No.": rollNo,
+                      "Name": studentData?.name,
+                      "Total Marks Obtained": studentData?.totalMarksObtained,
+                      "Total Maximum Marks": studentData?.totalMaximumMarks,
+                      "Percentage": (studentData?.totalMarksObtained / studentData?.totalMaximumMarks) * 100
+                    }
+                  }));
+                  XLSX.utils.book_append_sheet(wb, ws, "Marksheet");
+
+                  //create blob and download
+                  const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+                  const blob = new Blob([wbout], { type: "application/octet-stream" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = "marksheet.xlsx";
+                  a.click();
+                }}><FiDownload /> Download Marksheet</button>
                 <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
                   <div className="join join-vertical bg-base-100 w-full">
                     {

@@ -396,10 +396,18 @@ router.post("/poll-evaluation", validate, async (req, res) => {
         var totalEvaluations = 0;
         var completedEvaluations = 0;
 
+        const evaluator = await Evaluator.findById(data.evaluatorId);
+        const classData = await Class.findById(evaluator.classId);
+
         for (const rollNo in evaluation.evaluation) {
             totalEvaluations++;
             if (evaluation.evaluation[rollNo].isCompleted) {
                 completedEvaluations++;
+                const student = classData.students.find(student => student.rollNo === parseInt(rollNo));
+                if (student) {
+                    evaluation.evaluation[rollNo].studentName = student.name;
+                    evaluation.evaluation[rollNo].studentEmail = student.email;
+                }
             }
         }
 
