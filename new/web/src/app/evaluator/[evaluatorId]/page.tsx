@@ -603,7 +603,7 @@ export default function Page() {
                     const studentData = data[rollNo];
                     return {
                       "Roll No.": rollNo,
-                      "Name": studentData?.name,
+                      "Name": studentData?.studentName,
                       "Total Marks Obtained": studentData?.totalMarksObtained,
                       "Total Maximum Marks": studentData?.totalMaximumMarks,
                       "Percentage": (studentData?.totalMarksObtained / studentData?.totalMaximumMarks) * 100
@@ -629,7 +629,7 @@ export default function Page() {
                           <input type="radio" name="my-accordion-4" checked={data?.studentRollNo === selectedStudent} onChange={(x) => {
                             setSelectedStudent(selectedStudent === data?.studentRollNo ? -1 : data?.studentRollNo);
                           }} />
-                          <div className="collapse-title font-semibold">{data?.studentRollNo}. {evaluator?.classId?.students?.find((student: any) => student.rollNo === data?.studentRollNo)?.name} <span className="ml-2 badge badge-soft badge-primary"><BiTrophy /> {data?.totalMarksObtained} / {data?.totalMaximumMarks}</span></div>
+                          <div className="collapse-title font-semibold">{data?.studentRollNo}. {data?.studentName} <span className="ml-2 badge badge-soft badge-primary"><BiTrophy /> {data?.totalMarksObtained} / {data?.totalMaximumMarks}</span></div>
                           <div key={index} className="collapse-content text-sm">
                             {
                               data?.answers?.map((answer: any, index: number) => {
@@ -671,7 +671,7 @@ export default function Page() {
               <div className="w-full max-w-2xl border border-gray-200 rounded-r-lg mt-2 p-4 overflow-y-auto">
                 {
                   selectedStudent === -1 ? <p>Select a Student to view answer sheet.</p> :
-                    <p className="text-lg font-bold mb-2">{selectedStudent}. {evaluator?.classId?.students?.find((student: any) => student.rollNo === selectedStudent)?.name}</p>}
+                    <p className="flex items-center text-lg font-bold mb-2">{selectedStudent}. {evaluation?.evaluation[selectedStudent]?.studentName} <span className="ml-2 badge badge-soft badge-primary"><BiTrophy /> {evaluation?.evaluation[selectedStudent]?.totalMarksObtained} / {evaluation?.evaluation[selectedStudent]?.totalMaximumMarks}</span></p>}
                 {selectedStudent === -1 ? "" : <div role="tablist" className="tabs tabs-lift tabs-sm">
                   <a onClick={() => setSelectedResultsSubTab("questionPapers")} role="tab" className={"tab " + (selectedResultsSubTab === "questionPapers" ? "tab-active" : "")}>Question Paper</a>
                   <a onClick={() => setSelectedResultsSubTab("answerKeys")} role="tab" className={"tab " + (selectedResultsSubTab === "answerKeys" ? "tab-active" : "")}>Answer Keys</a>
