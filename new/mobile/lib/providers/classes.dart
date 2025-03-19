@@ -7,6 +7,8 @@ import '../utils/api.dart';
 class ClassesProvider extends ChangeNotifier {
   bool loading = false;
   List classes = [];
+  Map classData = {};
+  String selectedClassId = "";
 
   Future<void> getClasses() async {
     loading = true;
@@ -17,6 +19,21 @@ class ClassesProvider extends ChangeNotifier {
       loading = false;
 
       classes = jsonDecode(response.body)["classes"];
+      notifyListeners();
+    }
+  }
+
+  Future<void> getClass() async {
+    loading = true;
+
+    var response = await Server.post("/classes/by-id", {
+      "classId": selectedClassId,
+    });
+
+    if (response.statusCode == 200) {
+      loading = false;
+
+      classData = jsonDecode(response.body);
       notifyListeners();
     }
   }
@@ -37,5 +54,10 @@ class ClassesProvider extends ChangeNotifier {
     } else {
       Fluttertoast.showToast(msg: "Failed to create class");
     }
+  }
+
+  void selectClass(String classId) {
+    selectedClassId = classId;
+    notifyListeners();
   }
 }
