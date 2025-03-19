@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:evaluateai/providers/user.dart';
 import 'package:evaluateai/screens/home.dart';
 import 'package:evaluateai/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:uploadthing/uploadthing.dart';
 
 import '../utils/api.dart';
@@ -15,6 +17,58 @@ class EvaluatorProvider extends ChangeNotifier {
   Map evaluatorData = {};
   String selectedEvaluatorId = "";
   Map evaluationData = {};
+
+  bool evaluating = false;
+  Future<void> evaluate() async {
+    evaluating = true;
+    notifyListeners();
+
+    var response = await Server.post("/evaluators/evaluate-all", {
+      "evaluatorId": selectedEvaluatorId,
+    });
+
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(msg: "Evaluation started");
+      getEvaluation();
+    } else {
+      evaluating = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getEvaluation() async {
+    loading = true;
+
+    var response = await Server.post("/evaluators/poll-evaluation", {
+      "evaluatorId": selectedEvaluatorId,
+    });
+
+    if (response.statusCode == 200) {
+      loading = false;
+
+      evaluationData = jsonDecode(response.body);
+      notifyListeners();
+
+      if (evaluationData["isCompleted"]) {
+        if (evaluating == true) {
+          if (!evaluationData["hasErrors"]) {
+            Fluttertoast.showToast(
+                msg: "Evaluation completed. Check 🏆 Results");
+          } else {
+            Fluttertoast.showToast(
+                msg: "Some error occured. Check Errors");
+          }
+        }
+        evaluating = false;
+        Provider.of<UserProvider>(Get.context!).getLimits();
+        notifyListeners();
+      } else {
+        Future.delayed(Duration(seconds: 1), () {
+          getEvaluation();
+        });
+      }
+    }
+  }
 
   Future<void> getEvaluators() async {
     loading = true;
@@ -116,21 +170,6 @@ class EvaluatorProvider extends ChangeNotifier {
 
       evaluatorData = jsonDecode(response.body);
       getEvaluation();
-      notifyListeners();
-    }
-  }
-
-  Future<void> getEvaluation() async {
-    loading = true;
-
-    var response = await Server.post("/evaluators/poll-evaluation", {
-      "evaluatorId": selectedEvaluatorId,
-    });
-
-    if (response.statusCode == 200) {
-      loading = false;
-
-      evaluationData = jsonDecode(response.body);
       notifyListeners();
     }
   }

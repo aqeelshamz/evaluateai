@@ -1,4 +1,5 @@
 import 'package:evaluateai/providers/evaluator.dart';
+import 'package:evaluateai/providers/user.dart';
 import 'package:evaluateai/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -25,6 +26,7 @@ class _EvaluatePageState extends State<EvaluatePage> {
   }
 
   void getData() async {
+    Provider.of<UserProvider>(Get.context!, listen: false).getLimits();
     var evaluatorProvider =
         Provider.of<EvaluatorProvider>(Get.context!, listen: false);
     await evaluatorProvider.getEvaluator();
@@ -35,6 +37,10 @@ class _EvaluatePageState extends State<EvaluatePage> {
 
   @override
   Widget build(BuildContext context) {
+    var userProvider = Provider.of<UserProvider>(context, listen: true);
+    var evaluatorProvider =
+        Provider.of<EvaluatorProvider>(context, listen: true);
+
     return Container(
       width: Get.width,
       height: Get.height,
@@ -74,19 +80,86 @@ class _EvaluatePageState extends State<EvaluatePage> {
           ),
           const SizedBox(height: 20),
           TextButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              if (evaluatorProvider.evaluating) {
+                return;
+              }
+
+              evaluatorProvider.evaluate();
+            },
             style: TextButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 15),
               backgroundColor: primaryColor,
               foregroundColor: Colors.white,
             ),
-            icon: Icon(FeatherIcons.play),
-            label: Text("Evaluate"),
+            icon: evaluatorProvider.evaluating
+                ? SizedBox(
+                    width: 10,
+                    height: 10,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Icon(FeatherIcons.play),
+            label: Text(
+                evaluatorProvider.evaluating ? "Evaluating..." : "Evaluate"),
           ),
           const SizedBox(height: 10),
-          Center(child: Text("0 evaluations left.")),
+          Center(
+            child: Text(
+              "${userProvider.limits["evaluationLimit"] - userProvider.limits["evaluationUsage"]} evaluations left.",
+            ),
+          ),
+          const SizedBox(height: 20),
+          evaluatorProvider.evaluating
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: getEvaluationProgressWidgets(),
+                )
+              : const SizedBox.shrink()
         ],
       ),
     );
+  }
+
+  List<Widget> getEvaluationProgressWidgets() {
+    List<Widget> widgets = [];
+
+    var evaluatorProvider =
+        Provider.of<EvaluatorProvider>(context, listen: true);
+
+    for (int i = 0;
+        i < evaluatorProvider.evaluationData["evaluation"].keys.length;
+        i++) {
+      var data = evaluatorProvider.evaluationData["evaluation"]
+          [evaluatorProvider.evaluationData["evaluation"].keys.toList()[i]];
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            children: [
+              data["isCompleted"]
+                  ? Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                    )
+                  : SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                      ),
+                    ),
+              SizedBox(width: 10),
+              Text(
+                  "${data["isCompleted"] ? "Evaluated" : "Evaluating"} answer sheets of Roll No. ${data["studentRollNo"]} ${data["isCompleted"] ? "" : "..."}"),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return widgets;
   }
 }

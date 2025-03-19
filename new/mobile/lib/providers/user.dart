@@ -72,7 +72,6 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> getLimits() async {
     loading = true;
-    notifyListeners();
 
     var response = await Server.get("/users/limits");
 

@@ -34,7 +34,7 @@ class _EvaluatorScreenState extends State<EvaluatorScreen> {
           pageController.jumpToPage(index);
         },
         selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
+        destinations: <Widget>[
           NavigationDestination(
             icon: Icon(FeatherIcons.info),
             label: 'Details',
@@ -52,8 +52,14 @@ class _EvaluatorScreenState extends State<EvaluatorScreen> {
             label: 'Evaluate',
           ),
           NavigationDestination(
-            icon: Icon(Icons.emoji_events_outlined),
-            label: 'Results',
+            icon: Icon(
+              evaluatorProvider.evaluationData["hasErrors"]
+                  ? FeatherIcons.xCircle
+                  : Icons.emoji_events_outlined,
+            ),
+            label: evaluatorProvider.evaluationData["hasErrors"]
+                ? 'Errors'
+                : 'Results',
           ),
         ],
       ),
