@@ -1,3 +1,6 @@
+import 'package:evaluateai/providers/classes.dart';
+import 'package:evaluateai/providers/evaluator.dart';
+import 'package:evaluateai/providers/shop.dart';
 import 'package:evaluateai/providers/user.dart';
 import 'package:evaluateai/screens/splash.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +20,16 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => EvaluatorProvider()),
+        ChangeNotifierProvider(create: (context) => ClassesProvider()),
+        ChangeNotifierProvider(create: (context) => ShopProvider()),
       ],
       child: GetMaterialApp(
         theme: ThemeData(
+          scaffoldBackgroundColor: Colors.white,
+          navigationBarTheme: const NavigationBarThemeData(
+            backgroundColor: Colors.white,
+          ),
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           fontFamily: GoogleFonts.poppins().fontFamily,
         ),

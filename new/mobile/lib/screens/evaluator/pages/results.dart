@@ -1,7 +1,9 @@
+import 'package:evaluateai/providers/evaluator.dart';
 import 'package:evaluateai/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 class ResultsPage extends StatefulWidget {
   const ResultsPage({super.key});
@@ -13,6 +15,9 @@ class ResultsPage extends StatefulWidget {
 class _ResultsPageState extends State<ResultsPage> {
   @override
   Widget build(BuildContext context) {
+    var evaluatorProvider =
+        Provider.of<EvaluatorProvider>(context, listen: true);
+
     return Container(
       width: Get.width,
       height: Get.height,
@@ -21,13 +26,17 @@ class _ResultsPageState extends State<ResultsPage> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: 10,
+              itemCount:
+                  evaluatorProvider.evaluationData["evaluation"].keys.length,
               itemBuilder: (BuildContext context, int index) {
+                var data = evaluatorProvider.evaluationData["evaluation"][
+                    evaluatorProvider.evaluationData["evaluation"].keys
+                        .toList()[index]];
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "${index + 1}. Aqeel",
+                      "${index + 1}. ${data["studentName"]}",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -54,7 +63,7 @@ class _ResultsPageState extends State<ResultsPage> {
                                 width: 10,
                               ),
                               Text(
-                                "28 / 30",
+                                "${data["totalMarksObtained"]} / ${data["totalMaximumMarks"]}",
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -73,7 +82,9 @@ class _ResultsPageState extends State<ResultsPage> {
             ),
           ),
           const SizedBox(height: 10),
-          Text("To download the results, view the results on the web app."),
+          Text(
+            "For detailed information, error logs, and to download results, please view Results on the web app.",
+          ),
         ],
       ),
     );

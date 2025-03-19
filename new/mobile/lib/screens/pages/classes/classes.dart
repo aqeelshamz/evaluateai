@@ -1,7 +1,9 @@
+import 'package:evaluateai/providers/classes.dart';
 import 'package:evaluateai/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 class ClassesPage extends StatefulWidget {
   const ClassesPage({super.key});
@@ -12,7 +14,15 @@ class ClassesPage extends StatefulWidget {
 
 class _ClassesPageState extends State<ClassesPage> {
   @override
+  void initState() {
+    Provider.of<ClassesProvider>(Get.context!, listen: false).getClasses();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var classesProvider = Provider.of<ClassesProvider>(context, listen: true);
+
     return Container(
       width: Get.width,
       height: Get.height,
@@ -36,7 +46,7 @@ class _ClassesPageState extends State<ClassesPage> {
           const SizedBox(height: 20),
           Expanded(
             child: ListView.builder(
-              itemCount: 10,
+              itemCount: classesProvider.classes.length,
               itemBuilder: (context, index) {
                 return Container(
                   margin: EdgeInsets.symmetric(vertical: 5),
@@ -58,24 +68,13 @@ class _ClassesPageState extends State<ClassesPage> {
                             width: 10,
                           ),
                           Text(
-                            "Class $index",
+                            "${classesProvider.classes[index]["name"]} ${classesProvider.classes[index]["section"]}",
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nec purus nec nunc tincidunt ultricies. Donec auctor, nunc nec",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black.withAlpha(150),
-                        ),
                       ),
                       SizedBox(
                         height: 30,
@@ -100,7 +99,7 @@ class _ClassesPageState extends State<ClassesPage> {
                                   width: 10,
                                 ),
                                 Text(
-                                  "Blockchain",
+                                  classesProvider.classes[index]["subject"],
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -131,7 +130,7 @@ class _ClassesPageState extends State<ClassesPage> {
                                   width: 10,
                                 ),
                                 Text(
-                                  "2 Students",
+                                  "${classesProvider.classes[index]["students"].length} Students",
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,

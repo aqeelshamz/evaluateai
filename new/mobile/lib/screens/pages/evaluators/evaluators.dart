@@ -1,9 +1,10 @@
+import 'package:evaluateai/providers/evaluator.dart';
 import 'package:evaluateai/screens/evaluator/evaluator.dart';
-import 'package:evaluateai/screens/pages/evaluators/new_edit_evaluator.dart';
 import 'package:evaluateai/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 class EvaluatorsPage extends StatefulWidget {
   const EvaluatorsPage({super.key});
@@ -14,7 +15,16 @@ class EvaluatorsPage extends StatefulWidget {
 
 class _EvaluatorsPageState extends State<EvaluatorsPage> {
   @override
+  void initState() {
+    Provider.of<EvaluatorProvider>(Get.context!, listen: false).getEvaluators();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var evaluatorProvider =
+        Provider.of<EvaluatorProvider>(context, listen: true);
+
     return Container(
       width: Get.width,
       height: Get.height,
@@ -38,12 +48,16 @@ class _EvaluatorsPageState extends State<EvaluatorsPage> {
           const SizedBox(height: 20),
           Expanded(
             child: ListView.builder(
-              itemCount: 10,
+              itemCount: evaluatorProvider.evaluators.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: InkWell(
-                    onTap: () => {Get.to(() => EvaluatorScreen())},
+                    onTap: () {
+                      evaluatorProvider.selectEvaluator(
+                          evaluatorProvider.evaluators[index]["_id"]);
+                      Get.to(() => EvaluatorScreen());
+                    },
                     borderRadius: BorderRadius.circular(15),
                     child: Container(
                       padding: EdgeInsets.all(20),
@@ -64,7 +78,7 @@ class _EvaluatorsPageState extends State<EvaluatorsPage> {
                                 width: 10,
                               ),
                               Text(
-                                "Evaluator $index",
+                                evaluatorProvider.evaluators[index]["title"],
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -76,7 +90,7 @@ class _EvaluatorsPageState extends State<EvaluatorsPage> {
                             height: 10,
                           ),
                           Text(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nec purus nec nunc tincidunt ultricies. Donec auctor, nunc nec",
+                            evaluatorProvider.evaluators[index]["description"],
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
@@ -106,7 +120,7 @@ class _EvaluatorsPageState extends State<EvaluatorsPage> {
                                       width: 10,
                                     ),
                                     Text(
-                                      "CSE S8",
+                                      "${evaluatorProvider.evaluators[index]["classId"]["name"]} ${evaluatorProvider.evaluators[index]["classId"]["section"]}",
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -137,7 +151,8 @@ class _EvaluatorsPageState extends State<EvaluatorsPage> {
                                       width: 10,
                                     ),
                                     Text(
-                                      "Blockchain",
+                                      evaluatorProvider.evaluators[index]
+                                          ["classId"]["subject"],
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,

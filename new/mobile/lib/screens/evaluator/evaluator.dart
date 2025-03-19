@@ -1,3 +1,4 @@
+import 'package:evaluateai/providers/evaluator.dart';
 import 'package:evaluateai/screens/evaluator/pages/answersheets.dart';
 import 'package:evaluateai/screens/evaluator/pages/details.dart';
 import 'package:evaluateai/screens/evaluator/pages/evaluate.dart';
@@ -6,6 +7,7 @@ import 'package:evaluateai/screens/evaluator/pages/results.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 class EvaluatorScreen extends StatefulWidget {
   const EvaluatorScreen({super.key});
@@ -20,6 +22,9 @@ class _EvaluatorScreenState extends State<EvaluatorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var evaluatorProvider =
+        Provider.of<EvaluatorProvider>(context, listen: true);
+
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -50,10 +55,6 @@ class _EvaluatorScreenState extends State<EvaluatorScreen> {
             icon: Icon(Icons.emoji_events_outlined),
             label: 'Results',
           ),
-          // NavigationDestination(
-          //   icon: Icon(FeatherIcons.xCircle),
-          //   label: 'Errors',
-          // ),
         ],
       ),
       body: SafeArea(

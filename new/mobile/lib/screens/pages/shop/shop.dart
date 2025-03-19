@@ -1,8 +1,10 @@
+import 'package:evaluateai/providers/shop.dart';
 import 'package:evaluateai/utils/colors.dart';
 import 'package:evaluateai/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 class ShopPage extends StatefulWidget {
   const ShopPage({super.key});
@@ -13,7 +15,15 @@ class ShopPage extends StatefulWidget {
 
 class _ShopPageState extends State<ShopPage> {
   @override
+  void initState() {
+    Provider.of<ShopProvider>(Get.context!, listen: false).getShopItems();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var shopProvider = Provider.of<ShopProvider>(context, listen: true);
+
     return Container(
       width: Get.width,
       height: Get.height,
@@ -37,7 +47,7 @@ class _ShopPageState extends State<ShopPage> {
           const SizedBox(height: 20),
           Expanded(
             child: ListView.builder(
-              itemCount: 2,
+              itemCount: shopProvider.shopItems.length,
               itemBuilder: (context, index) {
                 return Container(
                   margin: EdgeInsets.symmetric(vertical: 5),
@@ -53,7 +63,7 @@ class _ShopPageState extends State<ShopPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "⚡️ Evaluation Powerup",
+                        shopProvider.shopItems[index]["title"],
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -63,7 +73,7 @@ class _ShopPageState extends State<ShopPage> {
                         height: 10,
                       ),
                       Text(
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nec purus nec nunc tincidunt ultricies. Donec auctor, nunc nec",
+                        shopProvider.shopItems[index]["description"],
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
@@ -93,7 +103,7 @@ class _ShopPageState extends State<ShopPage> {
                                   width: 10,
                                 ),
                                 Text(
-                                  "Evaluator Limit: 5",
+                                  "Evaluator Limit: ${shopProvider.shopItems[index]["evaluatorLimit"]}",
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -124,7 +134,7 @@ class _ShopPageState extends State<ShopPage> {
                                   width: 10,
                                 ),
                                 Text(
-                                  "Evaluation Limit: 25",
+                                  "Evaluation Limit: ${shopProvider.shopItems[index]["evaluationLimit"]}",
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -155,7 +165,7 @@ class _ShopPageState extends State<ShopPage> {
                                   width: 10,
                                 ),
                                 Text(
-                                  "Classes Limit: 5",
+                                  "Classes Limit: ${shopProvider.shopItems[index]["classesLimit"]}",
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -171,7 +181,7 @@ class _ShopPageState extends State<ShopPage> {
                         height: 30,
                       ),
                       Text(
-                        "$currencySymbol 49",
+                        "$currencySymbol ${shopProvider.shopItems[index]["price"]}",
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
