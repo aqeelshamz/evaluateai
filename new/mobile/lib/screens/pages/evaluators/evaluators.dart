@@ -1,3 +1,4 @@
+import 'package:evaluateai/screens/evaluator/evaluator.dart';
 import 'package:evaluateai/screens/pages/evaluators/new_edit_evaluator.dart';
 import 'package:evaluateai/utils/colors.dart';
 import 'package:flutter/material.dart';
@@ -42,8 +43,7 @@ class _EvaluatorsPageState extends State<EvaluatorsPage> {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: InkWell(
-                    onTap: () => {
-                    },
+                    onTap: () => {Get.to(() => EvaluatorScreen())},
                     borderRadius: BorderRadius.circular(15),
                     child: Container(
                       padding: EdgeInsets.all(20),

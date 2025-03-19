@@ -1,7 +1,9 @@
 import 'package:evaluateai/screens/pages/classes/classes.dart';
+import 'package:evaluateai/screens/pages/classes/new_edit_class.dart';
 import 'package:evaluateai/screens/pages/evaluators/evaluators.dart';
 import 'package:evaluateai/screens/pages/evaluators/new_edit_evaluator.dart';
 import 'package:evaluateai/screens/pages/profile/profile.dart';
+import 'package:evaluateai/screens/pages/shop/purchases.dart';
 import 'package:evaluateai/screens/pages/shop/shop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -27,6 +29,12 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 if (currentPageIndex == 0) {
                   Get.to(() => NewEditEvaluatorPage());
+                }
+                else if (currentPageIndex == 1) {
+                  Get.to(() => NewEditClassPage());
+                }
+                else if (currentPageIndex == 2) {
+                  Get.to(() => PurchasesPage());
                 }
               },
               child: Icon(currentPageIndex == 2

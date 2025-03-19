@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:get/get.dart';
 
-class NewEditEvaluatorPage extends StatefulWidget {
-  const NewEditEvaluatorPage({super.key});
+class NewEditClassPage extends StatefulWidget {
+  const NewEditClassPage({super.key});
 
   @override
-  State<NewEditEvaluatorPage> createState() => _NewEditEvaluatorPageState();
+  State<NewEditClassPage> createState() => _NewEditClassPageState();
 }
 
-class _NewEditEvaluatorPageState extends State<NewEditEvaluatorPage> {
+class _NewEditClassPageState extends State<NewEditClassPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,16 +24,18 @@ class _NewEditEvaluatorPageState extends State<NewEditEvaluatorPage> {
             children: [
               Row(
                 children: [
-                  GetPlatform.isIOS ? IconButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    icon: Icon(FeatherIcons.arrowLeft),
-                  ) : const SizedBox.shrink(),
-                  Icon(FeatherIcons.play),
+                  GetPlatform.isIOS
+                      ? IconButton(
+                          onPressed: () {
+                            Get.back();
+                          },
+                          icon: Icon(FeatherIcons.arrowLeft),
+                        )
+                      : const SizedBox.shrink(),
+                  Icon(FeatherIcons.users),
                   const SizedBox(width: 10),
                   Text(
-                    "New Evaluator",
+                    "New Class",
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -45,47 +47,36 @@ class _NewEditEvaluatorPageState extends State<NewEditEvaluatorPage> {
               Expanded(
                   child: ListView(
                 children: [
-                  Text("Title"),
+                  Text("Name"),
                   const SizedBox(height: 10),
                   TextField(
                     decoration: InputDecoration(
-                        hintText: "Title",
+                        hintText: "Name",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
                         )),
                   ),
                   const SizedBox(height: 20),
-                  Text("Description (optional)"),
+                  Text("Section"),
                   const SizedBox(height: 10),
                   TextField(
                     decoration: InputDecoration(
-                        hintText: "Description (optional)",
+                        hintText: "Section",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
                         )),
-                    maxLines: 4,
                   ),
                   const SizedBox(height: 20),
-                  Text("Class"),
+                  Text("Subject"),
                   const SizedBox(height: 10),
-                  DropdownButtonFormField(
+                  TextField(
                     decoration: InputDecoration(
-                        hintText: "Class",
+                        hintText: "Subject",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
                         )),
-                    items: [
-                      DropdownMenuItem(
-                        child: Text("Class 1"),
-                        value: 1,
-                      ),
-                      DropdownMenuItem(
-                        child: Text("Class 2"),
-                        value: 2,
-                      ),
-                    ],
-                    onChanged: (value) {},
                   ),
+                  const SizedBox(height: 20),
                 ],
               )),
               const SizedBox(height: 10),
@@ -99,7 +90,7 @@ class _NewEditEvaluatorPageState extends State<NewEditEvaluatorPage> {
                         backgroundColor: primaryColor,
                         foregroundColor: Colors.white,
                       ),
-                      child: Text("Create Evaluator"),
+                      child: Text("Create Class"),
                     ),
                   ),
                 ],
