@@ -192,16 +192,10 @@ export default function Page() {
                 <p className="font-normal">{shopItem?.description}</p>
                 <div className="badge badge-outline badge-primary badge-lg">{currencySymbol} {shopItem?.price}</div>
               </div>
-              <div className="flex flex-wrap items-center gap-1">
-                <div className="tooltip tooltip-bottom" data-tip="Evaluator Limit">
-                  <div className="badge badge-soft badge-primary"><RiRobot2Line /> {shopItem?.evaluatorLimit}</div>
-                </div>
-                <div className="tooltip tooltip-bottom" data-tip="Evaluation Limit">
-                  <div className="badge badge-soft badge-primary"><FiFileText /> {shopItem?.evaluationLimit}</div>
-                </div>
-                <div className="tooltip tooltip-bottom" data-tip="Classes Limit">
-                  <div className="badge badge-soft badge-primary"><FiUsers /> {shopItem?.classesLimit}</div>
-                </div>
+              <div className="flex flex-col items-center gap-1">
+                <div className="w-full badge badge-soft badge-primary badge-lg"><RiRobot2Line />Evaluator Limit: {shopItem?.evaluatorLimit}</div>
+                <div className="w-full badge badge-soft badge-primary badge-lg"><FiFileText />Evaluation Limit: {shopItem?.evaluationLimit}</div>
+                <div className="w-full badge badge-soft badge-primary badge-lg"><FiUsers />Classes Limit: {shopItem?.classesLimit}</div>
               </div>
             </motion.div>
           ))
