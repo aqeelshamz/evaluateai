@@ -16,7 +16,7 @@ class EvaluatorProvider extends ChangeNotifier {
   List evaluators = [];
   Map evaluatorData = {};
   String selectedEvaluatorId = "";
-  Map evaluationData = {};
+  Map evaluationData = {"hasErrors": false};
 
   bool evaluating = false;
   Future<void> evaluate() async {
@@ -55,8 +55,7 @@ class EvaluatorProvider extends ChangeNotifier {
             Fluttertoast.showToast(
                 msg: "Evaluation completed. Check 🏆 Results");
           } else {
-            Fluttertoast.showToast(
-                msg: "Some error occured. Check Errors");
+            Fluttertoast.showToast(msg: "Some error occured. Check Errors");
           }
         }
         evaluating = false;

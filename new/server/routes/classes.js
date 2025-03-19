@@ -3,6 +3,7 @@ import { validate } from "../middlewares/validate.js";
 import Limits from "../models/Limits.js";
 import Class from "../models/Class.js";
 import joi from "joi";
+import Evaluator from "../models/Evaluator.js";
 
 const router = express.Router();
 
@@ -92,6 +93,7 @@ router.post("/delete", validate, async (req, res) => {
     try {
         const data = await schema.validateAsync(req.body);
         await Class.findOneAndDelete({ _id: data.classId, userId: req.user._id });
+        await Evaluator.deleteMany({ classId: data.classId });
         return res.send("Deleted");
     }
     catch (err) {

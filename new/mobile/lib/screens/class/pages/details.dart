@@ -41,6 +41,20 @@ class _ClassDetailsPageState extends State<ClassDetailsPage> {
       padding: const EdgeInsets.all(20),
       child: ListView(
         children: [
+          Row(
+            children: [
+              Icon(FeatherIcons.info),
+              const SizedBox(width: 10),
+              Text(
+                "Class Details",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
           Text("Name"),
           const SizedBox(height: 10),
           TextField(
@@ -79,8 +93,11 @@ class _ClassDetailsPageState extends State<ClassDetailsPage> {
           const SizedBox(height: 20),
           TextButton.icon(
             onPressed: () {
-              // Provider.of<ClassesProvider>(context, listen: false)
-              //     .updateClass();
+              Provider.of<ClassesProvider>(context, listen: false).updateClass(
+                nameController.text,
+                sectionController.text,
+                subjectController.text,
+              );
             },
             style: TextButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 15),
@@ -118,8 +135,8 @@ class _ClassDetailsPageState extends State<ClassDetailsPage> {
                         ),
                         TextButton(
                           onPressed: () {
-                            // Provider.of<ClassesProvider>(context, listen: false)
-                            //     .deleteClass();
+                            Provider.of<ClassesProvider>(context, listen: false)
+                                .deleteClass();
                           },
                           child: Text(
                             "Delete",

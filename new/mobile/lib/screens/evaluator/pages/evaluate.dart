@@ -47,6 +47,20 @@ class _EvaluatePageState extends State<EvaluatePage> {
       padding: const EdgeInsets.all(20),
       child: ListView(
         children: [
+          Row(
+            children: [
+              Icon(FeatherIcons.play),
+              const SizedBox(width: 10),
+              Text(
+                "Evaluate",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
           Text("Extra prompt (optional)"),
           const SizedBox(height: 10),
           TextField(

@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:evaluateai/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 
 import '../utils/api.dart';
 
@@ -53,6 +55,92 @@ class ClassesProvider extends ChangeNotifier {
       getClasses();
     } else {
       Fluttertoast.showToast(msg: "Failed to create class");
+    }
+  }
+
+  Future<void> updateClass(String name, String section, String subject) async {
+    loading = true;
+    notifyListeners();
+
+    var response = await Server.post("/classes/save", {
+      "classId": selectedClassId,
+      "name": name,
+      "section": section,
+      "subject": subject,
+    });
+
+    loading = false;
+    notifyListeners();
+
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(msg: "Class saved");
+      getClasses();
+    } else {
+      Fluttertoast.showToast(msg: "Failed to save class");
+    }
+  }
+
+  Future<void> deleteClass() async {
+    loading = true;
+    notifyListeners();
+
+    var response = await Server.post("/classes/delete", {
+      "classId": selectedClassId,
+    });
+
+    loading = false;
+    notifyListeners();
+
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(msg: "Class deleted");
+      getClasses();
+      Get.offAll(() => HomeScreen());
+    } else {
+      Fluttertoast.showToast(msg: "Failed to delete class");
+    }
+  }
+
+  void addStudent(String email, String name, int rollNo) async {
+    loading = true;
+    notifyListeners();
+
+    var response = await Server.post("/classes/add-student", {
+      "classId": selectedClassId,
+      "email": email,
+      "name": name,
+      "rollNo": rollNo,
+    });
+
+    loading = false;
+    notifyListeners();
+
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(msg: "Student added");
+      Get.back();
+    } else {
+      Fluttertoast.showToast(msg: "Failed to add student");
+      Get.back();
+    }
+  }
+
+  void deleteStudent(int rollNo) async {
+    loading = true;
+    notifyListeners();
+
+    var response = await Server.post("/classes/delete-student", {
+      "classId": selectedClassId,
+      "rollNo": rollNo,
+    });
+
+    loading = false;
+    notifyListeners();
+
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(msg: "Student deleted");
+      Get.back();
+    } else {
+      Fluttertoast.showToast(msg: "Failed to delete student");
+      Get.back();
     }
   }
 

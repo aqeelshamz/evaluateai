@@ -53,11 +53,11 @@ class _EvaluatorScreenState extends State<EvaluatorScreen> {
           ),
           NavigationDestination(
             icon: Icon(
-              evaluatorProvider.evaluationData["hasErrors"]
+              evaluatorProvider.evaluationData["hasErrors"] ?? false
                   ? FeatherIcons.xCircle
                   : Icons.emoji_events_outlined,
             ),
-            label: evaluatorProvider.evaluationData["hasErrors"]
+            label: evaluatorProvider.evaluationData["hasErrors"] ?? false
                 ? 'Errors'
                 : 'Results',
           ),

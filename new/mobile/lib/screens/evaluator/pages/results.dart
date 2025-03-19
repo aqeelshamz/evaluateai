@@ -26,6 +26,22 @@ class _ResultsPageState extends State<ResultsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           evaluatorProvider.evaluationData["hasErrors"]
+              ? const SizedBox.shrink()
+              : Row(
+                  children: [
+                    Icon(FeatherIcons.clipboard),
+                    const SizedBox(width: 10),
+                    Text(
+                      "Results",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+          const SizedBox(height: 20),
+          evaluatorProvider.evaluationData["hasErrors"]
               ? Expanded(
                   child: ListView(
                   children: [

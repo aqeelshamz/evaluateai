@@ -45,6 +45,20 @@ class _EvaluatorDetailsPageState extends State<EvaluatorDetailsPage> {
       padding: const EdgeInsets.all(20),
       child: ListView(
         children: [
+          Row(
+            children: [
+              Icon(FeatherIcons.info),
+              const SizedBox(width: 10),
+              Text(
+                "Evaluator Details",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
           Text("Title"),
           const SizedBox(height: 10),
           TextField(
@@ -128,8 +142,9 @@ class _EvaluatorDetailsPageState extends State<EvaluatorDetailsPage> {
                           child: Text("Cancel"),
                         ),
                         TextButton(
-                          onPressed: (){
-                            Provider.of<EvaluatorProvider>(context, listen: false)
+                          onPressed: () {
+                            Provider.of<EvaluatorProvider>(context,
+                                    listen: false)
                                 .deleteEvaluator();
                           },
                           child: Text(

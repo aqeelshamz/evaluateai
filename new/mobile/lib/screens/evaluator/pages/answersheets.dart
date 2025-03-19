@@ -25,80 +25,102 @@ class _AnswerSheetsPageState extends State<AnswerSheetsPage> {
       width: Get.width,
       height: Get.height,
       padding: const EdgeInsets.all(20),
-      child: ListView.builder(
-        itemCount:
-            evaluatorProvider.evaluatorData["classId"]["students"].length,
-        itemBuilder: (BuildContext context, int index) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        children: [
+          Row(
             children: [
+              Icon(FeatherIcons.clipboard),
+              const SizedBox(width: 10),
               Text(
-                "${index + 1}. ${evaluatorProvider.evaluatorData["classId"]["students"][index]["name"]}",
+                "Answers",
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 10),
-              Wrap(
-                children: getAnswerSheets(index),
-              ),
-              evaluatorProvider.uploadingAnswerSheets
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : Row(
-                      children: [
-                        Expanded(
-                          child: TextButton.icon(
-                            onPressed: () async {
-                              final ImagePicker picker = ImagePicker();
-                              XFile? files = await picker.pickImage(
-                                  source: ImageSource.camera);
-
-                              File file = File(files!.path);
-
-                              evaluatorProvider.addAnswerSheets(index,[file]);
-                            },
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 15),
-                              backgroundColor: primaryColor,
-                              foregroundColor: Colors.white,
-                            ),
-                            icon: Icon(FeatherIcons.camera),
-                            label: Text("Camera"),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextButton.icon(
-                            onPressed: () async {
-                              final ImagePicker picker = ImagePicker();
-                              List<XFile>? files =
-                                  await picker.pickMultiImage();
-
-                              List<File> fileList = [];
-                              for (var i = 0; i < files.length; i++) {
-                                fileList.add(File(files[i].path));
-                              }
-
-                              evaluatorProvider.addAnswerSheets(index, fileList);
-                            },
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 15),
-                              backgroundColor: primaryColor,
-                              foregroundColor: Colors.white,
-                            ),
-                            icon: Icon(FeatherIcons.file),
-                            label: Text("Choose File"),
-                          ),
-                        ),
-                      ],
-                    ),
-              const SizedBox(height: 30),
             ],
-          );
-        },
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: ListView.builder(
+              itemCount:
+                  evaluatorProvider.evaluatorData["classId"]["students"].length,
+              itemBuilder: (BuildContext context, int index) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${index + 1}. ${evaluatorProvider.evaluatorData["classId"]["students"][index]["name"]}",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      children: getAnswerSheets(index),
+                    ),
+                    evaluatorProvider.uploadingAnswerSheets
+                        ? Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : Row(
+                            children: [
+                              Expanded(
+                                child: TextButton.icon(
+                                  onPressed: () async {
+                                    final ImagePicker picker = ImagePicker();
+                                    XFile? files = await picker.pickImage(
+                                        source: ImageSource.camera);
+
+                                    File file = File(files!.path);
+
+                                    evaluatorProvider
+                                        .addAnswerSheets(index, [file]);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.symmetric(vertical: 15),
+                                    backgroundColor: primaryColor,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  icon: Icon(FeatherIcons.camera),
+                                  label: Text("Camera"),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: TextButton.icon(
+                                  onPressed: () async {
+                                    final ImagePicker picker = ImagePicker();
+                                    List<XFile>? files =
+                                        await picker.pickMultiImage();
+
+                                    List<File> fileList = [];
+                                    for (var i = 0; i < files.length; i++) {
+                                      fileList.add(File(files[i].path));
+                                    }
+
+                                    evaluatorProvider.addAnswerSheets(
+                                        index, fileList);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.symmetric(vertical: 15),
+                                    backgroundColor: primaryColor,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  icon: Icon(FeatherIcons.file),
+                                  label: Text("Choose File"),
+                                ),
+                              ),
+                            ],
+                          ),
+                    const SizedBox(height: 30),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
