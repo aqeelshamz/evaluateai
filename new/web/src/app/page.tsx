@@ -1,8 +1,9 @@
 "use client";
-import { appName } from "@/utils/config";
+import { apkURL, appName } from "@/utils/config";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { BsAndroid } from "react-icons/bs";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -179,7 +180,9 @@ export default function Home() {
       </section>
       <section className="flex flex-col items-center h-screen bg-gray-50 p-10">
         <div className="flex flex-col md:flex-row w-full max-w-7xl mt-20 h-full">
-          <div className="w-full max-w-3xl h-full bg-primary opacity-20 rounded-4xl"></div>
+          <div className="w-full max-w-3xl h-full rounded-4xl border-4 border-gray-100">
+            <img src="/landing/landing_3.png" alt="AI" className="w-full h-full rounded-4xl object-cover" />
+          </div>
           <div className="ml-0 md:ml-10 flex flex-col w-full items-start mt-10 md:mt-0">
             <p className="text-4xl font-semibold mt-20">📄 Marksheet Generation</p>
             <p className="max-w-4xl text-xl my-10 opacity-80">
@@ -194,10 +197,18 @@ export default function Home() {
           <div className="flex flex-col w-full items-start">
             <p className="text-4xl font-semibold mt-20">📱 Mobile App</p>
             <p className="max-w-4xl text-xl my-10 opacity-80">
-              Access {appName} on the go with our mobile app. Evaluate student performance, manage classes, and generate mark sheets with ease, all from your smartphone. Stay connected and keep your evaluation process streamlined with {appName}&apos;s mobile app.
+              Access {appName} on the go with our mobile app. Capture & Evaluate answer sheets, manage classes, and see results with ease, all from your smartphone. Stay connected and keep your evaluation process streamlined with {appName}&apos;s mobile app.<br />
+              <br />Available for both Android & iOS.
             </p>
+            <div className="mt-4">
+              <button className="btn btn-primary btn-xl" onClick={() => {
+                window.open(apkURL, "_blank");
+              }}><BsAndroid className="mr-2" /> Download APK</button>
+            </div>
           </div>
-          <div className="w-full max-w-3xl h-full bg-primary opacity-20 rounded-4xl"></div>
+          <div className="w-full max-w-3xl h-full rounded-4xl border-4 border-gray-100">
+            <img src="/landing/landing_4.png" alt="AI" className="w-full h-full rounded-4xl object-cover" />
+          </div>
         </div>
       </section>
       <section className="flex flex-col items-center h-screen bg-primary p-10 justify-center">

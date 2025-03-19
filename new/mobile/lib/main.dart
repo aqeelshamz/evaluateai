@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ShopProvider()),
       ],
       child: GetMaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           scaffoldBackgroundColor: Colors.white,
           navigationBarTheme: const NavigationBarThemeData(
