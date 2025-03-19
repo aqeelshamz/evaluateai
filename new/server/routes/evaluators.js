@@ -438,12 +438,11 @@ router.post("/save-evaluation", validate, async (req, res) => {
                 }
 
                 totalMarksObtained += answer.marksAwarded;
-
-                if (totalMarksObtained > sheet.totalMaximumMarks) {
-                    totalMarksObtained = sheet.totalMaximumMarks;
-                }
             }
 
+            if (totalMarksObtained > sheet.totalMaximumMarks) {
+                totalMarksObtained = sheet.totalMaximumMarks;
+            }
             data.evaluation[rollNo].totalMarksObtained = totalMarksObtained;
         }
 
