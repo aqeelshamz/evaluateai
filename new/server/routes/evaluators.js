@@ -411,6 +411,28 @@ router.post("/poll-evaluation", validate, async (req, res) => {
     }
 });
 
+router.post("/save-evaluation", validate, async (req, res) => {
+    const schema = joi.object({
+        evaluatorId: joi.string().required(),
+        evaluation: joi.object().required(),
+    });
+
+    try {
+        const data = await schema.validateAsync(req.body);
+
+        await Evaluation.updateOne({ evaluatorId: data.evaluatorId, userId: req.user._id }, {
+            $set: {
+                evaluation: data.evaluation,
+            },
+        });
+
+        return res.send("Saved");
+    }
+    catch (err) {
+        return res.status(500).send(err);
+    }
+});
+
 router.post("/reset", validate, async (req, res) => {
     const schema = joi.object({
         evaluatorId: joi.string().required(),

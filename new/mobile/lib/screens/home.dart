@@ -1,9 +1,11 @@
 import 'package:evaluateai/screens/pages/classes/classes.dart';
 import 'package:evaluateai/screens/pages/evaluators/evaluators.dart';
+import 'package:evaluateai/screens/pages/evaluators/new_edit_evaluator.dart';
 import 'package:evaluateai/screens/pages/profile/profile.dart';
 import 'package:evaluateai/screens/pages/shop/shop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:get/get.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +24,11 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: currentPageIndex == 3
           ? null
           : FloatingActionButton(
-              onPressed: () {},
+              onPressed: () {
+                if (currentPageIndex == 0) {
+                  Get.to(() => NewEditEvaluatorPage());
+                }
+              },
               child: Icon(currentPageIndex == 2
                   ? FeatherIcons.shoppingCart
                   : FeatherIcons.plus),

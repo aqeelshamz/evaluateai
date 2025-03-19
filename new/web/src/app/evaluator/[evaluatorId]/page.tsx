@@ -218,6 +218,30 @@ export default function Page() {
       });
   }
 
+  const saveEvaluation = async () => {
+    const config = {
+      method: "POST",
+      url: `${serverURL}/evaluators/save-evaluation`,
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+      data: {
+        evaluatorId,
+        evaluation: evaluation?.evaluation
+      }
+    };
+
+    axios(config)
+      .then((response) => {
+        toast.success("Evaluation saved");
+      })
+      .catch((error) => {
+        setEvaluating(false);
+        toast.error("Failed to save evaluation");
+      });
+  }
+
   const [limits, setLimits] = useState<any>({});
 
   const getLimits = async () => {
@@ -586,7 +610,12 @@ export default function Page() {
                             {
                               data?.answers?.map((answer: any, index: number) => {
                                 return <div key={index} className="flex flex-col bg-gray-50 p-5 mb-2">
-                                  <div className="mb-2 badge badge-soft badge-secondary"><FiStar /> Marks awarded: {answer?.marksAwarded} / {answer?.maximumMarks}</div>
+                                  <div className="mb-2 badge badge-soft badge-secondary"><FiStar /> Marks awarded: <input type="number" min={0} max={answer?.maximumMarks} className="input input-xs text-sm w-15" value={answer?.marksAwarded} onChange={(x) => {
+                                    answer.marksAwarded = x.target.value;
+                                    setEvaluation({ ...evaluation });
+                                  }} onBlur={() => {
+                                    saveEvaluation();
+                                  }} /> / {answer?.maximumMarks}</div>
                                   <p className="text-sm flex items-center">{answer?.questionNumber}. {answer?.question}</p>
                                   <p className="mt-2 text-sm flex items-center opacity-75">{answer?.answer}</p>
                                   <p className="text-sm flex items-center my-2"><FiFileText className="mr-2" /> Feedback</p>
