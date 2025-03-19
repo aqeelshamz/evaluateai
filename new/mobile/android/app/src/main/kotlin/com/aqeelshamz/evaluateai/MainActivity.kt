@@ -1,4 +1,4 @@
-package com.example.evaluateai
+package com.aqeelshamz.evaluateai
 
 import io.flutter.embedding.android.FlutterActivity
 
