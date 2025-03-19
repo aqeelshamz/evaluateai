@@ -727,20 +727,14 @@ export default function Page() {
                 <textarea className="textarea w-full h-24" placeholder="Prompt" value={evaluator?.extraPrompt} onChange={(x) => {
                   evaluator.extraPrompt = x.target.value;
                   setEvaluator({ ...evaluator });
-                  setTimeout(() => {
-                    saveEvaluator({ showToast: false });
-                  }, 1000);
-                }}></textarea>
+                }} onBlur={() => saveEvaluator({ showToast: false })}></textarea>
               </fieldset>
               <fieldset className="fieldset">
                 <legend className="fieldset-legend">Total Marks</legend>
                 <input type="text" className="input w-full" placeholder="Total Marks" value={evaluator?.totalMarks} onChange={(x) => {
                   evaluator.totalMarks = x.target.value;
                   setEvaluator({ ...evaluator });
-                  setTimeout(() => {
-                    saveEvaluator({ showToast: false });
-                  }, 1000);
-                }} />
+                }} onBlur={() => saveEvaluator({ showToast: false })} />
               </fieldset>
               <div className="mt-4 justify-between flex w-full">
                 <form method="dialog">
