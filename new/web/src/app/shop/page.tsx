@@ -190,7 +190,7 @@ export default function Page() {
               <div className="flex flex-col space-y-2">
                 <h2 className="font-bold">{shopItem?.title}</h2>
                 <p className="font-normal">{shopItem?.description}</p>
-                <div className="badge badge-outline badge-primary badge-lg">{currencySymbol} {shopItem?.price}</div>
+                <div className="badge badge-outline badge-primary badge-xl">{currencySymbol} {shopItem?.price}</div>
               </div>
               <div className="flex flex-col items-center gap-1">
                 <div className="w-full badge badge-soft badge-primary badge-lg"><RiRobot2Line />Evaluator Limit: {shopItem?.evaluatorLimit}</div>
